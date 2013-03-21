@@ -37,6 +37,7 @@ import com.cloudera.science.ml.client.util.AvroIO;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.vectors.VectorConvert;
 import com.cloudera.science.ml.kmeans.parallel.KMeansParallel;
+import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.collect.Lists;
 
@@ -84,9 +85,9 @@ public class KMeansAssignmentCommand implements Command {
 
     PType<Record> recordType = MLRecords.csvRecord(WritableTypeFamily.getInstance(),
         outputDelim);
-    PCollection<Record> assigned = kmp.computeClusterAssignments(input,
+    Records assigned = kmp.computeClusterAssignments(input,
         Lists.transform(centers, VectorConvert.TO_CENTERS), recordType);
-    p.write(assigned, To.textFile(assignmentsPath));
+    p.write(assigned.get(), To.textFile(assignmentsPath));
     p.done();
     return 0;
   }

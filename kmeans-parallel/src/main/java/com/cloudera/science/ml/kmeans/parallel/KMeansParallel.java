@@ -48,6 +48,7 @@ import com.cloudera.science.ml.kmeans.parallel.CentersIndex.Distances;
 import com.cloudera.science.ml.parallel.crossfold.Crossfold;
 import com.cloudera.science.ml.parallel.pobject.ListOfListsPObject;
 import com.cloudera.science.ml.parallel.pobject.ListPObject;
+import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.sample.ReservoirSampling;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -122,11 +123,11 @@ public class KMeansParallel {
    * @param centers The centers
    * @return A {@code PCollection<Record> containing the cluster assignment info for each point
    */
-  public <V extends Vector> PCollection<Record> computeClusterAssignments(
+  public <V extends Vector> Records computeClusterAssignments(
       PCollection<V> vecs, List<Centers> centers, PType<Record> recordType) {
     CentersIndex index = new CentersIndex(centers);
-    return vecs.parallelDo("assignments", new AssignedCenterFn<V>(index),
-        recordType);
+    return new Records(vecs.parallelDo("assignments", new AssignedCenterFn<V>(index),
+        recordType), ASSIGNMENT_SPEC);
   }
   
   /**

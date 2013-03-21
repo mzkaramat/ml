@@ -20,7 +20,6 @@ import java.util.Map;
 import org.apache.crunch.DoFn;
 import org.apache.crunch.Emitter;
 import org.apache.crunch.MapFn;
-import org.apache.crunch.PCollection;
 import org.apache.crunch.Pair;
 import org.apache.crunch.types.PTableType;
 import org.apache.crunch.types.avro.Avros;
@@ -30,6 +29,7 @@ import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.RecordSpec;
 import com.cloudera.science.ml.core.records.SimpleRecord;
 import com.cloudera.science.ml.core.records.Spec;
+import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.summary.Summary;
 import com.cloudera.science.ml.parallel.summary.SummaryStats;
 import com.cloudera.science.ml.parallel.types.MLRecords;
@@ -42,15 +42,7 @@ public class Pivot {
 
   public static enum Agg { SUM, MEAN };
   
-  private Summary summary;
-  private Spec spec;
-  
-  public Pivot(Summary summary) {
-    this.summary = summary;
-    this.spec = summary.getSpec();
-  }
-  
-  private Spec createSpec(List<Integer> groupColumns) {
+  private Spec createSpec(Spec spec, List<Integer> groupColumns) {
     RecordSpec.Builder b = RecordSpec.builder();
     for (Integer c : groupColumns) {
       FieldSpec f = spec.getField(c);
@@ -59,12 +51,13 @@ public class Pivot {
     return b.build();
   }
   
-  public PCollection<Record> pivot(PCollection<Record> records,
+  public Records pivot(Records records,
       List<Integer> groupColumns,
       int attributeColumn,
       int valueColumn,
       Agg agg) {
-    Spec keySpec = createSpec(groupColumns);
+    Summary summary = records.getSummary();
+    Spec keySpec = createSpec(records.getSpec(), groupColumns);
     PTableType<Record, Map<String, Stat>> ptt = Avros.tableOf(
         MLRecords.record(keySpec),
         Avros.maps(Avros.reflects(Stat.class)));
@@ -85,14 +78,14 @@ public class Pivot {
     }
     
     Spec outSpec = b.build();
-    return records.parallelDo("pivotmap",
+    return new Records(records.get().parallelDo("pivotmap",
         new PivotMapperFn(keySpec, groupColumns, attributeColumn, valueColumn),
         ptt)
         .groupByKey()
         .combineValues(new MapAggregator())
         .parallelDo("makerecord",
             new PivotFinishFn(outSpec, levels, agg),
-            MLRecords.record(outSpec));
+            MLRecords.record(outSpec)), outSpec);
   }
   
   private static class PivotMapperFn extends DoFn<Record, Pair<Record, Map<String, Stat>>> {
