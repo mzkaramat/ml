@@ -43,6 +43,11 @@ client/bin/ml normalize --input-paths kddcup.data_10_percent_corrected --format 
 # reason for creating two folds instead of just one is that this allows us to compute a number of statistics related to the
 # stability of the clustering that we can use to help us choose a good value of K from the sketches.
 #
+# A good rule of thumb is to have iterations * points-per-iteration be 1.5-2x greater than the largest number of clusters
+# you would want to examine interactively. So for example, if you thought that you wouldn't possibly want to examine more than
+# 1000 possible clusters, setting iterations * points-per-iteration to be 5 * 500 = 2500 (as we do below) would be more than
+# enough points in your sketch to find a good clustering (if it exists.)
+#
 # The ksketch commands will run N + 1 MapReduce jobs, where N is controlled by the --iterations argument.
 client/bin/ml ksketch --input-paths kdd99 --format avro --points-per-iteration 500 --output-file wc.avro --seed 1729 \
   --iterations 5 --cross-folds 2
@@ -69,6 +74,11 @@ client/bin/ml ksketch --input-paths kdd99 --format avro --points-per-iteration 5
 #
 # Finally, you can use the --best-of parameter to perform multiple iterations of k-means++ with different starting points for
 # each of your values of K in the --clusters argument.
+#
+# In my runs, I found that K = 20 had the best balance of cost and stability, which makes sense, given that there are 23 different
+# kinds of intrusion events in my sample dataset. Values of K > 20 tend to have lower cost but are less stable (points from the
+# same cluster in the test data are in different clusters in the training data), whereas K < 20 has higher costs and only marginally
+# more stability than the K = 20 clustering.
 client/bin/ml kmeans --input-file wc.avro --centers-file centers.avro --seed 19 --clusters 1,10,20,30,40,50 --best-of 2
 
 # Take the output centers created by the kmeans command and apply them to input data in order to analyze how points were
