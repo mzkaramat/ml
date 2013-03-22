@@ -30,6 +30,7 @@ import com.cloudera.science.ml.core.records.RecordSpec;
 import com.cloudera.science.ml.core.records.SimpleRecord;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.parallel.records.Records;
+import com.cloudera.science.ml.parallel.records.SummarizedRecords;
 import com.cloudera.science.ml.parallel.summary.Summary;
 import com.cloudera.science.ml.parallel.summary.SummaryStats;
 import com.cloudera.science.ml.parallel.types.MLRecords;
@@ -51,7 +52,7 @@ public class Pivot {
     return b.build();
   }
   
-  public Records pivot(Records records,
+  public Records pivot(SummarizedRecords records,
       List<Integer> groupColumns,
       int attributeColumn,
       int valueColumn,

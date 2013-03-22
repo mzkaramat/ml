@@ -17,25 +17,21 @@ package com.cloudera.science.ml.parallel.records;
 import org.apache.crunch.PCollection;
 
 import com.cloudera.science.ml.core.records.Record;
-import com.cloudera.science.ml.core.records.Spec;
+import com.cloudera.science.ml.parallel.summary.Summary;
 
 /**
  *
  */
-public class Records {
-  private final Spec spec;
-  private final PCollection<Record> records;
-  
-  public Records(PCollection<Record> records, Spec spec) {
-    this.records = records;
-    this.spec = spec;
-  }
-  
-  public PCollection<Record> get() {
-    return records;
-  }
+public class SummarizedRecords extends Records {
 
-  public Spec getSpec() {
-    return spec;
+  private final Summary summary;
+  
+  public SummarizedRecords(PCollection<Record> records, Summary summary) {
+    super(records, summary.getSpec());
+    this.summary = summary;
+  }
+  
+  public Summary getSummary() {
+    return summary;
   }
 }
