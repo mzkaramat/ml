@@ -15,8 +15,6 @@
 package com.cloudera.science.ml.parallel.normalize;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,22 +32,22 @@ import com.cloudera.science.ml.core.vectors.Vectors;
 import com.cloudera.science.ml.parallel.summary.Summary;
 import com.cloudera.science.ml.parallel.summary.SummaryStats;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
- *
+ * Converts an input {@code Record} into a normalized {@code Vector} in which all categorical columns are
+ * converted to indicator variables.
  */
 public class Normalizer implements Serializable {
 
   private static final Log LOG = LogFactory.getLog(Normalizer.class);
   
   private final Summary summary;
-  private final boolean sparse;
   private final int idColumn;
   private final Set<Integer> ignoredColumns;
   private final Transform defaultTransform;
   private final Map<Integer, Transform> transforms;
   private final int expansion;
+  private final boolean sparse;
   
   public static Builder builder() { 
     return new Builder();
@@ -57,7 +55,7 @@ public class Normalizer implements Serializable {
   
   public static class Builder {
     private Summary s = new Summary();
-    private boolean sparse;
+    private Boolean sparse = null;
     private int idColumn = -1;
     private Transform defaultTransform = Transform.NONE;
     private Map<Integer, Transform> transforms = Maps.newHashMap();
@@ -94,16 +92,20 @@ public class Normalizer implements Serializable {
     }
   }
   
-  private Normalizer(Summary summary, boolean sparse, int idColumn,
+  private Normalizer(Summary summary, Boolean sparse, int idColumn,
       Transform defaultTransform, Map<Integer, Transform> transforms) {
     this.summary = summary;
-    this.sparse = sparse;
     this.idColumn = idColumn;
     this.ignoredColumns = summary.getIgnoredColumns();
     this.defaultTransform = defaultTransform;
     this.transforms = transforms;
     this.expansion = -ignoredColumns.size() + summary.getNetLevels() -
         (idColumn >= 0 && !ignoredColumns.contains(idColumn) ? 1 : 0);
+    if (sparse == null) {
+      this.sparse = expansion > 2 * (summary.getFieldCount() - ignoredColumns.size());
+    } else {
+      this.sparse = sparse;
+    }
   }
   
   public <V extends Vector> PCollection<V> apply(PCollection<Record> records, PType<V> ptype) {
@@ -113,13 +115,22 @@ public class Normalizer implements Serializable {
   private class StandardizeFn<V extends Vector> extends MapFn<Record, V> {
     @Override
     public V map(Record record) {
-      double[] values = new double[record.getSpec().size() + expansion];
+      int len = record.getSpec().size() + expansion;
+      Vector v = null;
+      if (record instanceof VectorRecord) {
+        v = ((VectorRecord) record).getVector().like();
+      } else if (sparse) {
+        v = Vectors.sparse(len);
+      } else {
+        v = Vectors.dense(len);
+      }
+
       int offset = 0;
       for (int i = 0; i < record.getSpec().size(); i++) {
         if (idColumn != i && !ignoredColumns.contains(i)) {
           SummaryStats ss = summary.getStats(i);
           if (ss == null || ss.isEmpty()) {
-            values[offset] = record.getAsDouble(i);
+            v.setQuick(offset, record.getAsDouble(i));
             offset++;
           } else if (ss.isNumeric()) {
             Transform t = defaultTransform;
@@ -127,7 +138,7 @@ public class Normalizer implements Serializable {
               t = transforms.get(i);
             }
             double n = record.getAsDouble(i);
-            values[offset] = t.apply(n, summary.getRecordCount(), ss);
+            v.setQuick(offset, t.apply(n, summary.getRecordCount(), ss));
             offset++;
           } else {
             int index = ss.index(record.getAsString(i));
@@ -135,27 +146,16 @@ public class Normalizer implements Serializable {
               LOG.warn(String.format("Unknown value encountered for field %d: '%s'",
                   i, record.getAsString(i)));
             } else {
-              values[offset + index] = 1.0;
+              v.setQuick(offset + index, 1.0);
             }
             offset += ss.numLevels();
           }
         }
       }
       
-      Vector v = null;
-      if (record instanceof VectorRecord) {
-        v = ((VectorRecord) record).getVector().like();
-      } else if (sparse) {
-        v = Vectors.sparse(values.length);
-      } else {
-        v = Vectors.dense(values.length);
-      }
-      v.assign(values);
-      
       if (idColumn >= 0) {
         v = new NamedVector(v, record.getAsString(idColumn));
       }
-      
       return (V) v;
     }
   }
