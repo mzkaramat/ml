@@ -92,4 +92,4 @@ client/bin/ml kmeans --input-file wc.avro --centers-file centers.avro --seed 19 
 # This output data can then be analyzed using Impala or any other analytical framework you like in order to study how the
 # points clustered and quickly identify the anomalous events in your data (i.e., small, unstable clusters and points that
 # ended up far from their assigned center.)
-client/bin/ml kassign --input-path kdd99 --format avro --centers-file centers.avro --center-ids 4 --output-path assigned
+client/bin/ml kassign --input-paths kdd99 --format avro --centers-file centers.avro --center-ids 4 --output-path assigned
