@@ -99,7 +99,7 @@ public class ReservoirSampling {
         ptf.pairs(ptf.doubles(), ttype));
     
     return input.parallelDo(new SampleFn<T, N>(sampleSizes, random), ptt)
-        .groupByKey(1)
+        .groupByKey(sampleSizes.length)
         .combineValues(new WRSCombineFn<T>(sampleSizes))
         .parallelDo(new MapFn<Pair<Integer, Pair<Double, T>>, Pair<Integer, T>>() {
           @Override
