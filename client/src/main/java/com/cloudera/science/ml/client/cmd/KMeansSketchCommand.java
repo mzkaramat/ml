@@ -59,6 +59,14 @@ public class KMeansSketchCommand implements Command {
       description = "A local file to write the sketch output to (as Avro MLWeightedCenters records)")
   private String outputFile;
   
+  @Parameter(names = "--index-bits",
+      description = "The number of bits to use in the centers index data structure")
+  private int indexBits = 128;
+  
+  @Parameter(names = "--index-samples",
+      description = "The number of matching points from the centers index to compare to each vector")
+  private int indexSamples = 32;
+  
   @ParametersDelegate
   private PipelineParameters pipelineParams = new PipelineParameters();
   
@@ -81,7 +89,8 @@ public class KMeansSketchCommand implements Command {
       initial = Lists.newArrayList();
       initial.add(input.materialize().iterator().next());
     }
-    KMeansParallel kmp = new KMeansParallel(randomParams.getRandom());
+    KMeansParallel kmp = new KMeansParallel(randomParams.getRandom(), indexBits,
+        indexSamples);
     Crossfold cf = new Crossfold(crossFolds);
     
     List<List<Weighted<Vector>>> wv = kmp.initialization(input,

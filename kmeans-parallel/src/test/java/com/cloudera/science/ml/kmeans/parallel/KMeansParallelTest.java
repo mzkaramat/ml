@@ -30,7 +30,9 @@ import com.cloudera.science.ml.core.vectors.Vectors;
 import com.cloudera.science.ml.core.vectors.Weighted;
 import com.cloudera.science.ml.kmeans.core.KMeans;
 import com.cloudera.science.ml.parallel.crossfold.Crossfold;
+import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.types.MLAvros;
+import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -60,7 +62,7 @@ public class KMeansParallelTest {
   
   @Before
   public void setUp() throws Exception {
-    kmp = new KMeansParallel(r);
+    kmp = new KMeansParallel(r, 128, 32);
   }
   
   @Test

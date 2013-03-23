@@ -18,12 +18,13 @@ import com.cloudera.science.ml.core.vectors.Centers;
 import com.cloudera.science.ml.core.vectors.Vectors;
 import com.cloudera.science.ml.core.vectors.Weighted;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Random;
+import java.util.SortedSet;
 
 import org.apache.mahout.math.Vector;
 
@@ -33,7 +34,16 @@ import org.apache.mahout.math.Vector;
  */
 class CentersIndex implements Serializable {
   private final int[] pointsPerCenter;
-  private final Map<double[], Data> index;
+  private final List<List<BitSet>> indices;
+  private final List<List<double[]>> points;
+  private final List<List<Double>> lengthSquared;
+  private final int dimensions;
+  private final int projectionBits;
+  private final int projectionSamples;
+  private final long seed;
+  
+  private double[] projection;
+  private boolean updated;
   
   public static class Distances {
     public double[] clusterDistances;
@@ -45,37 +55,35 @@ class CentersIndex implements Serializable {
     }
   }
   
-  private static class Data implements Serializable {
-    double lengthSquared;
-    Map<Integer, Integer> clusterCenters;
-    
-    public Data(double[] key) {
-      this.lengthSquared = 0;
-      for (double d : key) {
-        lengthSquared += d * d;
-      }
-      this.clusterCenters = Maps.newLinkedHashMap();
-    }
-    
-    public boolean hasClusterId(int clusterId) {
-      return clusterCenters.containsKey(clusterId);
-    }
-    
-    public void add(int clusterId, int centerId) {
-      this.clusterCenters.put(clusterId, centerId);
-    }
+  public CentersIndex(int numClusterings, int dimensions) {
+    this(numClusterings, dimensions, 128, 10, 1729L);
   }
   
-  public CentersIndex(int numCenters) {
-    this.pointsPerCenter = new int[numCenters];
-    this.index = Maps.newHashMap();
+  public CentersIndex(int numClusterings, int dimensions, int projectionBits, int projectionSamples,
+      long seed) {
+    this.pointsPerCenter = new int[numClusterings];
+    this.indices = Lists.newArrayList();
+    this.points = Lists.newArrayList();
+    this.lengthSquared = Lists.newArrayList();
+    for (int i = 0; i < numClusterings; i++) {
+      points.add(Lists.<double[]>newArrayList());
+      lengthSquared.add(Lists.<Double>newArrayList());
+    }
+    this.dimensions = dimensions;
+    this.projectionBits = projectionBits;
+    this.projectionSamples = projectionSamples;
+    this.seed = seed;
   }
   
   public CentersIndex(List<Centers> centers) {
-    this(centers.size());
+    this(centers, 128, 10, 1729L);
+  }
+  
+  public CentersIndex(List<Centers> centers, int projectionBits, int projectionSamples, long seed) {
+    this(centers.size(), centers.get(0).get(0).size(), projectionBits, projectionSamples, seed);
     for (int centerId = 0; centerId < centers.size(); centerId++) {
       for (Vector v : centers.get(centerId)) {
-        add(Vectors.toArray(v), centerId);
+        add(v, centerId);
       }
     }
   }
@@ -88,62 +96,151 @@ class CentersIndex implements Serializable {
     return pointsPerCenter;
   }
   
-  public void add(double[] v, Integer... centerIds) {
-    add(v, Arrays.asList(centerIds));
-  }
-  
-  public void add(double[] v, Iterable<Integer> centerIds) {
-    Data data = index.get(v);
-    if (data == null) {
-      data = new Data(v);
-      index.put(v, data);
-    }
-    for (Integer centerId : centerIds) {
-      if (!data.hasClusterId(centerId)) {
-        int pointId = pointsPerCenter[centerId];
-        data.add(centerId, pointId);
-        pointsPerCenter[centerId]++;
+  private void buildIndices() {
+    if (projection == null) {
+      Random r = new Random(seed);
+      this.projection = new double[dimensions * projectionBits];
+      for (int i = 0; i < projection.length; i++) {
+        projection[i] = r.nextGaussian();
       }
     }
+    indices.clear();
+    for (int i = 0; i < points.size(); i++) {
+      List<double[]> px = points.get(i);
+      List<BitSet> indx = Lists.newArrayList();
+      for (int j = 0; j < px.size(); j++) {
+        indx.add(index(Vectors.of(px.get(j))));
+      }
+      indices.add(indx);
+    }
+    updated = false;
   }
   
-  public Distances getDistances(Vector vec) {
+  public void add(Vector vec, int centerId) {
+    points.get(centerId).add(Vectors.toArray(vec));
+    lengthSquared.get(centerId).add(vec.getLengthSquared());
+    pointsPerCenter[centerId]++;
+    updated = true;
+  }
+  
+  private BitSet index(Vector vec) {
+    double[] prod = new double[projectionBits];
+    for (Vector.Element e : vec) {
+      for (int i = 0; i < projectionBits; i++) {
+        prod[i] += e.get() * projection[e.index() + i * dimensions];
+      }
+    }
+    BitSet bitset = new BitSet(projectionBits);
+    for (int i = 0; i < projectionBits; i++) {
+      if (prod[i] > 0.0) {
+        bitset.set(i);
+      }
+    }
+    return bitset;
+  }
+  
+  public Distances getDistances(Vector vec, boolean approx) {
     int[] closestPoints = new int[pointsPerCenter.length];
     double[] distances = new double[pointsPerCenter.length];
-    Arrays.fill(distances, Double.POSITIVE_INFINITY);
-    double lenSq = vec.getLengthSquared();
-    for (Map.Entry<double[], Data> e : index.entrySet()) {
-      double dist = e.getValue().lengthSquared + lenSq - 2.0 * dot(e.getKey(), vec);
-      for (Map.Entry<Integer, Integer> entry : e.getValue().clusterCenters.entrySet()) {
-        if (dist < distances[entry.getKey()]) {
-          distances[entry.getKey()] = dist;
-          closestPoints[entry.getKey()] = entry.getValue();
+    
+    if (approx) {
+      if (updated) {
+        buildIndices();
+      }
+      
+      BitSet q = index(vec);
+      for (int i = 0; i < pointsPerCenter.length; i++) {
+        List<BitSet> index = indices.get(i);
+        SortedSet<Idx> lookup = Sets.newTreeSet();
+        for (int j = 0; j < index.size(); j++) {
+          Idx idx = new Idx(hammingDistance(q, index.get(j)), j);
+          if (lookup.size() < projectionSamples) {
+            lookup.add(idx);
+          } else if (idx.compareTo(lookup.last()) < 0) {
+            lookup.add(idx);
+            lookup.remove(lookup.last());
+          }
+        }
+
+        List<double[]> p = points.get(i);
+        distances[i] = Double.POSITIVE_INFINITY;
+        for (Idx idx : lookup) {
+          double lenSq = lengthSquared.get(i).get(idx.index);
+          double d = vec.getLengthSquared() + lenSq - 2 * dot(vec, p.get(idx.index));
+          if (d < distances[i]) {
+            distances[i] = d;
+            closestPoints[i] = idx.index;
+          }
+        }
+      }
+    } else { // More expensive exact computation
+      for (int i = 0; i < pointsPerCenter.length; i++) {
+        distances[i] = Double.POSITIVE_INFINITY;
+        List<double[]> px = points.get(i);
+        List<Double> lsq = lengthSquared.get(i);
+        for (int j = 0; j < px.size(); j++) {
+          double[] p = px.get(j);
+          double lenSq = lsq.get(j);
+          double d = vec.getLengthSquared() + lenSq - 2 * dot(vec, p);
+          if (d < distances[i]) {
+            distances[i] = d;
+            closestPoints[i] = j;
+          }
         }
       }
     }
+    
     return new Distances(distances, closestPoints);
+  }
+  
+  static class Idx implements Comparable<Idx> {
+    int distance;
+    int index;
+    
+    public Idx(int distance, int index) {
+      this.distance = distance;
+      this.index = index;
+    }
+
+    @Override
+    public int compareTo(Idx idx) {
+      return distance - idx.distance;
+    }
+  }
+  
+  private static int hammingDistance(BitSet q, BitSet idx) {
+    BitSet x = new BitSet(q.size());
+    x.or(q);
+    x.xor(idx);
+    return x.cardinality();
+  }
+  
+  private static double dot(Vector vec, double[] p) {
+    double dot = 0;
+    if (vec.isDense()) {
+      for (int i = 0; i < p.length; i++) {
+        dot += vec.getQuick(i) * p[i];
+      }
+    } else {
+      for (Vector.Element e : vec) {
+        dot += e.get() * p[e.index()];
+      }
+    }
+    return dot;
   }
   
   public List<List<Weighted<Vector>>> getWeightedVectors(List<List<Long>> pointCounts) {
     List<List<Weighted<Vector>>> ret = Lists.newArrayList();
     for (int i = 0; i < pointCounts.size(); i++) {
-      ret.add(Arrays.<Weighted<Vector>>asList(new Weighted[pointCounts.get(i).size()]));
-    }
-    for (Map.Entry<double[], Data> e  : index.entrySet()) {
-      Vector v = Vectors.of(e.getKey());
-      for (Map.Entry<Integer, Integer> entry : e.getValue().clusterCenters.entrySet()) {
-        long weight = pointCounts.get(entry.getKey()).get(entry.getValue());
-        ret.get(entry.getKey()).set(entry.getValue(), new Weighted<Vector>(v, weight));
+      List<Long> counts = pointCounts.get(i);
+      List<double[]> p = points.get(i);
+      List<Weighted<Vector>> weighted = Lists.newArrayList();
+      for (int j = 0; j < counts.size(); j++) {
+        weighted.add(new Weighted<Vector>(Vectors.of(p.get(j)), counts.get(j)));
       }
+      ret.add(weighted);
     }
     return ret;
   }
   
-  private static double dot(double[] center, Vector vec) {
-    double prod = 0.0;
-    for (Vector.Element e : vec) {
-      prod += e.get() * center[e.index()];
-    }
-    return prod;
-  }
 }

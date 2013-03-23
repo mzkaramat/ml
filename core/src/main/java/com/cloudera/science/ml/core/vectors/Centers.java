@@ -135,7 +135,8 @@ public class Centers extends AbstractList<Vector> {
    * @return The sum of the squared distances
    */
   public double getSumOfSquaredDistances(Centers other) {
-    Preconditions.checkArgument(size() == other.size());
+    Preconditions.checkArgument(size() == other.size(),
+        String.format("Expected %d but found %d", size(), other.size()));
     double sum = 0.0;
     for (int i = 0; i < centers.size(); i++) {
       sum += centers.get(i).getDistanceSquared(other.centers.get(i));

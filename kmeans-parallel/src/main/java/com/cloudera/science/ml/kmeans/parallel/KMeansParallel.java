@@ -42,7 +42,6 @@ import com.cloudera.science.ml.core.records.SimpleRecord;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.vectors.Centers;
 import com.cloudera.science.ml.core.vectors.VectorConvert;
-import com.cloudera.science.ml.core.vectors.Vectors;
 import com.cloudera.science.ml.core.vectors.Weighted;
 import com.cloudera.science.ml.kmeans.parallel.CentersIndex.Distances;
 import com.cloudera.science.ml.parallel.crossfold.Crossfold;
@@ -51,7 +50,6 @@ import com.cloudera.science.ml.parallel.pobject.ListPObject;
 import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.sample.ReservoirSampling;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 /**
  * <p>An implementation of the k-means|| algorithm, as described in
@@ -71,17 +69,27 @@ public class KMeansParallel {
       .addDouble("distance")
       .build();
   
+  private final int projectionBits;
+  private final int projectionSamples;
+  private final long seed;
   private final Random random;
-    
+  
   public KMeansParallel() {
-    this(null);
+    this(null, 128, 32);
   }
   
   /**
    * Main constructor that includes the option to uses a fixed {@code Random} instance
    * for running the k-means algorithm for testing purposes.
    */
-  public KMeansParallel(Random random) {
+  public KMeansParallel(Random random, int projectionBits, int projectionSamples) {
+    this.projectionBits = projectionBits;
+    this.projectionSamples = projectionSamples;
+    if (random == null) {
+      this.seed = System.currentTimeMillis();
+    } else {
+      this.seed = random.nextLong();
+    }
     this.random = random;
   }
   
@@ -96,9 +104,13 @@ public class KMeansParallel {
    */
   public <V extends Vector> PObject<List<Double>> getCosts(PCollection<V> vecs, List<Centers> centers) {
     Preconditions.checkArgument(centers.size() > 0, "No centers specified");
-    return getCosts(vecs, new CentersIndex(centers));
+    return getCosts(vecs, createIndex(centers));
   }
 
+  private CentersIndex createIndex(List<Centers> centers) {
+    return new CentersIndex(centers, projectionBits, projectionSamples, seed);
+  }
+  
   /**
    * Same as the other {@code getCosts} method, but with a varargs option for the
    * {@code Centers} params as a convenience.
@@ -125,7 +137,7 @@ public class KMeansParallel {
    */
   public <V extends Vector> Records computeClusterAssignments(
       PCollection<V> vecs, List<Centers> centers, PType<Record> recordType) {
-    CentersIndex index = new CentersIndex(centers);
+    CentersIndex index = createIndex(centers);
     return new Records(vecs.parallelDo("assignments", new AssignedCenterFn<V>(index),
         recordType), ASSIGNMENT_SPEC);
   }
@@ -143,7 +155,7 @@ public class KMeansParallel {
       PCollection<V> vecs, List<Centers> centers) {
     Preconditions.checkArgument(centers.size() > 0, "No centers specified");
     Crossfold cf = new Crossfold(1); //TODO
-    return getCountsOfClosest(cf.apply(vecs), new CentersIndex(centers));
+    return getCountsOfClosest(cf.apply(vecs), createIndex(centers));
   }
 
   private <V extends Vector> PObject<List<List<Long>>> getCountsOfClosest(
@@ -173,15 +185,16 @@ public class KMeansParallel {
       List<Vector> initialPoints, Crossfold crossfold) {
 
     int[] lValues = new int[crossfold.getNumFolds()];
-    List<Integer> foldIds = Lists.newArrayList();
-    for (int i = 0; i < crossfold.getNumFolds(); i++) {
-      lValues[i] = samplesPerIteration;
-      foldIds.add(i);
-    }
+    Arrays.fill(lValues, samplesPerIteration);
     
-    CentersIndex centers = new CentersIndex(crossfold.getNumFolds());
+    CentersIndex centers = new CentersIndex(crossfold.getNumFolds(),
+        initialPoints.get(0).size(), projectionBits, projectionSamples,
+        random == null ? System.currentTimeMillis() : random.nextLong());
+    
     for (int i = 0; i < initialPoints.size(); i++) {
-      centers.add(Vectors.toArray(initialPoints.get(i)), foldIds);
+      for (int j = 0; j < lValues.length; j++) {
+        centers.add(initialPoints.get(i), j);
+      }
     }
     
     PType<V> ptype = vecs.getPType();
@@ -209,7 +222,7 @@ public class KMeansParallel {
       Iterable<Pair<Integer, V>> vecs,
       CentersIndex centers) {
     for (Pair<Integer, V> p : vecs) {
-      centers.add(Vectors.toArray(p.second()), p.first());
+      centers.add(p.second(), p.first());
     }
   }
   
@@ -222,7 +235,7 @@ public class KMeansParallel {
     
     @Override
     public void process(Pair<Integer, V> in, Emitter<Pair<Integer, Pair<V, Double>>> emitter) {
-      Distances d = centers.getDistances(in.second());
+      Distances d = centers.getDistances(in.second(), true);
       double dist = d.clusterDistances[in.first()];
       if (dist > 0.0) {
         emitter.emit(Pair.of(in.first(), Pair.of(in.second(), dist)));
@@ -239,7 +252,7 @@ public class KMeansParallel {
 
     @Override
     public void process(Pair<Integer, V> in, Emitter<Pair<Integer, Integer>> emitter) {
-      Distances d = centers.getDistances(in.second());
+      Distances d = centers.getDistances(in.second(), true);
       emitter.emit(Pair.of(in.first(), d.closestPoints[in.first()]));
     }
   }
@@ -254,7 +267,7 @@ public class KMeansParallel {
     @Override
     public void process(V vec, Emitter<Record> emitter) {
       MLVector mlvec = VectorConvert.fromVector(vec);
-      Distances d = centers.getDistances(vec);
+      Distances d = centers.getDistances(vec, false);
       for (int i = 0; i < d.closestPoints.length; i++) {
         Record r = new SimpleRecord(ASSIGNMENT_SPEC);
         r.set("vector_id", mlvec.getId().toString())
@@ -283,7 +296,7 @@ public class KMeansParallel {
     
     @Override
     public void process(V vec, Emitter<Pair<Integer, Double>> emitter) {
-      Distances d = centers.getDistances(vec);
+      Distances d = centers.getDistances(vec, true);
       for (int i = 0; i < currentCosts.length; i++) {
         currentCosts[i] += d.clusterDistances[i];
       }
