@@ -30,9 +30,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
-/**
- *
- */
 public class ReservoirSamplingTest {
 
   private Random r = new Random(1729L);

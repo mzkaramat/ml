@@ -113,7 +113,8 @@ public class ReservoirSampling {
       extends DoFn<Pair<Integer, Pair<T, N>>, Pair<Integer, Pair<Double, T>>> {
   
     private int[] sampleSizes;
-    private transient List<SortedMap<Double, T>> reservoirs;
+    private transient List<SortedMap<Double, T>> archives;
+    private transient List<SortedMap<Double, T>> current;
     private Random random;
     
     public SampleFn(int[] sampleSizes, Random random) {
@@ -123,13 +124,27 @@ public class ReservoirSampling {
     
     @Override
     public void initialize() {
-      this.reservoirs = Lists.newArrayList();
-      for (int i = 0; i < sampleSizes.length; i++) {
-        reservoirs.add(Maps.<Double, T>newTreeMap());
+      if (current == null) {
+        this.current = createReservoirs();
+      } else {
+        for (int i = 0; i < sampleSizes.length; i++) {
+          current.get(i).clear();
+        }
+      }
+      if (archives == null) {
+        this.archives = createReservoirs();
       }
       if (random == null) {
         this.random = new Random();
       }
+    }
+    
+    private List<SortedMap<Double, T>> createReservoirs() {
+      List<SortedMap<Double, T>> ret = Lists.newArrayList();
+      for (int i = 0; i < sampleSizes.length; i++) {
+        ret.add(Maps.<Double, T>newTreeMap());
+      }
+      return ret;
     }
     
     @Override
@@ -140,20 +155,27 @@ public class ReservoirSampling {
       double weight = p.second().doubleValue();
       if (weight > 0.0) {
         double score = Math.log(random.nextDouble()) / weight;
-        SortedMap<Double, T> reservoir = reservoirs.get(id);
+        SortedMap<Double, T> reservoir = archives.get(id);
         if (reservoir.size() < sampleSizes[id]) { 
-          reservoir.put(score, p.first());        
+          reservoir.put(score, p.first());
+          current.get(id).put(score, p.first());
         } else if (score > reservoir.firstKey()) {
           reservoir.remove(reservoir.firstKey());
           reservoir.put(score, p.first());
+          
+          SortedMap<Double, T> cur = current.get(id);
+          cur.put(score, p.first());
+          if (cur.size() >= sampleSizes[id]) {
+            cur.remove(cur.firstKey());
+          }
         }
       }
     }
     
     @Override
     public void cleanup(Emitter<Pair<Integer, Pair<Double, T>>> emitter) {
-      for (int id = 0; id < reservoirs.size(); id++) {
-        SortedMap<Double, T> reservoir = reservoirs.get(id);
+      for (int id = 0; id < current.size(); id++) {
+        SortedMap<Double, T> reservoir = current.get(id);
         for (Map.Entry<Double, T> e : reservoir.entrySet()) {
           emitter.emit(Pair.of(id, Pair.of(e.getKey(), e.getValue())));
         }
