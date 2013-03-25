@@ -40,6 +40,7 @@
 		<compiler.plugin.version>2.3.2</compiler.plugin.version>
 		<dependency.plugin.version>2.6</dependency.plugin.version>
 		<surefire.plugin.version>2.12</surefire.plugin.version>
+		<javadoc.plugin.version>2.8</javadoc.plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -219,10 +220,9 @@
 				</plugin>
 				<!-- generate Javadoc -->
 				<plugin>
-					<inherited>true</inherited>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.8</version>
+					<version>${javadoc.plugin.version}</version>
 					<executions>
 						<execution>
 							<id>attach-javadocs</id>
