@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 
 import java.io.Serializable;
 import java.util.BitSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.SortedSet;
@@ -125,9 +126,22 @@ class CentersIndex implements Serializable {
   
   private BitSet index(Vector vec) {
     double[] prod = new double[projectionBits];
-    for (Vector.Element e : vec) {
-      for (int i = 0; i < projectionBits; i++) {
-        prod[i] += e.get() * projection[e.index() + i * dimensions];
+    if (vec.isDense()) {
+      for (int i = 0; i < vec.size(); i++) {
+        double v = vec.getQuick(i);
+        if (v != 0.0) {
+          for (int j = 0; j < projectionBits; j++) {
+            prod[j] += v * projection[i + j * dimensions];
+          }
+        }
+      }
+    } else {
+      Iterator<Vector.Element> iter = vec.iterateNonZero();
+      while (iter.hasNext()) {
+        Vector.Element e = iter.next();
+        for (int j = 0; j < projectionBits; j++) {
+          prod[j] = e.get() * projection[e.index() + j * dimensions];
+        }
       }
     }
     BitSet bitset = new BitSet(projectionBits);
@@ -222,7 +236,9 @@ class CentersIndex implements Serializable {
         dot += vec.getQuick(i) * p[i];
       }
     } else {
-      for (Vector.Element e : vec) {
+      Iterator<Vector.Element> iter = vec.iterateNonZero();
+      while (iter.hasNext()) {
+        Vector.Element e = iter.next();
         dot += e.get() * p[e.index()];
       }
     }
