@@ -37,22 +37,11 @@ public class Summary implements Serializable {
   
   public Summary() {}
   
-  public Summary(Spec spec, long recordCount, int fieldCount, Map<Integer, SummaryStats> stats) {
+  public Summary(long recordCount, int fieldCount, Map<Integer, SummaryStats> stats) {
     this.recordCount = recordCount;
     this.fieldCount = fieldCount;
-    if (spec != null) {
-      for (int i = 0; i < spec.size(); i++) {
-        SummaryStats ss = stats.get(i);
-        if (ss == null) {
-          ss = new SummaryStats();
-        }
-        ss.setFieldName(spec.getField(i).name());
-        this.stats.put(i, ss);
-      }
-    } else {
-      for (Map.Entry<Integer, SummaryStats> e : stats.entrySet()) {
-        this.stats.put(e.getKey(), e.getValue());
-      }
+    for (Map.Entry<Integer, SummaryStats> e : stats.entrySet()) {
+      this.stats.put(e.getKey(), e.getValue());
     }
   }
   
@@ -62,7 +51,7 @@ public class Summary implements Serializable {
     for (int i = 0; i <= maxId; i++) {
       SummaryStats ss = stats.get(i);
       if (ss != null) {
-        String field = ss.getFieldName();
+        String field = ss.getName();
         if (field == null) {
           field = "c" + i;
         }

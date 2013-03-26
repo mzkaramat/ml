@@ -20,6 +20,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.crunch.DoFn;
+import org.apache.crunch.Emitter;
 import org.apache.crunch.MapFn;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.types.PType;
@@ -63,6 +65,11 @@ public class Normalizer implements Serializable {
     public Builder summary(Summary s) {
       if (s != null) {
         this.s = s;
+        for (Map.Entry<Integer, SummaryStats> e : s.getAllStats().entrySet()) {
+          if (e.getValue().getTransform() != null) {
+            transforms.put(e.getKey(), Transform.forName(e.getValue().getTransform()));
+          }
+        }
       }
       return this;
     }
@@ -79,11 +86,6 @@ public class Normalizer implements Serializable {
     
     public Builder defaultTransform(Transform t) {
       this.defaultTransform = t;
-      return this;
-    }
-    
-    public Builder addCustomTransform(int columnId, Transform t) {
-      this.transforms.put(columnId, t);
       return this;
     }
     
@@ -112,9 +114,9 @@ public class Normalizer implements Serializable {
     return records.parallelDo("standardize", new StandardizeFn<V>(), ptype);
   }
   
-  private class StandardizeFn<V extends Vector> extends MapFn<Record, V> {
+  private class StandardizeFn<V extends Vector> extends DoFn<Record, V> {
     @Override
-    public V map(Record record) {
+    public void process(Record record, Emitter<V> emitter) {
       int len = record.getSpec().size() + expansion;
       Vector v = null;
       if (record instanceof VectorRecord) {
@@ -137,16 +139,23 @@ public class Normalizer implements Serializable {
             if (transforms.containsKey(i)) {
               t = transforms.get(i);
             }
-            double n = record.getAsDouble(i);
-            v.setQuick(offset, t.apply(n, summary.getRecordCount(), ss));
+            double raw = record.getAsDouble(i);
+            if (Double.isNaN(raw)) {
+              LOG.warn(String.format("Missing/non-numeric value encountered for field %d: '%s', skipping...",
+                  i, record.getAsString(i)));
+              return;
+            }
+            double n = t.apply(raw, ss) * ss.getScale();
+            v.setQuick(offset, n);
             offset++;
           } else {
             int index = ss.index(record.getAsString(i));
             if (index < 0) {
-              LOG.warn(String.format("Unknown value encountered for field %d: '%s'",
+              LOG.warn(String.format("Unknown categorical value encountered for field %d: '%s', skipping...",
                   i, record.getAsString(i)));
+              return;
             } else {
-              v.setQuick(offset + index, 1.0);
+              v.setQuick(offset + index, ss.getScale());
             }
             offset += ss.numLevels();
           }
@@ -156,7 +165,7 @@ public class Normalizer implements Serializable {
       if (idColumn >= 0) {
         v = new NamedVector(v, record.getAsString(idColumn));
       }
-      return (V) v;
+      emitter.emit((V) v);
     }
   }
 }

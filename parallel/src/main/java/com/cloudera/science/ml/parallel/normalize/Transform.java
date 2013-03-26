@@ -21,27 +21,36 @@ import com.cloudera.science.ml.parallel.summary.SummaryStats;
 /**
  *
  */
-public interface Transform extends Serializable {
+public abstract class Transform implements Serializable {
   
-  double apply(double value, long recordCount, SummaryStats stats);
+  public abstract double apply(double value, SummaryStats stats);
 
+  public static Transform forName(String name) {
+    if ("z".equalsIgnoreCase(name)) {
+      return Z;
+    } else if ("linear".equalsIgnoreCase(name)) {
+      return LINEAR;
+    }
+    return NONE;
+  }
+  
   public static final Transform NONE = new Transform() {
-    public double apply(double value, long recordCount, SummaryStats stats) {
+    public double apply(double value, SummaryStats stats) {
       return value;
     }
   };
   
   public static final Transform Z = new Transform() {
-    public double apply(double value, long recordCount,  SummaryStats stats) {
-      if (stats.stdDev(recordCount) == 0.0) {
+    public double apply(double value, SummaryStats stats) {
+      if (stats.stdDev() == 0.0) {
         return value;
       }
-      return (value - stats.mean(recordCount)) / stats.stdDev(recordCount);
+      return (value - stats.mean()) / stats.stdDev();
     }
   };
   
   public static final Transform LINEAR = new Transform() {
-    public double apply(double value, long recordCount, SummaryStats stats) {
+    public double apply(double value, SummaryStats stats) {
       if (stats.range() == 0.0) {
         return value;
       }

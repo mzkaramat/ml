@@ -128,6 +128,10 @@ public class CSVRecord implements Record {
 
   @Override
   public double getAsDouble(int index) {
-    return Double.valueOf(values.get(index));
+    try {
+      return Double.valueOf(values.get(index));
+    } catch (NumberFormatException e) {
+      return Double.NaN;
+    }
   }
 }

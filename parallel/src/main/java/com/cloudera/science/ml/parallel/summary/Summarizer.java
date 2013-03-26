@@ -79,38 +79,45 @@ public class Summarizer {
   public PObject<Summary> build(PCollection<Record> input) {
     return new SummaryPObject(spec, input.parallelDo("summarize",
         new SummarizeFn(ignoredColumns, defaultToSymbolic, exceptionColumns),
-        Avros.tableOf(Avros.ints(), Avros.pairs(Avros.longs(), Avros.reflects(SummaryStats.class))))
+        Avros.tableOf(Avros.ints(), Avros.pairs(Avros.longs(), Avros.reflects(InternalStats.class))))
         .groupByKey(1)
-        .combineValues(Aggregators.pairAggregator(Aggregators.SUM_LONGS(), SummaryStats.AGGREGATOR)));
+        .combineValues(Aggregators.pairAggregator(Aggregators.SUM_LONGS(), InternalStats.AGGREGATOR)));
   }
 
-  private static class SummaryPObject extends PObjectImpl<Pair<Integer, Pair<Long, SummaryStats>>, Summary> {
+  private static class SummaryPObject extends PObjectImpl<Pair<Integer, Pair<Long, InternalStats>>, Summary> {
     private final Spec spec;
     
-    public SummaryPObject(Spec spec, PCollection<Pair<Integer, Pair<Long, SummaryStats>>> pc) {
+    public SummaryPObject(Spec spec, PCollection<Pair<Integer, Pair<Long, InternalStats>>> pc) {
       super(pc);
       this.spec = spec;
     }
     
     @Override
-    protected Summary process(Iterable<Pair<Integer, Pair<Long, SummaryStats>>> iter) {
+    protected Summary process(Iterable<Pair<Integer, Pair<Long, InternalStats>>> iter) {
       Map<Integer, SummaryStats> ss = Maps.newHashMap();
       int fieldCount = 0;
       long recordCount = 0L;
-      for (Pair<Integer, Pair<Long, SummaryStats>> p : iter) {
+      for (Pair<Integer, Pair<Long, InternalStats>> p : iter) {
         fieldCount++;
         recordCount = p.second().first();
-        ss.put(p.first(), p.second().second());
+        String name = spec != null ? spec.getField(p.first()).name() : "c" + p.first();
+        SummaryStats stats = p.second().second().toSummaryStats(name, recordCount);
+        if (stats.getMissing() > 0) {
+          System.err.println(String.format(
+              "Note: %d missing/invalid values for numeric field %d, named '%s'",
+              stats.getMissing(), p.first(), name));
+        }
+        ss.put(p.first(), stats);
       }
-      return new Summary(spec, recordCount, fieldCount, ss);
+      return new Summary(recordCount, fieldCount, ss);
     }
   }
 
-  private static class SummarizeFn extends DoFn<Record, Pair<Integer, Pair<Long, SummaryStats>>> {
+  private static class SummarizeFn extends DoFn<Record, Pair<Integer, Pair<Long, InternalStats>>> {
     private final Set<Integer> ignoredColumns;
     private final boolean defaultToSymbolic;
     private final Set<Integer> exceptionColumns;
-    private final Map<Integer, SummaryStats> stats;
+    private final Map<Integer, InternalStats> stats;
     private long count;
     
     public SummarizeFn(Set<Integer> ignoreColumns,
@@ -124,12 +131,12 @@ public class Summarizer {
     
     @Override
     public void process(Record record,
-        Emitter<Pair<Integer, Pair<Long, SummaryStats>>> emitter) {
+        Emitter<Pair<Integer, Pair<Long, InternalStats>>> emitter) {
       for (int idx = 0; idx < record.getSpec().size(); idx++) {
         if (!ignoredColumns.contains(idx)) {
-          SummaryStats ss = stats.get(idx);
+          InternalStats ss = stats.get(idx);
           if (ss == null) {
-            ss = new SummaryStats();
+            ss = new InternalStats();
             stats.put(idx, ss);
           }
           boolean symbolic = exceptionColumns.contains(idx) ? !defaultToSymbolic : defaultToSymbolic;
@@ -144,8 +151,8 @@ public class Summarizer {
     }
     
     @Override
-    public void cleanup(Emitter<Pair<Integer, Pair<Long, SummaryStats>>> emitter) {
-      for (Map.Entry<Integer, SummaryStats> e : stats.entrySet()) {
+    public void cleanup(Emitter<Pair<Integer, Pair<Long, InternalStats>>> emitter) {
+      for (Map.Entry<Integer, InternalStats> e : stats.entrySet()) {
         emitter.emit(Pair.of(e.getKey(), Pair.of(count, e.getValue())));
       }
       stats.clear();

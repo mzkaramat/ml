@@ -18,97 +18,101 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.crunch.Aggregator;
-import org.apache.crunch.fn.Aggregators.SimpleAggregator;
-
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 
 public class SummaryStats implements Serializable {
-  
+
+  private String name;
   private Numeric numeric;
   private Map<String, Entry> histogram;
-  private String name;
+  private Double scale;
   
-  public static final Aggregator<SummaryStats> AGGREGATOR = new SimpleAggregator<SummaryStats>() {
-    private SummaryStats agg = new SummaryStats();
-    @Override
-    public void reset() {
-      agg = new SummaryStats();
-    }
-
-    @Override
-    public Iterable<SummaryStats> results() {
-      return ImmutableList.of(agg);
-    }
-
-    @Override
-    public void update(SummaryStats other) {
-      agg.merge(other);
-    }
-  };
+  // For serialization
+  private SummaryStats() { }
   
-  public SummaryStats() {
+  public static SummaryStats createNumeric(String name, Numeric numeric) {
+    return new SummaryStats(name, numeric);
+  }
+  
+  public static SummaryStats createCategorical(String name, List<String> levels) {
+    Map<String, Entry> histogram = Maps.newHashMap();
+    for (int i = 0; i < levels.size(); i++) {
+      histogram.put(levels.get(i), new Entry(i));
+    }
+    return new SummaryStats(name, histogram);
+  }
+  
+  SummaryStats(String name) {
+    this.name = name;
     this.numeric = null;
     this.histogram = null;
+  }
+  
+  SummaryStats(String name, Numeric numeric) {
+    this.name = name;
+    this.numeric = Preconditions.checkNotNull(numeric);
+    this.histogram = null;
+  }
+  
+  SummaryStats(String name, Map<String, Entry> histogram) {
+    this.name = name;
+    this.numeric = null;
+    this.histogram = Preconditions.checkNotNull(histogram);
   }
   
   public boolean isEmpty() {
     return numeric == null && histogram == null;
   }
   
-  private Numeric numeric() {
-    if (numeric == null) {
-      numeric = new Numeric();
-    }
-    return numeric;
-  }
-  
-  private Map<String, Entry> histogram() {
-    if (histogram == null) {
-      histogram = Maps.newHashMap();
-    }
-    return histogram;
-  }
-  
-  public String getFieldName() {
-    return name;
-  }
-
-  public void setFieldName(String fieldName) {
-    this.name = fieldName;
-  }
-
   public boolean isNumeric() {
     return numeric != null;
   }
   
-  public double mean(long count) {
-    return numeric().mean(count);
+  public String getName() {
+    return name;
+  }
+
+  public double getScale() {
+    return scale == null ? 1.0 : scale;
   }
   
-  public double stdDev(long count) {
-    return numeric().stdDev(count);
+  public double mean() {
+    return numeric == null ? Double.NaN : numeric.mean();
+  }
+  
+  public double stdDev() {
+    return numeric == null ? Double.NaN : numeric.stdDev();
   }
   
   public double range() {
-    return numeric().range();
+    return numeric == null ? Double.NaN : numeric.range();
   }
   
   public double min() {
-    return numeric().min();
+    return numeric == null ? Double.NaN : numeric.min();
   }
   
   public double max() {
-    return numeric().max();
+    return numeric == null ? Double.NaN : numeric.max();
+  }
+  
+  public long getMissing() {
+    return numeric == null ? 0L : numeric.getMissing();
+  }
+  
+  public String getTransform() {
+    return numeric == null ? null : numeric.getTransform();
   }
   
   public List<String> getLevels() {
+    if (histogram == null) {
+      return ImmutableList.of();
+    }
     List<String> levels = Lists.newArrayList(histogram.keySet());
     Collections.sort(levels);
     return levels;
@@ -119,121 +123,14 @@ public class SummaryStats implements Serializable {
   }
   
   public int index(String value) {
-    Entry e = histogram().get(value);
+    if (histogram == null) {
+      return -1;
+    }
+    Entry e = histogram.get(value);
     if (e == null) {
       return -1;
     } else {
       return e.id;
     }
-  }
-  
-  public void addSymbol(String symbol) {
-    Map<String, Entry> h = histogram();
-    Entry entry = h.get(symbol);
-    if (entry == null) {
-      entry = new Entry(h.size()).inc(); // init with count = 1
-      h.put(symbol, entry);
-    } else {
-      entry.inc();
-    }
-  }
-  
-  public void addNumeric(double value) {
-    numeric().update(value);
-  }
-  
-  public void merge(SummaryStats summaryStats) {
-    if (summaryStats.numeric != null) {
-      numeric().merge(summaryStats.numeric);
-    } else {
-      Map<String, Entry> h = histogram();
-      Map<String, Entry> merged = Maps.newHashMap();
-      Set<String> keys = Sets.newTreeSet(
-          Sets.union(h.keySet(), summaryStats.histogram.keySet()));
-      for (String key : keys) {
-        Entry e = h.get(key);
-        Entry entry = summaryStats.histogram.get(key);
-        Entry newEntry = new Entry(merged.size());
-        if (e != null) {
-          newEntry.inc(e.count);
-        }
-        if (entry != null) {
-          newEntry.inc(entry.count);
-        }
-        merged.put(key, newEntry);
-      }
-      this.histogram = merged;
-    }
-  }
-  
-  private static class Entry implements Serializable {
-    public int id;
-    public long count;
-    
-    public Entry() { }
-    
-    public Entry(int id) {
-      this.id = id;
-      this.count = 0;
-    }
-    
-    public Entry inc() {
-      return inc(1L);
-    }
-    
-    public Entry inc(long count) {
-      this.count += count;
-      return this;
-    }
-  }
-  
-  private static class Numeric implements Serializable {
-    private double min;
-    private double max;
-    private double sum;
-    private double sumSq;
-    
-    public double mean(long count) {
-      return sum / count;
-    }
-    
-    public double stdDev(long count) {
-      double m = mean(count);
-      return Math.sqrt(sumSq / count - m * m);
-    }
-    
-    public double range() {
-      return min - max;
-    }
-    
-    public double min() {
-      return min;
-    }
-    
-    public double max() {
-      return max;
-    }
-    
-    public void update(double d) {
-      sum += d;
-      sumSq += d * d;
-      if (d < min) {
-        min = d;
-      }
-      if (d > max) {
-        max = d;
-      }
-    }
-    
-    public void merge(Numeric other) {
-      sum += other.sum;
-      sumSq += other.sumSq;
-      if (other.min < min) {
-        min = other.min;
-      }
-      if (other.max > max) {
-        max = other.max;
-      }
-    }
-  }
+  }  
 }

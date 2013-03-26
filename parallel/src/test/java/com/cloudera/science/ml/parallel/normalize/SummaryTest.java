@@ -17,19 +17,24 @@ package com.cloudera.science.ml.parallel.normalize;
 import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import org.apache.crunch.MapFn;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.impl.mem.MemPipeline;
+import org.apache.crunch.types.avro.AvroTypeFamily;
+import org.apache.crunch.types.avro.Avros;
 import org.apache.mahout.math.Vector;
 import org.junit.Test;
 
 import com.cloudera.science.ml.core.records.Record;
+import com.cloudera.science.ml.core.records.csv.CSVRecord;
 import com.cloudera.science.ml.core.records.vectors.VectorRecord;
 import com.cloudera.science.ml.core.vectors.Vectors;
 import com.cloudera.science.ml.parallel.summary.Summarizer;
 import com.cloudera.science.ml.parallel.summary.Summary;
 import com.cloudera.science.ml.parallel.types.MLAvros;
+import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.collect.ImmutableList;
 
 public class SummaryTest implements Serializable {
@@ -39,6 +44,11 @@ public class SummaryTest implements Serializable {
       Vectors.of(1.0, 1.0),
       Vectors.of(3.0, 1.0),
       Vectors.of(3.0, 3.0));
+  
+  private PCollection<String> strings = MemPipeline.typedCollectionOf(
+      Avros.strings(),
+      "1.0,NA,2.0",
+      "1.0,2.0,3.0");
   
   @Test
   public void testZScores() {
@@ -57,5 +67,20 @@ public class SummaryTest implements Serializable {
     assertEquals(ImmutableList.of(Vectors.of(-1, 1),
         Vectors.of(-1, -1), Vectors.of(1, -1),
         Vectors.of(1, 1)), stand.apply(elems, MLAvros.vector()).materialize());
+  }
+  
+  @Test
+  public void testMissing() throws Exception {
+    PCollection<Record> elems = strings.parallelDo(new MapFn<String, Record>() {
+      @Override
+      public Record map(String input) {
+        return new CSVRecord(Arrays.asList(input.split(",")));
+      }
+    }, MLRecords.csvRecord(AvroTypeFamily.getInstance(), ","));
+    Summarizer sr = new Summarizer();
+    Summary s = sr.build(elems).getValue();
+    assertEquals(1, s.getStats(1).getMissing());
+    assertEquals(2.0, s.getStats(1).mean(), 0.01);
+    assertEquals(0.0, s.getStats(1).stdDev(), 0.01);
   }
 }
