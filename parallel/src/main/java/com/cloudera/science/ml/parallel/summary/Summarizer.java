@@ -27,6 +27,7 @@ import org.apache.crunch.fn.Aggregators;
 import org.apache.crunch.materialize.pobject.PObjectImpl;
 import org.apache.crunch.types.avro.Avros;
 
+import com.cloudera.science.ml.core.records.FieldSpec;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 import com.google.common.collect.Maps;
@@ -108,6 +109,15 @@ public class Summarizer {
               stats.getMissing(), p.first(), name));
         }
         ss.put(p.first(), stats);
+      }
+      if (spec != null) {
+        // Add placeholders for ignored fields in the summary
+        for (int i = 0; i < spec.size(); i++) {
+          if (!ss.containsKey(i)) {
+            String name = spec.getField(i).name();
+            ss.put(i, new SummaryStats(name));
+          }
+        }
       }
       return new Summary(recordCount, fieldCount, ss);
     }
