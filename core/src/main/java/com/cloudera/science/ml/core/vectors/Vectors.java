@@ -20,10 +20,16 @@ import org.apache.mahout.math.RandomAccessSparseVector;
 import org.apache.mahout.math.Vector;
 
 /**
- * Factory methods for creating new {@code Vector} objects.
+ * Factory methods for working with {@code Vector} objects.
  */
 public class Vectors {
 
+  /**
+   * Converts the given {@code Vector} into a {@code double[]}.
+   * 
+   * @param v The vector to convert
+   * @return The resulting array of values
+   */
   public static double[] toArray(Vector v) {
     double[] ret = new double[v.size()];
     for (int i = 0; i < ret.length; i++) {
@@ -32,22 +38,49 @@ public class Vectors {
     return ret;
   }
   
+  /**
+   * Creates a dense {@code Vector} instance from the given values.
+   * 
+   * @param values The array of values to turn into a {@code Vector}
+   * @return The resulting {@code Vector}
+   */
   public static Vector of(double... values) {
     return new DenseVector(values);
   }
   
+  /**
+   * Constructs a {@code DenseVector} of the given size.
+   * 
+   * @param size The size of the dense vector to create
+   * @return The new {@code DenseVector}
+   */
   public static Vector dense(int size) {
     double[] d = new double[size];
     return new DenseVector(d);
   }
   
+  /**
+   * Constructs a {@code RandomAccessSparseVector} of the given size.
+   * 
+   * @param size The size of the sparse vector to create
+   * @return The new {@code RandomAccessSparseVector}
+   */
   public static Vector sparse(int size) {
     return new RandomAccessSparseVector(size);
   }
 
+  /**
+   * Constructs a {@code NamedVector} from the given name and
+   * values.
+   * 
+   * @param name The name of the vector
+   * @param v The values it contains
+   * @return A new {@code NamedVector}
+   */
   public static Vector named(String name, double... v) {
     return new NamedVector(of(v), name);
   }
   
+  // Not instantiated
   private Vectors() {}
 }

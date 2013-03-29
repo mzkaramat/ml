@@ -30,7 +30,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 /**
- * Utilities for converting from the Avro and the Java implementations of the core ML type classes.
+ * Utilities for converting from the Avro and the Java implementations of the core ML
+ * type classes.
  */
 public final class VectorConvert {
 

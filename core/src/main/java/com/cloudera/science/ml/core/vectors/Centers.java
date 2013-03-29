@@ -27,7 +27,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Represents a collection of {@code Vector} instances that act as the centers of
- * a set of clusters, as in k-means models.
+ * a set of clusters, as in a k-means model.
  */
 public class Centers extends AbstractList<Vector> {
   // The vectors, where each vector is the center of a particular cluster
@@ -64,14 +64,14 @@ public class Centers extends AbstractList<Vector> {
   }
   
   /**
-   * Returns the {@code Vec} at the given index.
+   * Returns the {@code Vector} at the given index.
    */
   public Vector get(int index) {
     return centers.get(index);
   }
 
   /**
-   * Construct a new {@code Centers} object made up of the given {@code Vec}
+   * Construct a new {@code Centers} object made up of the given {@code Vector}
    * and the points contained in this instance.
    * 
    * @param point The new point
@@ -94,7 +94,7 @@ public class Centers extends AbstractList<Vector> {
   
   /**
    * Returns the minimum squared Euclidean distance between the given
-   * {@code Vec} and a point contained in this instance.
+   * {@code Vector} and a point contained in this instance.
    * 
    * @param point The point
    * @return The minimum squared Euclidean distance from the point 
@@ -108,11 +108,11 @@ public class Centers extends AbstractList<Vector> {
   }
   
   /**
-   * Returns the index of the {@code Vec} within this instance that is
-   * closest to the given {@code Vec}.
+   * Returns the index of the {@code Vector} within this instance that is
+   * closest to the given {@code Vector}.
    * 
    * @param point The point
-   * @return The index of the closest {@code Vec} to the given point
+   * @return The index of the closest {@code Vector} to the given point
    */
   public int indexOfClosest(Vector point) {
     int index = -1;
@@ -131,8 +131,10 @@ public class Centers extends AbstractList<Vector> {
    * Calculate the sum of the element-wise squared distances between this
    * instance and the given {@code Centers}.
    * 
-   * @param other The other points
-   * @return The sum of the squared distances
+   * @param other The other {@code Centers} instance
+   * @return The sum of the squared distances on a point-by-point basis
+   * @throws IllegalArgumentException if the given {@code Centers} object is not
+   *     the same size as this one
    */
   public double getSumOfSquaredDistances(Centers other) {
     Preconditions.checkArgument(size() == other.size(),

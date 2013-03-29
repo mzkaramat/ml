@@ -17,17 +17,14 @@ package com.cloudera.science.ml.core.vectors;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.mahout.math.Vector;
-
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
 /**
- * A container for a {@link Vector} and an associated numeric weight. {@code WeightedVec}
- * instances are used to represent a summary of the distribution of points in a much larger
- * data set.
+ * A typed container for an object and an associated numeric weight.
  */
 public class Weighted<T> {
   private final T thing;
@@ -41,20 +38,20 @@ public class Weighted<T> {
   }
   
   /**
-   * Converts an input {@code Collection<Vector>} into a {@code Collection<WeightedVec>}.
+   * Converts an input {@code Collection<T>} into a {@code Collection<Weighted<T>>}.
    * 
-   * @param vecs The points to convert
-   * @return The points as {@code WeightedVec} values with weight 1.0
+   * @param things The items to convert
+   * @return The items as {@code Weighted<T>} values with weight 1.0
    */
   public static <T> Collection<Weighted<T>> create(Collection<T> things) {
     return Collections2.transform(things, new WeightFunction<T>());
   }
   
   /**
-   * Converts an input {@code List<Vector>} into a {@code List<WeightedVec>}.
+   * Converts an input {@code List<T} into a {@code List<Weighted<T>>}.
    * 
-   * @param things The points to convert
-   * @return The points as {@code WeightedVec} values with weight 1.0
+   * @param things The items to convert
+   * @return The items as {@code Weighted<T>} values with weight 1.0
    */
   public static <T> List<Weighted<T>> create(List<T> things) {
     return Lists.transform(things, new WeightFunction<T>());
@@ -72,11 +69,11 @@ public class Weighted<T> {
   /**
    * Create a new instance with the given weight.
    * 
-   * @param thing The thing to weight
+   * @param thing The (non-null) thing to weight
    * @param weight The weight
    */
   public Weighted(T thing, double weight) {
-    this.thing = thing;
+    this.thing = Preconditions.checkNotNull(thing);
     this.weight = weight;
   }
   
