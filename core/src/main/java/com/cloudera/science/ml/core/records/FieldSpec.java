@@ -18,12 +18,21 @@ import java.io.Serializable;
 
 
 /**
- *
+ * Stores name, type, and position for a field in a {@code Record}.
  */
 public interface FieldSpec extends Serializable {
+  /**
+   * Returns the name of this field.
+   */
   String name();
   
+  /**
+   * Returns the zero-indexed position of this field in the {@code Record}.
+   */
   int position();
 
+  /**
+   * Returns the {@code Spec} that contains type information for this field.
+   */
   Spec spec();
 }

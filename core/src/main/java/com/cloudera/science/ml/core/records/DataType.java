@@ -15,7 +15,7 @@
 package com.cloudera.science.ml.core.records;
 
 /**
- *
+ * A list of currently supported types for {@code Record} instances.
  */
 public enum DataType {
   BOOLEAN, INT, LONG, DOUBLE, STRING, RECORD;

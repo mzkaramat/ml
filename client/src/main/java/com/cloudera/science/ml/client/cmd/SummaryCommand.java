@@ -39,7 +39,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
-@Parameters(commandDescription = "Summarize the continuous (and optionally, categorical) attributes of a CSV or Vector file")
+@Parameters(commandDescription =
+    "Summarize the continuous (and optionally, categorical) attributes of a collection of records")
 public class SummaryCommand implements Command {
 
   @Parameter(names = "--header-file",
@@ -118,7 +119,7 @@ public class SummaryCommand implements Command {
 
   @Override
   public String getDescription() {
-    return "Summarize the continuous and categorical attributes of a CSV or Vector file";
+    return "Summarize the continuous (and optionally, categorical) attributes of a collection of records";
   }
 
 }

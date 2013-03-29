@@ -20,7 +20,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 /**
- *
+ * The common implementation of the {@code Spec} interface for {@code Record} instances.
  */
 public class RecordSpec implements Spec {
 

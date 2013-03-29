@@ -15,7 +15,8 @@
 package com.cloudera.science.ml.core.records;
 
 /**
- *
+ * A simple {@code Record} implementation that wraps an {@code Object[]} and performs
+ * minimal type checking.
  */
 public class SimpleRecord implements Record {
 
