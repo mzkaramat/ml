@@ -1,6 +1,6 @@
 Introduction
 ------------
-Cloudera ML is a collction of Java libraries and commandline tools for performing certain data preparation
+Cloudera ML is a collection of Java libraries and commandline tools for performing certain data preparation
 and analysis tasks that are often referred to as "advanced analytics" or "machine learning." Our focus is
 on simplicity, reliability, easy model interpretation, minimal parameter tuning, and integration with other
 tools for data preparation and analysis.
