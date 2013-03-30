@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.crunch.DoFn;
 import org.apache.crunch.Emitter;
-import org.apache.crunch.MapFn;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.types.PType;
 import org.apache.mahout.math.NamedVector;
@@ -60,7 +59,7 @@ public class Normalizer implements Serializable {
     private Boolean sparse = null;
     private int idColumn = -1;
     private Transform defaultTransform = Transform.NONE;
-    private Map<Integer, Transform> transforms = Maps.newHashMap();
+    private final Map<Integer, Transform> transforms = Maps.newHashMap();
     
     public Builder summary(Summary s) {
       if (s != null) {
@@ -118,7 +117,7 @@ public class Normalizer implements Serializable {
     @Override
     public void process(Record record, Emitter<V> emitter) {
       int len = record.getSpec().size() + expansion;
-      Vector v = null;
+      Vector v;
       if (record instanceof VectorRecord) {
         v = ((VectorRecord) record).getVector().like();
       } else if (sparse) {
@@ -154,9 +153,8 @@ public class Normalizer implements Serializable {
               LOG.warn(String.format("Unknown categorical value encountered for field %d: '%s', skipping...",
                   i, record.getAsString(i)));
               return;
-            } else {
-              v.setQuick(offset + index, ss.getScale());
             }
+            v.setQuick(offset + index, ss.getScale());
             offset += ss.numLevels();
           }
         }

@@ -55,8 +55,9 @@ import com.google.common.base.Preconditions;
  * <p>An implementation of the k-means|| algorithm, as described in
  * <a href="http://theory.stanford.edu/~sergei/papers/vldb12-kmpar.pdf">Bahmani et al. (2012)</a>
  * 
- * <p>The main algorithm is executed by the {@code compute} method, which takes a number of
- * configured {@link KMPConfig} instances and runs over a given dataset of points for a fixed number
+ * <p>The main algorithm is executed by the {@link #computeClusterAssignments(PCollection, List, PType)}
+ * method, which takes a number of
+ * configured instances and runs over a given dataset of points for a fixed number
  * of iterations in order to find a candidate set of points to stream into the client and
  * cluster using the in-memory k-means algorithms defined in the {@code kmeans} package.
  */
@@ -103,7 +104,7 @@ public class KMeansParallel {
    * @return A reference to the Crunch job that calculates the cost for each centers instance
    */
   public <V extends Vector> PObject<List<Double>> getCosts(PCollection<V> vecs, List<Centers> centers) {
-    Preconditions.checkArgument(centers.size() > 0, "No centers specified");
+    Preconditions.checkArgument(!centers.isEmpty(), "No centers specified");
     return getCosts(vecs, createIndex(centers));
   }
 
@@ -119,7 +120,7 @@ public class KMeansParallel {
     return getCosts(vecs, Arrays.asList(centers));
   }
   
-  private <V extends Vector> PObject<List<Double>> getCosts(PCollection<V> vecs, CentersIndex centers) {
+  private static <V extends Vector> PObject<List<Double>> getCosts(PCollection<V> vecs, CentersIndex centers) {
     return new ListPObject<Double>(vecs
         .parallelDo("center-costs", new CenterCostFn<V>(centers), tableOf(ints(), doubles()))
         .groupByKey(1)
@@ -153,12 +154,12 @@ public class KMeansParallel {
    */
   public <V extends Vector> PObject<List<List<Long>>> getCountsOfClosest(
       PCollection<V> vecs, List<Centers> centers) {
-    Preconditions.checkArgument(centers.size() > 0, "No centers specified");
+    Preconditions.checkArgument(!centers.isEmpty(), "No centers specified");
     Crossfold cf = new Crossfold(1); //TODO
     return getCountsOfClosest(cf.apply(vecs), createIndex(centers));
   }
 
-  private <V extends Vector> PObject<List<List<Long>>> getCountsOfClosest(
+  private static <V extends Vector> PObject<List<List<Long>>> getCountsOfClosest(
       PCollection<Pair<Integer, V>> vecs, CentersIndex centers) {
     return new ListOfListsPObject<Long>(
         vecs
@@ -190,10 +191,10 @@ public class KMeansParallel {
     CentersIndex centers = new CentersIndex(crossfold.getNumFolds(),
         initialPoints.get(0).size(), projectionBits, projectionSamples,
         random == null ? System.currentTimeMillis() : random.nextLong());
-    
-    for (int i = 0; i < initialPoints.size(); i++) {
+
+    for (Vector initialPoint : initialPoints) {
       for (int j = 0; j < lValues.length; j++) {
-        centers.add(initialPoints.get(i), j);
+        centers.add(initialPoint, j);
       }
     }
     
@@ -212,13 +213,13 @@ public class KMeansParallel {
     return getWeightedVectors(folds, centers);
   }
   
-  private <V extends Vector> List<List<Weighted<Vector>>> getWeightedVectors(
+  private static <V extends Vector> List<List<Weighted<Vector>>> getWeightedVectors(
       PCollection<Pair<Integer, V>> folds, CentersIndex centers) {
     List<List<Long>> indexWeights = getCountsOfClosest(folds, centers).getValue();
     return centers.getWeightedVectors(indexWeights); 
   }
   
-  private <V extends Vector> void updateCenters(
+  private static <V extends Vector> void updateCenters(
       Iterable<Pair<Integer, V>> vecs,
       CentersIndex centers) {
     for (Pair<Integer, V> p : vecs) {
@@ -227,9 +228,9 @@ public class KMeansParallel {
   }
   
   private static class ScoringFn<V extends Vector> extends DoFn<Pair<Integer, V>, Pair<Integer, Pair<V, Double>>> {
-    private CentersIndex centers;
+    private final CentersIndex centers;
     
-    public ScoringFn(CentersIndex centers) {
+    private ScoringFn(CentersIndex centers) {
       this.centers = centers;
     }
     
@@ -246,7 +247,7 @@ public class KMeansParallel {
   private static class ClosestCenterFn<V extends Vector> extends DoFn<Pair<Integer, V>, Pair<Integer, Integer>> {
     private final CentersIndex centers;
     
-    public ClosestCenterFn(CentersIndex centers) {
+    private ClosestCenterFn(CentersIndex centers) {
       this.centers = centers;
     }
 
@@ -260,7 +261,7 @@ public class KMeansParallel {
   private static class AssignedCenterFn<V extends Vector> extends DoFn<V, Record> {
     private final CentersIndex centers;
     
-    public AssignedCenterFn(CentersIndex centers) {
+    private AssignedCenterFn(CentersIndex centers) {
       this.centers = centers;
     }
 
@@ -282,9 +283,9 @@ public class KMeansParallel {
   
   private static class CenterCostFn<V extends Vector> extends DoFn<V, Pair<Integer, Double>> {
     private final CentersIndex centers;
-    private double[] currentCosts;
+    private final double[] currentCosts;
     
-    public CenterCostFn(CentersIndex centers) {
+    private CenterCostFn(CentersIndex centers) {
       this.centers = centers;
       this.currentCosts = new double[centers.getNumCenters()];
     }

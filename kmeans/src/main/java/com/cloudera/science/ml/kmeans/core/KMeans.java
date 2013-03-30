@@ -43,9 +43,6 @@ public class KMeans {
   /**
    * Constructor that uses the k-means++ initialization strategy and
    * a 1000-iteration stopping criteria.
-   * 
-   * @param numClusters The number of clusters to create
-   * @param stoppingCriteria The stopping criteria to use for Lloyd's algorithm
    */
   public KMeans() {
     this(KMeansInitStrategy.PLUS_PLUS, StoppingCriteria.threshold(1000));
@@ -98,7 +95,8 @@ public class KMeans {
    * @return The centers that the algorithm converged toward
    */
   public <V extends Vector> Centers lloydsAlgorithm(Collection<Weighted<V>> points, Centers centers) {
-    Centers current = centers, last = null;
+    Centers current = centers;
+    Centers last = null;
     int iteration = 0;
     while (!stoppingCriteria.stop(iteration, current, last)) {
       last = current;
@@ -125,10 +123,10 @@ public class KMeans {
     }
     List<Vector> centroids = Lists.newArrayList();
     for (Map.Entry<Integer, List<Weighted<V>>> e : assignments.entrySet()) {
-      if (e.getValue().size() > 0) {
-        centroids.add(centroid(e.getValue()));
-      } else {
+      if (e.getValue().isEmpty()) {
         centroids.add(centers.get(e.getKey())); // fix the no-op center
+      } else {
+        centroids.add(centroid(e.getValue()));
       }
     }
     return new Centers(centroids);

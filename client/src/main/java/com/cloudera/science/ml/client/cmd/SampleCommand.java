@@ -19,7 +19,6 @@ import org.apache.crunch.Pipeline;
 import org.apache.crunch.PipelineResult;
 import org.apache.crunch.lib.Sample;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.mahout.math.Vector;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -58,11 +57,12 @@ public class SampleCommand implements Command {
   public int execute(Configuration conf) throws Exception {
     Pipeline p = pipelineParams.create(SampleCommand.class, conf);
     PCollection<Record> elements = inputParams.getRecords(p);
-    
-    PCollection<Record> sample = null;
+
     if (sampleSize > 0 && samplingProbability > 0.0) {
       throw new IllegalArgumentException("--size and --prob are mutually exclusive options.");
-    } else if (sampleSize > 0) {
+    }
+    PCollection<Record> sample;
+    if (sampleSize > 0) {
       sample = ReservoirSampling.sample(elements, sampleSize);
     } else if (samplingProbability > 0.0 && samplingProbability < 1.0) {
       sample = Sample.sample(elements, samplingProbability);

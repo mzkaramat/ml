@@ -36,8 +36,8 @@ public class Crossfold implements Serializable {
    */
   public static final long DEFAULT_SEED = 1729L;
   
-  private int numFolds;
-  private long seed;
+  private final int numFolds;
+  private final long seed;
   
   public Crossfold(int numFolds) {
     this(numFolds, DEFAULT_SEED);

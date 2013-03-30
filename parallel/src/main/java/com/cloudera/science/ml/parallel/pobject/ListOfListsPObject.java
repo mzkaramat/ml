@@ -25,8 +25,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class ListOfListsPObject<V> extends PObjectImpl<Pair<Pair<Integer, Integer>, V>, List<List<V>>> {
-  private V emptyValue;
-  private int[] expected;
+  private final V emptyValue;
+  private final int[] expected;
   
   public ListOfListsPObject(PCollection<Pair<Pair<Integer, Integer>, V>> collect, int[] expected,
       V empty) {

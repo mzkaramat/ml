@@ -16,12 +16,9 @@ package com.cloudera.science.ml.client.cmd;
 
 import org.apache.hadoop.conf.Configuration;
 
-/**
- *
- */
 public interface Command {
 
   int execute(Configuration conf) throws Exception;
   
-  public String getDescription();
+  String getDescription();
 }

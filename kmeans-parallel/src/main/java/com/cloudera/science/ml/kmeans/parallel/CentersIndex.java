@@ -56,11 +56,11 @@ class CentersIndex implements Serializable {
     }
   }
   
-  public CentersIndex(int numClusterings, int dimensions) {
+  CentersIndex(int numClusterings, int dimensions) {
     this(numClusterings, dimensions, 128, 10, 1729L);
   }
   
-  public CentersIndex(int numClusterings, int dimensions, int projectionBits, int projectionSamples,
+  CentersIndex(int numClusterings, int dimensions, int projectionBits, int projectionSamples,
       long seed) {
     this.pointsPerCenter = new int[numClusterings];
     this.indices = Lists.newArrayList();
@@ -76,11 +76,11 @@ class CentersIndex implements Serializable {
     this.seed = seed;
   }
   
-  public CentersIndex(List<Centers> centers) {
+  CentersIndex(List<Centers> centers) {
     this(centers, 128, 10, 1729L);
   }
   
-  public CentersIndex(List<Centers> centers, int projectionBits, int projectionSamples, long seed) {
+  CentersIndex(List<Centers> centers, int projectionBits, int projectionSamples, long seed) {
     this(centers.size(), centers.get(0).get(0).size(), projectionBits, projectionSamples, seed);
     for (int centerId = 0; centerId < centers.size(); centerId++) {
       for (Vector v : centers.get(centerId)) {
@@ -106,11 +106,10 @@ class CentersIndex implements Serializable {
       }
     }
     indices.clear();
-    for (int i = 0; i < points.size(); i++) {
-      List<double[]> px = points.get(i);
+    for (List<double[]> px : points) {
       List<BitSet> indx = Lists.newArrayList();
-      for (int j = 0; j < px.size(); j++) {
-        indx.add(index(Vectors.of(px.get(j))));
+      for (double[] aPx : px) {
+        indx.add(index(Vectors.of(aPx)));
       }
       indices.add(indx);
     }
@@ -211,14 +210,20 @@ class CentersIndex implements Serializable {
     int distance;
     int index;
     
-    public Idx(int distance, int index) {
+    Idx(int distance, int index) {
       this.distance = distance;
       this.index = index;
     }
 
     @Override
     public int compareTo(Idx idx) {
-      return distance - idx.distance;
+      if (distance < idx.distance) {
+        return -1;
+      }
+      if (distance > idx.distance) {
+        return 1;
+      }
+      return 0;
     }
   }
   

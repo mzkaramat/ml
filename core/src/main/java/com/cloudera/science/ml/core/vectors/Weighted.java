@@ -93,7 +93,7 @@ public class Weighted<T> {
   
   @Override
   public boolean equals(Object other) {
-    if (other == null || !(other instanceof Weighted)) {
+    if (!(other instanceof Weighted)) {
       return false;
     }
     Weighted<T> wv = (Weighted<T>) other;
@@ -107,10 +107,6 @@ public class Weighted<T> {
   
   @Override
   public String toString() {
-    return new StringBuilder()
-        .append(thing)
-        .append(";")
-        .append(weight)
-        .toString();
+    return String.valueOf(thing) + ';' + weight;
   }
 }

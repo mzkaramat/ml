@@ -25,16 +25,15 @@ import org.apache.crunch.impl.mem.MemPipeline;
 import org.apache.crunch.types.writable.Writables;
 import org.junit.Test;
 
-import com.cloudera.science.ml.parallel.sample.ReservoirSampling;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 public class ReservoirSamplingTest {
 
-  private Random r = new Random(1729L);
+  private final Random r = new Random(1729L);
   
-  private PCollection<Pair<String, Double>> values = MemPipeline.typedCollectionOf(
+  private final PCollection<Pair<String, Double>> values = MemPipeline.typedCollectionOf(
       Writables.pairs(Writables.strings(), Writables.doubles()),
       ImmutableList.of(
         Pair.of("foo", 200.0),
@@ -49,10 +48,10 @@ public class ReservoirSamplingTest {
     for (int i = 0; i < 100; i++) {
       PCollection<String> sample = ReservoirSampling.weightedSample(values, 2, r);
       for (String s : sample.materialize()) {
-        if (!histogram.containsKey(s)) {
-          histogram.put(s, 1);
-        } else {
+        if (histogram.containsKey(s)) {
           histogram.put(s, 1 + histogram.get(s));
+        } else {
+          histogram.put(s, 1);
         }
       }
     }

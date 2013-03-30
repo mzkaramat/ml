@@ -28,15 +28,15 @@ import org.apache.avro.specific.SpecificRecord;
 
 import com.google.common.collect.Lists;
 
-/**
- *
- */
-public class AvroIO {
-  
+public final class AvroIO {
+
+  private AvroIO() {
+  }
+
   public static <T extends SpecificRecord> void write(List<T> values, File file)
       throws IOException {
     Schema s = values.get(0).getSchema();
-    Class clazz = values.get(0).getClass();
+    Class<T> clazz = (Class<T>) values.get(0).getClass();
     DataFileWriter<T> dfw = new DataFileWriter<T>(new SpecificDatumWriter<T>(clazz));
     dfw.create(s, file);
     for (T t : values) {

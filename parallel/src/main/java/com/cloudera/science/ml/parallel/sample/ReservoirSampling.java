@@ -39,8 +39,11 @@ import com.google.common.collect.Maps;
  * and Spirakis (2005)</a>.
  * 
  */
-public class ReservoirSampling {
-  
+public final class ReservoirSampling {
+
+  private ReservoirSampling() {
+  }
+
   public static <T> PCollection<T> sample(
       PCollection<T> input,
       int sampleSize) {
@@ -55,6 +58,7 @@ public class ReservoirSampling {
     PType<Pair<T, Integer>> ptype = ptf.pairs(input.getPType(), ptf.ints());
     return weightedSample(
         input.parallelDo(new MapFn<T, Pair<T, Integer>>() {
+          @Override
           public Pair<T, Integer> map(T t) { return Pair.of(t, 1); }
         }, ptype),
         sampleSize,
@@ -79,7 +83,7 @@ public class ReservoirSampling {
             return Pair.of(0, p);
           }
         }, ptf.tableOf(ptf.ints(), input.getPType()));
-    int[] ss = new int[] { sampleSize };
+    int[] ss = { sampleSize };
     return groupedWeightedSample(groupedIn, ss, random)
         .parallelDo(new MapFn<Pair<Integer, T>, T>() {
           @Override
@@ -112,12 +116,12 @@ public class ReservoirSampling {
   private static class SampleFn<T, N extends Number>
       extends DoFn<Pair<Integer, Pair<T, N>>, Pair<Integer, Pair<Double, T>>> {
   
-    private int[] sampleSizes;
+    private final int[] sampleSizes;
     private transient List<SortedMap<Double, T>> archives;
     private transient List<SortedMap<Double, T>> current;
     private Random random;
     
-    public SampleFn(int[] sampleSizes, Random random) {
+    private SampleFn(int[] sampleSizes, Random random) {
       this.sampleSizes = sampleSizes;
       this.random = random;
     }
@@ -141,7 +145,7 @@ public class ReservoirSampling {
     
     private List<SortedMap<Double, T>> createReservoirs() {
       List<SortedMap<Double, T>> ret = Lists.newArrayList();
-      for (int i = 0; i < sampleSizes.length; i++) {
+      for (int sampleSize : sampleSizes) {
         ret.add(Maps.<Double, T>newTreeMap());
       }
       return ret;
@@ -185,17 +189,17 @@ public class ReservoirSampling {
   
   private static class WRSCombineFn<T> extends CombineFn<Integer, Pair<Double, T>> {
 
-    private int[] sampleSizes;
+    private final int[] sampleSizes;
     private List<SortedMap<Double, T>> reservoirs;
     
-    public WRSCombineFn(int[] sampleSizes) {
+    private WRSCombineFn(int[] sampleSizes) {
       this.sampleSizes = sampleSizes;
     }
 
     @Override
     public void initialize() {
       this.reservoirs = Lists.newArrayList();
-      for (int i = 0; i < sampleSizes.length; i++) {
+      for (int dummy : sampleSizes) {
         reservoirs.add(Maps.<Double, T>newTreeMap());
       }
     }

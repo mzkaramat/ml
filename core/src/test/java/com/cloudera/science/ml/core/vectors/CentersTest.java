@@ -19,15 +19,12 @@ import static org.junit.Assert.assertEquals;
 import org.apache.mahout.math.Vector;
 import org.junit.Test;
 
-import com.cloudera.science.ml.core.vectors.Centers;
-import com.cloudera.science.ml.core.vectors.Vectors;
-
 public class CentersTest {
-  private static double THRESH = 0.001;
+  private static final double THRESH = 0.001;
   
-  Vector a = Vectors.of(17.0, 29.0);
-  Vector b = Vectors.of(18.0, 27.0);
-  Vector c = Vectors.of(16.0, 25.0);
+  private final Vector a = Vectors.of(17.0, 29.0);
+  private final Vector b = Vectors.of(18.0, 27.0);
+  private final Vector c = Vectors.of(16.0, 25.0);
   
   @Test
   public void testSingleton() throws Exception {

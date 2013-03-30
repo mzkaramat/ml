@@ -45,11 +45,11 @@ public class CSVRecord implements Record {
 
   @Override
   public Record copy(boolean deep) {
-    if (!deep) {
-      List<String> v = Arrays.asList(new String[values.size()]);
+    if (deep) {
+      List<String> v = Lists.newArrayList(values);
       return new CSVRecord(v);
     } else {
-      List<String> v = Lists.newArrayList(values);
+      List<String> v = Arrays.asList(new String[values.size()]);
       return new CSVRecord(v);
     }
   }
@@ -130,7 +130,7 @@ public class CSVRecord implements Record {
   public double getAsDouble(int index) {
     try {
       return Double.valueOf(values.get(index));
-    } catch (NumberFormatException e) {
+    } catch (NumberFormatException ignored) {
       return Double.NaN;
     }
   }

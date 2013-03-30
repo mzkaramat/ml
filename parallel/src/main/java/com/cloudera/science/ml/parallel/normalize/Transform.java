@@ -18,9 +18,6 @@ import java.io.Serializable;
 
 import com.cloudera.science.ml.parallel.summary.SummaryStats;
 
-/**
- *
- */
 public abstract class Transform implements Serializable {
   
   public abstract double apply(double value, SummaryStats stats);
@@ -28,19 +25,22 @@ public abstract class Transform implements Serializable {
   public static Transform forName(String name) {
     if ("z".equalsIgnoreCase(name)) {
       return Z;
-    } else if ("linear".equalsIgnoreCase(name)) {
+    }
+    if ("linear".equalsIgnoreCase(name)) {
       return LINEAR;
     }
     return NONE;
   }
   
   public static final Transform NONE = new Transform() {
+    @Override
     public double apply(double value, SummaryStats stats) {
       return value;
     }
   };
   
   public static final Transform Z = new Transform() {
+    @Override
     public double apply(double value, SummaryStats stats) {
       if (stats.stdDev() == 0.0) {
         return value;
@@ -50,11 +50,12 @@ public abstract class Transform implements Serializable {
   };
   
   public static final Transform LINEAR = new Transform() {
+    @Override
     public double apply(double value, SummaryStats stats) {
       if (stats.range() == 0.0) {
         return value;
       }
-      return (value - stats.min()) / (stats.range());
+      return (value - stats.min()) / stats.range();
     }
   };
 }

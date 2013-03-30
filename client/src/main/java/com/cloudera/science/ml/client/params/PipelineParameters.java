@@ -21,9 +21,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.beust.jcommander.Parameter;
 
-/**
- *
- */
 public class PipelineParameters {
   
   @Parameter(names = "--local",

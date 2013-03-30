@@ -14,6 +14,8 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
+import java.util.Locale;
+
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Pipeline;
 import org.apache.crunch.PipelineResult;
@@ -100,7 +102,7 @@ public class NormalizeCommand implements Command {
   }
   
   private Transform getDefaultTransform() {
-    String t = transform.toLowerCase();
+    String t = transform.toLowerCase(Locale.ENGLISH);
     if ("none".equals(t)) {
       return Transform.NONE;
     } else if ("linear".equals(t)) {

@@ -20,9 +20,9 @@ class Entry implements Serializable, Comparable<Entry> {
   public int id;
   public long count;
   
-  public Entry() { }
+  Entry() { }
   
-  public Entry(int id) {
+  Entry(int id) {
     this.id = id;
     this.count = 0;
   }
@@ -38,6 +38,12 @@ class Entry implements Serializable, Comparable<Entry> {
 
   @Override
   public int compareTo(Entry other) {
-    return id - other.id;
+    if (id < other.id) {
+      return -1;
+    }
+    if (id > other.id) {
+      return 1;
+    }
+    return 0;
   }
 }
