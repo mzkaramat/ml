@@ -24,7 +24,10 @@ import com.cloudera.science.ml.core.vectors.Vectors;
  * Functions for applying scale factors to a {@code PCollection<Vector>} instance, which is
  * useful if we want to weight some features more than others for clustering.
  */
-public class VectorScaling {
+public final class VectorScaling {
+
+  private VectorScaling() {
+  }
 
   public static <V extends Vector> PCollection<V> scale(PCollection<V> vecs, double[] scaleFactors) {
     return vecs.parallelDo("scale", new ScaleFn<V>(scaleFactors), vecs.getPType());
@@ -34,7 +37,7 @@ public class VectorScaling {
     private final double[] scaleFactors;
     private transient Vector scaleVec;
     
-    public ScaleFn(double[] scaleFactors) {
+    private ScaleFn(double[] scaleFactors) {
       this.scaleFactors = scaleFactors;
     }
 

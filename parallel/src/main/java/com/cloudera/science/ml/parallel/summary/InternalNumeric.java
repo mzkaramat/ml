@@ -20,9 +20,6 @@ class InternalNumeric {
   private double sum;
   private double sumSq;
   private long missing;
-  
-  public InternalNumeric() {
-  }
 
   public Numeric toNumeric(long recordCount) {
     if (missing == recordCount) {

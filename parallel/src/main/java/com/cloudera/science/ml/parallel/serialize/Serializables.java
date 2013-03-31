@@ -30,16 +30,19 @@ import org.apache.crunch.types.PTypeFamily;
 /**
  * Utilities for working with {@code Serializable} object types in Crunch.
  */
-public class Serializables {
-  
-  public static final <T extends Serializable>  PType<T> ptype(Class<T> clazz, PTypeFamily ptf) {
+public final class Serializables {
+
+  private Serializables() {
+  }
+
+  public static <T extends Serializable>  PType<T> ptype(Class<T> clazz, PTypeFamily ptf) {
     return ptf.derived(clazz, new InFn<T>(clazz), new OutFn<T>(), ptf.bytes());
   }
 
   private static class InFn<T> extends MapFn<ByteBuffer, T> {
     private final Class<T> clazz;
     
-    public InFn(Class<T> clazz) {
+    InFn(Class<T> clazz) {
       this.clazz = clazz;
     }
     
@@ -57,7 +60,7 @@ public class Serializables {
     }
   }
 
-  private static class OutFn<T> extends MapFn<T, ByteBuffer> {
+  private static class OutFn<T extends Serializable> extends MapFn<T, ByteBuffer> {
     @Override
     public ByteBuffer map(T input) {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();

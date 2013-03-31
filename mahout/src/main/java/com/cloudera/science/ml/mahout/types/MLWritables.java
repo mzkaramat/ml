@@ -18,6 +18,7 @@ import org.apache.crunch.MapFn;
 import org.apache.crunch.types.PType;
 import org.apache.crunch.types.writable.WritableType;
 import org.apache.crunch.types.writable.Writables;
+import org.apache.hadoop.io.Writable;
 import org.apache.mahout.math.NamedVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
@@ -25,11 +26,11 @@ import org.apache.mahout.math.VectorWritable;
 /**
  * Factory methods for creating {@code PType} instances for use with the ML Parallel libraries.
  */
-public class MLWritables {
+public final class MLWritables {
 
   static {
-    Writables.register(Vector.class, (WritableType) vector());
-    Writables.register(NamedVector.class, (WritableType) vector(NamedVector.class));
+    Writables.register(Vector.class, (WritableType<Vector,? extends Writable>) vector());
+    Writables.register(NamedVector.class, (WritableType<NamedVector,? extends Writable>) vector(NamedVector.class));
   }
   
   /**
@@ -46,14 +47,14 @@ public class MLWritables {
           Writables.writables(VectorWritable.class));
   }
   
-  private static MapFn<VectorWritable, Vector> VEC_IN = new MapFn<VectorWritable, Vector>() {
+  private static final MapFn<VectorWritable, Vector> VEC_IN = new MapFn<VectorWritable, Vector>() {
     @Override
     public Vector map(VectorWritable input) {
       return input.get();
     }
   };
 
-  private static MapFn<Vector, VectorWritable> VEC_OUT = new MapFn<Vector, VectorWritable>() {
+  private static final MapFn<Vector, VectorWritable> VEC_OUT = new MapFn<Vector, VectorWritable>() {
     @Override
     public VectorWritable map(Vector input) {
       return new VectorWritable(input);

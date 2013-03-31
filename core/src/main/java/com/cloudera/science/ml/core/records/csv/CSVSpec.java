@@ -24,9 +24,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-/**
- *
- */
 public class CSVSpec implements Spec {
 
   private final DataType dataType;

@@ -19,12 +19,9 @@ import org.apache.avro.generic.GenericData;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 
-/**
- *
- */
 public class AvroRecord implements Record {
 
-  private GenericData.Record impl;
+  private final GenericData.Record impl;
   
   public AvroRecord(GenericData.Record impl) {
     this.impl = impl;
@@ -34,6 +31,7 @@ public class AvroRecord implements Record {
     return impl;
   }
   
+  @Override
   public Record copy(boolean deep) {
     if (deep) {
       return new AvroRecord(new GenericData.Record(impl, true));

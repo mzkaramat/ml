@@ -57,9 +57,9 @@ public class RecordSpec implements Spec {
 
   @Override
   public FieldSpec getField(String fieldName) {
-    for (int i = 0; i < fields.size(); i++) {
-      if (fields.get(i).name().equals(fieldName)) {
-        return fields.get(i);
+    for (FieldSpec field : fields) {
+      if (field.name().equals(fieldName)) {
+        return field;
       }
     }
     return null;
@@ -74,7 +74,7 @@ public class RecordSpec implements Spec {
   }
   
   public static class Builder {
-    List<FieldSpec> fields = Lists.newArrayList();
+    private final List<FieldSpec> fields = Lists.newArrayList();
     
     public Builder() { }
 
@@ -120,11 +120,11 @@ public class RecordSpec implements Spec {
   }
   
   private static class FieldSpecImpl implements FieldSpec {
-    private String name;
-    private int position;
-    private Spec spec;
+    private final String name;
+    private final int position;
+    private final Spec spec;
     
-    public FieldSpecImpl(String name, int position, Spec spec) {
+    private FieldSpecImpl(String name, int position, Spec spec) {
       this.name = name;
       this.position = position;
       this.spec = spec;

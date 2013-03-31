@@ -34,11 +34,11 @@ import com.cloudera.science.ml.core.vectors.Vectors;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
-/**
- *
- */
-public class MLRecords {
-  
+public final class MLRecords {
+
+  private MLRecords() {
+  }
+
   public static PType<Record> record(Spec spec) {
     final Schema schema = Spec2Schema.create(spec);
     return Avros.derived(Record.class,
@@ -89,9 +89,9 @@ public class MLRecords {
   }
   
   private static class Record2VectorFn extends MapFn<Record, Vector> {
-    private boolean sparse;
+    private final boolean sparse;
     
-    public Record2VectorFn(boolean sparse) {
+    private Record2VectorFn(boolean sparse) {
       this.sparse = sparse;
     }
     
@@ -114,7 +114,7 @@ public class MLRecords {
 
     private final String delim;
     
-    public CSV2RecordMapFn(String delim) {
+    private CSV2RecordMapFn(String delim) {
       this.delim = delim;
     }
     
@@ -122,12 +122,12 @@ public class MLRecords {
     public Record map(String str) {
       return new CSVRecord(str.split(delim));
     }
-  };
-  
+  }
+
   private static class Record2CSVMapFn extends MapFn<Record, String> {
     private final String delim;
     
-    public Record2CSVMapFn(String delim) {
+    private Record2CSVMapFn(String delim) {
       this.delim = delim;
     }
     

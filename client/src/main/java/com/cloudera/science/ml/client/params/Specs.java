@@ -23,8 +23,11 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-public class Specs {
-  
+public final class Specs {
+
+  private Specs() {
+  }
+
   public static Integer getFieldId(Spec spec, String value) {
     List<Integer> fieldIds = getFieldIds(spec, ImmutableList.of(value));
     if (fieldIds.isEmpty()) {
@@ -38,7 +41,7 @@ public class Specs {
       return ImmutableList.of();
     }
     
-    List<Integer> fieldIds = null;
+    List<Integer> fieldIds;
     if (spec == null || spec.getField(values.get(0)) == null) {
       fieldIds = Lists.transform(values, new Function<String, Integer>() {
         @Override
@@ -48,8 +51,8 @@ public class Specs {
       });
     } else {
       fieldIds = Lists.newArrayListWithExpectedSize(values.size());
-      for (int i = 0; i < values.size(); i++) {
-        FieldSpec f = spec.getField(values.get(i));
+      for (String value : values) {
+        FieldSpec f = spec.getField(value);
         if (f != null) {
           fieldIds.add(f.position());
         }

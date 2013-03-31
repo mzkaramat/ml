@@ -23,14 +23,11 @@ import com.beust.jcommander.Parameters;
 import com.cloudera.science.ml.client.cmd.Command;
 import com.google.common.collect.Lists;
 
-/**
- *
- */
 @Parameters(commandDescription = "Retrieves details on the functions of other commands")
 public class Help {
   @Parameter(description = "Commands")
-  List<String> helpCommands = Lists.newArrayList();;
-  
+  List<String> helpCommands = Lists.newArrayList();
+
   public int usage(JCommander jc, Map<String, Command> cmds) {
     if (helpCommands.isEmpty()) {
       System.out.println("Commands:\n");

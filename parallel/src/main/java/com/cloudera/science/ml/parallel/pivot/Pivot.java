@@ -36,14 +36,11 @@ import com.cloudera.science.ml.parallel.summary.SummaryStats;
 import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.collect.Maps;
 
-/**
- *
- */
 public class Pivot {
 
-  public static enum Agg { SUM, MEAN };
-  
-  private Spec createSpec(Spec spec, List<Integer> groupColumns) {
+  public enum Agg { SUM, MEAN }
+
+  private static Spec createSpec(Spec spec, List<Integer> groupColumns) {
     RecordSpec.Builder b = RecordSpec.builder();
     for (Integer c : groupColumns) {
       FieldSpec f = spec.getField(c);
@@ -66,18 +63,17 @@ public class Pivot {
     RecordSpec.Builder b = RecordSpec.builder(keySpec);
     SummaryStats attrStats = summary.getStats(attributeColumn);
     SummaryStats valueStats = summary.getStats(valueColumn);
-    List<String> levels = null;
     if (!valueStats.isNumeric()) {
       throw new IllegalArgumentException("Non-numeric value column in pivot op");
-    } else if (attrStats.isNumeric() || attrStats.numLevels() == 1) {
-      throw new IllegalArgumentException("Non-categorical attribute column in pivot op");
-    } else {
-      levels = attrStats.getLevels();
-      for (String level : levels) {
-        b.addDouble(level);
-      }
     }
-    
+    if (attrStats.isNumeric() || attrStats.numLevels() == 1) {
+      throw new IllegalArgumentException("Non-categorical attribute column in pivot op");
+    }
+    List<String> levels = attrStats.getLevels();
+    for (String level : levels) {
+      b.addDouble(level);
+    }
+
     Spec outSpec = b.build();
     return new Records(records.get().parallelDo("pivotmap",
         new PivotMapperFn(keySpec, groupColumns, attributeColumn, valueColumn),
@@ -98,7 +94,7 @@ public class Pivot {
     private final Map<Record, Map<String, Stat>> cache;
     private int cacheAdds = 0;
     
-    public PivotMapperFn(Spec spec, List<Integer> groupColumns, int attributeColumn, int valueColumn) {
+    private PivotMapperFn(Spec spec, List<Integer> groupColumns, int attributeColumn, int valueColumn) {
       this.spec = spec;
       this.groupColumns = groupColumns;
       this.attributeColumn = attributeColumn;
@@ -145,11 +141,11 @@ public class Pivot {
   }
   
   private static class PivotFinishFn extends MapFn<Pair<Record, Map<String, Stat>>, Record> {
-    private Spec spec;
-    private List<String> levels;
-    private Agg agg;
+    private final Spec spec;
+    private final List<String> levels;
+    private final Agg agg;
     
-    public PivotFinishFn(Spec spec, List<String> levels, Agg agg) {
+    private PivotFinishFn(Spec spec, List<String> levels, Agg agg) {
       this.spec = spec;
       this.levels = levels;
       this.agg = agg;

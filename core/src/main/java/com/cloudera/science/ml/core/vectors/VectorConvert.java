@@ -59,10 +59,10 @@ public final class VectorConvert {
     return FROM_CENTERS.apply(input);
   }
   
-  public static Function<MLVector, Vector> TO_VECTOR = new Function<MLVector, Vector>() {
+  public static final Function<MLVector, Vector> TO_VECTOR = new Function<MLVector, Vector>() {
     @Override
     public Vector apply(MLVector input) {
-      Vector base = null;
+      Vector base;
       if (input.getIndices().isEmpty()) {
         double[] d = new double[input.getSize()];
         for (int i = 0; i < d.length; i++) {
@@ -83,7 +83,7 @@ public final class VectorConvert {
     }
   };
   
-  public static Function<Vector, MLVector> FROM_VECTOR = new Function<Vector, MLVector>() {
+  public static final Function<Vector, MLVector> FROM_VECTOR = new Function<Vector, MLVector>() {
     @Override
     public MLVector apply(Vector input) {
       List<Double> values = Lists.newArrayList();
@@ -114,14 +114,14 @@ public final class VectorConvert {
     }
   };
 
-  public static Function<MLWeightedVector, Weighted<Vector>> TO_WEIGHTED_VEC = new Function<MLWeightedVector, Weighted<Vector>>() {
+  public static final Function<MLWeightedVector, Weighted<Vector>> TO_WEIGHTED_VEC = new Function<MLWeightedVector, Weighted<Vector>>() {
     @Override
     public Weighted<Vector> apply(MLWeightedVector input) {
       return new Weighted<Vector>(TO_VECTOR.apply(input.getVec()), input.getWeight());
     }
   };
   
-  public static Function<Weighted<Vector>, MLWeightedVector> FROM_WEIGHTED_VEC = new Function<Weighted<Vector>, MLWeightedVector>() {
+  public static final Function<Weighted<Vector>, MLWeightedVector> FROM_WEIGHTED_VEC = new Function<Weighted<Vector>, MLWeightedVector>() {
     @Override
     public MLWeightedVector apply(Weighted<Vector> input) {
       MLWeightedVector.Builder b = MLWeightedVector.newBuilder();
@@ -130,14 +130,14 @@ public final class VectorConvert {
     }
   };
   
-  public static Function<MLCenters, Centers> TO_CENTERS = new Function<MLCenters, Centers>() {
+  public static final Function<MLCenters, Centers> TO_CENTERS = new Function<MLCenters, Centers>() {
     @Override
     public Centers apply(MLCenters input) {
       return new Centers(Lists.transform(input.getCenters(), TO_VECTOR));
     }
   };
   
-  public static Function<Centers, MLCenters> FROM_CENTERS = new Function<Centers, MLCenters>() {
+  public static final Function<Centers, MLCenters> FROM_CENTERS = new Function<Centers, MLCenters>() {
     @Override
     public MLCenters apply(Centers input) {
       MLCenters.Builder b = MLCenters.newBuilder();

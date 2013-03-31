@@ -53,12 +53,13 @@ public class Centers extends AbstractList<Vector> {
    */
   public Centers(Iterable<Vector> points) {
     this.centers = ImmutableList.copyOf(Sets.newLinkedHashSet(points));
-    Preconditions.checkArgument(this.centers.size() > 0);
+    Preconditions.checkArgument(!this.centers.isEmpty());
   }
   
   /**
    * Returns the number of points in this instance.
    */
+  @Override
   public int size() {
     return centers.size();
   }
@@ -66,6 +67,7 @@ public class Centers extends AbstractList<Vector> {
   /**
    * Returns the {@code Vector} at the given index.
    */
+  @Override
   public Vector get(int index) {
     return centers.get(index);
   }
@@ -148,7 +150,7 @@ public class Centers extends AbstractList<Vector> {
   
   @Override
   public boolean equals(Object other) {
-    if (other == null || !(other instanceof Centers)) {
+    if (!(other instanceof Centers)) {
       return false;
     }
     Centers c = (Centers) other;
@@ -158,8 +160,8 @@ public class Centers extends AbstractList<Vector> {
   @Override
   public int hashCode() {
     int hc = 0;
-    for (int i = 0; i < centers.size(); i++) {
-      hc += centers.get(i).hashCode();
+    for (Vector center : centers) {
+      hc += center.hashCode();
     }
     return hc;
   }

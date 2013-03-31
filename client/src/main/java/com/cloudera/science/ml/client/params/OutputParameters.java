@@ -14,6 +14,8 @@
  */
 package com.cloudera.science.ml.client.params;
 
+import java.util.Locale;
+
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Target;
 import org.apache.crunch.Target.WriteMode;
@@ -39,7 +41,7 @@ public class OutputParameters {
   private String outputType;
   
   public PType<Vector> getVectorPType() {
-    outputType = outputType.toLowerCase();
+    outputType = outputType.toLowerCase(Locale.ENGLISH);
     if ("avro".equals(outputType)) {
       return MLAvros.vector();
     } else if ("seq".equals(outputType)) {
@@ -50,10 +52,10 @@ public class OutputParameters {
   }
   
   public <T> void write(PCollection<T> collect, String output) {
-    outputType = outputType.toLowerCase();
+    outputType = outputType.toLowerCase(Locale.ENGLISH);
     PTypeFamily ptf = collect.getTypeFamily();
     PType<T> ptype = collect.getPType();
-    Target target = null;
+    Target target;
     if ("text".equals(outputType)) {
       target = To.textFile(output);
     } else if ("avro".equals(outputType)) {
@@ -81,7 +83,7 @@ public class OutputParameters {
     collect.write(target, WriteMode.OVERWRITE);
   }
   
-  private void forceConversionException(String outputFile, PType<?> ptype, String type) {
+  private static void forceConversionException(String outputFile, PType<?> ptype, String type) {
     String msg = String.format(
         "Could not convert type %s into %s format for output: %s",
         ptype.getTypeClass().getCanonicalName(), type, outputFile);

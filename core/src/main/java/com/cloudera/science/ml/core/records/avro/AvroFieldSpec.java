@@ -19,9 +19,6 @@ import org.apache.avro.Schema;
 import com.cloudera.science.ml.core.records.FieldSpec;
 import com.cloudera.science.ml.core.records.Spec;
 
-/**
- *
- */
 public class AvroFieldSpec implements FieldSpec {
 
   private final String name;

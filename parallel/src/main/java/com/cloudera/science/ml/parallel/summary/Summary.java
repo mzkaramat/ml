@@ -26,12 +26,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-/**
- *
- */
 public class Summary implements Serializable {
 
-  private SortedMap<Integer, SummaryStats> stats = Maps.newTreeMap();
+  private final SortedMap<Integer, SummaryStats> stats = Maps.newTreeMap();
   private long recordCount;
   private int fieldCount;
   

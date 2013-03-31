@@ -14,16 +14,13 @@
  */
 package com.cloudera.science.ml.parallel.pivot;
 
-/**
- *
- */
 class Stat {
   public long count = 0L;
   public double sum = 0.0;
   
-  public Stat() { this(0L, 0.0); }
+  Stat() { this(0L, 0.0); }
   
-  public Stat(long count, double sum) {
+  Stat(long count, double sum) {
     this.count = count;
     this.sum = sum;
   }

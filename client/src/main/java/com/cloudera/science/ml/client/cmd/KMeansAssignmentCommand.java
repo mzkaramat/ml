@@ -76,8 +76,8 @@ public class KMeansAssignmentCommand implements Command {
     List<MLCenters> centers = AvroIO.read(MLCenters.class, new File(centersFile));
     if (!centerIds.isEmpty()) {
       List<MLCenters> filter = Lists.newArrayListWithExpectedSize(centerIds.size());
-      for (int i = 0; i < centerIds.size(); i++) {
-        filter.add(centers.get(centerIds.get(i)));
+      for (Integer centerId : centerIds) {
+        filter.add(centers.get(centerId));
       }
       centers = filter;
     }

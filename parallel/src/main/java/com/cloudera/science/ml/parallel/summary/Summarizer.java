@@ -27,23 +27,17 @@ import org.apache.crunch.fn.Aggregators;
 import org.apache.crunch.materialize.pobject.PObjectImpl;
 import org.apache.crunch.types.avro.Avros;
 
-import com.cloudera.science.ml.core.records.FieldSpec;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-/**
- *
- */
 public class Summarizer {
   
-  private Set<Integer> ignoredColumns = Sets.newHashSet();
+  private final Set<Integer> ignoredColumns = Sets.newHashSet();
   private boolean defaultToSymbolic = false;
-  private Set<Integer> exceptionColumns = Sets.newHashSet();
+  private final Set<Integer> exceptionColumns = Sets.newHashSet();
   private Spec spec = null;
-  
-  public Summarizer() { }
   
   public Summarizer spec(Spec spec) {
     this.spec = spec;
@@ -88,7 +82,7 @@ public class Summarizer {
   private static class SummaryPObject extends PObjectImpl<Pair<Integer, Pair<Long, InternalStats>>, Summary> {
     private final Spec spec;
     
-    public SummaryPObject(Spec spec, PCollection<Pair<Integer, Pair<Long, InternalStats>>> pc) {
+    private SummaryPObject(Spec spec, PCollection<Pair<Integer, Pair<Long, InternalStats>>> pc) {
       super(pc);
       this.spec = spec;
     }
@@ -130,8 +124,8 @@ public class Summarizer {
     private final Map<Integer, InternalStats> stats;
     private long count;
     
-    public SummarizeFn(Set<Integer> ignoreColumns,
-        boolean defaultToSymbolic, Set<Integer> exceptionColumns) {
+    private SummarizeFn(Set<Integer> ignoreColumns,
+                        boolean defaultToSymbolic, Set<Integer> exceptionColumns) {
       this.ignoredColumns = ignoreColumns;
       this.defaultToSymbolic = defaultToSymbolic;
       this.exceptionColumns = exceptionColumns;

@@ -19,9 +19,6 @@ import org.apache.crunch.PCollection;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 
-/**
- *
- */
 public class Records {
   private final Spec spec;
   private final PCollection<Record> records;

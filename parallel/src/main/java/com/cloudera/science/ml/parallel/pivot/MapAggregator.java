@@ -21,12 +21,9 @@ import org.apache.crunch.fn.Aggregators.SimpleAggregator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
-/**
- *
- */
 public class MapAggregator extends SimpleAggregator<Map<String, Stat>> {
 
-  private Map<String, Stat> values = Maps.newHashMap();
+  private final Map<String, Stat> values = Maps.newHashMap();
   
   @Override
   public void reset() {

@@ -38,14 +38,14 @@ import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.collect.ImmutableList;
 
 public class SummaryTest implements Serializable {
-  private PCollection<Vector> vecs = MemPipeline.typedCollectionOf(
+  private final PCollection<Vector> vecs = MemPipeline.typedCollectionOf(
       MLAvros.vector(),
       Vectors.of(1.0, 3.0),
       Vectors.of(1.0, 1.0),
       Vectors.of(3.0, 1.0),
       Vectors.of(3.0, 3.0));
   
-  private PCollection<String> strings = MemPipeline.typedCollectionOf(
+  private final PCollection<String> strings = MemPipeline.typedCollectionOf(
       Avros.strings(),
       "1.0,NA,2.0",
       "1.0,2.0,3.0");

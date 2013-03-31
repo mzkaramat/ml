@@ -24,9 +24,6 @@ import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.csv.CSVRecord;
 import com.cloudera.science.ml.parallel.types.MLRecords;
 
-/**
- *
- */
 public class StringSplitFn extends DoFn<String, Record> {
 
   private final String delim;
@@ -50,9 +47,7 @@ public class StringSplitFn extends DoFn<String, Record> {
 
   @Override
   public void process(String line, Emitter<Record> emitter) {
-    if (line == null || line.isEmpty()) {
-      return;
-    } else if (ignoredLines != null && ignoredLines.matcher(line).find()) {
+    if (line == null || line.isEmpty() || ignoredLines != null && ignoredLines.matcher(line).find()) {
       return;
     }
     emitter.emit(new CSVRecord(line.split(delim)));

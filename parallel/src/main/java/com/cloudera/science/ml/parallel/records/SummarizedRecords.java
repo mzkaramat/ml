@@ -19,9 +19,6 @@ import org.apache.crunch.PCollection;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.parallel.summary.Summary;
 
-/**
- *
- */
 public class SummarizedRecords extends Records {
 
   private final Summary summary;

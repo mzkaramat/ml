@@ -30,21 +30,20 @@ import com.google.common.collect.ImmutableList;
 
 public class KMeansTest {
 
-  Weighted<Vector> a = wpoint(1.0, 1.0);
-  Weighted<Vector> b = wpoint(5.0, 4.0);
-  Weighted<Vector> c = wpoint(4.0, 3.0);
-  Weighted<Vector> d = wpoint(2.0, 1.0);
-  List<Weighted<Vector>> points = ImmutableList.of(a, b, c, d);
-  
-  KMeans kmeans = new KMeans();
+  private final Weighted<Vector> a = wpoint(1.0, 1.0);
+  private final Weighted<Vector> b = wpoint(5.0, 4.0);
+  private final Weighted<Vector> c = wpoint(4.0, 3.0);
+  private final Weighted<Vector> d = wpoint(2.0, 1.0);
+  private final List<Weighted<Vector>> points = ImmutableList.of(a, b, c, d);
+  private final KMeans kmeans = new KMeans();
   private Random rand;
   
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     rand = new Random(1729L);
   }
   
-  public Vector vec(double... values) {
+  public static Vector vec(double... values) {
     return Vectors.of(values);
   }
   

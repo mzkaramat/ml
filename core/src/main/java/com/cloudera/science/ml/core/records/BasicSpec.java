@@ -19,9 +19,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-/**
- *
- */
 public class BasicSpec implements Spec {
 
   private final DataType dataType;

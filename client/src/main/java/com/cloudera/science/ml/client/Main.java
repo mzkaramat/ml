@@ -74,13 +74,9 @@ public class Main extends Configured implements Tool {
     }
     try {
       return cmd.execute(getConf());
-    } catch (Exception e) {
-      if (e instanceof CommandException) {
-        System.err.println("Error: " + e.getMessage());
-      } else {
-        throw e;
-      }
-      return 1;
+    } catch (CommandException ce) {
+      System.err.println("Error: " + ce.getMessage());
+      return 1;      
     }
   }
   

@@ -50,6 +50,7 @@ public class VectorRecord implements Record {
     return vector;
   }
   
+  @Override
   public Object get(int index) {
     return vector.getQuick(index);
   }

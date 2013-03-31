@@ -22,7 +22,7 @@ import org.apache.mahout.math.Vector;
 /**
  * Factory methods for working with {@code Vector} objects.
  */
-public class Vectors {
+public final class Vectors {
 
   /**
    * Converts the given {@code Vector} into a {@code double[]}.

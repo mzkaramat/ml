@@ -16,6 +16,7 @@ package com.cloudera.science.ml.client.cmd;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.crunch.PCollection;
@@ -85,7 +86,7 @@ public class SummaryCommand implements Command {
             throw new CommandException("Invalid header file row: " + line);
           }
           String name = pieces[0];
-          String meta = pieces[1].toLowerCase().trim();
+          String meta = pieces[1].toLowerCase(Locale.ENGLISH).trim();
           if (meta.startsWith("ignore") || meta.startsWith("id")) {
             ignoredColumns.add(i);
             rsb.add(name, DataType.STRING);

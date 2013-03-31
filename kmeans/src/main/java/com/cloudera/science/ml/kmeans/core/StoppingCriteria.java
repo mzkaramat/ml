@@ -75,24 +75,21 @@ public abstract class StoppingCriteria {
   private static class ThresholdStoppingCriteria extends StoppingCriteria {
     private final double threshold;
     
-    public ThresholdStoppingCriteria(double threshold) {
+    private ThresholdStoppingCriteria(double threshold) {
       Preconditions.checkArgument(threshold > 0);
       this.threshold = threshold;
     }
     
     @Override
     public boolean stop(int iteration, Centers current, Centers last) {
-      if (last == null) {
-        return false;
-      }
-      return last.getSumOfSquaredDistances(current) < threshold;
+      return last != null && last.getSumOfSquaredDistances(current) < threshold;
     }
   }
   
   private static class MaxIterationStoppingCriteria extends StoppingCriteria {
     private final int maxIterations;
 
-    public MaxIterationStoppingCriteria(int maxIterations) {
+    private MaxIterationStoppingCriteria(int maxIterations) {
       Preconditions.checkArgument(maxIterations > 0);
       this.maxIterations = maxIterations;
     }
@@ -104,9 +101,9 @@ public abstract class StoppingCriteria {
   }
   
   private static class OrStoppingCriteria extends StoppingCriteria {
-    private StoppingCriteria[] criteria;
+    private final StoppingCriteria[] criteria;
     
-    public OrStoppingCriteria(StoppingCriteria[] criteria) {
+    private OrStoppingCriteria(StoppingCriteria[] criteria) {
       Preconditions.checkArgument(criteria.length > 0);
       this.criteria = criteria;
     }

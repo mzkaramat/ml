@@ -32,7 +32,7 @@ import com.cloudera.science.ml.core.vectors.VectorConvert;
 /**
  * Factory methods for creating {@code PType} instances for use with the ML Parallel libraries.
  */
-public class MLAvros {
+public final class MLAvros {
 
   /**
    * Returns an {@code AvroType<Vector>} based on the {@code AvroTypeFamily}.
@@ -62,7 +62,7 @@ public class MLAvros {
         Avros.generics(schema));
   }
   
-  private static AvroType<Vector> vector = Avros.derived(Vector.class,
+  private static final AvroType<Vector> vector = Avros.derived(Vector.class,
       new MapFn<MLVector, Vector>() {
         @Override
         public Vector map(MLVector vec) {
@@ -77,7 +77,7 @@ public class MLAvros {
       },
       Avros.specifics(MLVector.class));
   
-  private static AvroType<NamedVector> namedVector = Avros.derived(NamedVector.class,
+  private static final AvroType<NamedVector> namedVector = Avros.derived(NamedVector.class,
       new MapFn<MLVector, NamedVector>() {
         @Override
         public NamedVector map(MLVector vec) {

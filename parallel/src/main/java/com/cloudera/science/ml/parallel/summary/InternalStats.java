@@ -24,9 +24,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-/**
- *
- */
 class InternalStats {
 
   public static final Aggregator<InternalStats> AGGREGATOR = new SimpleAggregator<InternalStats>() {
@@ -50,9 +47,6 @@ class InternalStats {
   private InternalNumeric internalNumeric;
   private Map<String, Entry> histogram;
 
-  public InternalStats() {
-  }
-  
   public SummaryStats toSummaryStats(String name, long recordCount) {
     if (internalNumeric == null) {
       if (histogram == null) {

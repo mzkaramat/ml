@@ -26,7 +26,7 @@ import com.cloudera.science.ml.parallel.types.MLAvros;
 import com.google.common.collect.ImmutableList;
 
 public class VectorScalingTest {
-  private PCollection<Vector> vecs = MemPipeline.typedCollectionOf(
+  private final PCollection<Vector> vecs = MemPipeline.typedCollectionOf(
       MLAvros.vector(),
       Vectors.of(1.0, 2.0),
       Vectors.of(1.0, 1.0),

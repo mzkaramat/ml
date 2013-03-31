@@ -38,7 +38,7 @@ public final class ShuffleFns {
     
     private transient Random rand;
     
-    public ShuffleFn(Long seed, int numSplits) {
+    private ShuffleFn(Long seed, int numSplits) {
       this.seed = seed;
       this.numSplits = numSplits;
     }
@@ -63,7 +63,7 @@ public final class ShuffleFns {
 
     private transient Random random;
 
-    public CVShuffleFn(int numSplits, Long seed, int numFolds) {
+    private CVShuffleFn(int numSplits, Long seed, int numFolds) {
       this.numSplits = numSplits;
       this.seed = seed;
       this.numFolds = numFolds;

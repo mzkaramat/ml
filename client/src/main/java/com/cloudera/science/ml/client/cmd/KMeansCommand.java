@@ -65,7 +65,7 @@ public class KMeansCommand implements Command {
 
   @Parameter(names = "--stopping-threshold",
       description = "Stop the Lloyd's iterations if the delta between centers falls below this")
-  private double stoppingThreshold = 1e-4;  
+  private double stoppingThreshold = 1.0e-4;  
 
   @Parameter(names = "--centers-file",
       description = "A local file to store the centers that were created into")
@@ -87,8 +87,8 @@ public class KMeansCommand implements Command {
     List<MLWeightedCenters> mlwc = AvroIO.read(MLWeightedCenters.class, new File(sketchFile));
     List<List<Weighted<Vector>>> sketches = toSketches(mlwc);
     List<Weighted<Vector>> allPoints = Lists.newArrayList();
-    for (int i = 0; i < sketches.size(); i++) {
-      allPoints.addAll(sketches.get(i));
+    for (List<Weighted<Vector>> sketch : sketches) {
+      allPoints.addAll(sketch);
     }
     List<Centers> centers = getClusters(allPoints, kmeans);
     AvroIO.write(Lists.transform(centers, VectorConvert.FROM_CENTERS),
@@ -129,7 +129,7 @@ public class KMeansCommand implements Command {
     return centers;
   }
   
-  private List<List<Weighted<Vector>>> toSketches(List<MLWeightedCenters> mlwc) {
+  private static List<List<Weighted<Vector>>> toSketches(List<MLWeightedCenters> mlwc) {
     List<List<Weighted<Vector>>> base = Lists.newArrayList();
     for (MLWeightedCenters wc : mlwc) {
       base.add(Lists.transform(wc.getCenters(), VectorConvert.TO_WEIGHTED_VEC));

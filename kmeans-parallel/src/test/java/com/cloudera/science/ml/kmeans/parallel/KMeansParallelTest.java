@@ -30,15 +30,13 @@ import com.cloudera.science.ml.core.vectors.Vectors;
 import com.cloudera.science.ml.core.vectors.Weighted;
 import com.cloudera.science.ml.kmeans.core.KMeans;
 import com.cloudera.science.ml.parallel.crossfold.Crossfold;
-import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.types.MLAvros;
-import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 public class KMeansParallelTest {
   
-  private PCollection<Vector> vecs = MemPipeline.typedCollectionOf(
+  private final PCollection<Vector> vecs = MemPipeline.typedCollectionOf(
       MLAvros.vector(),
       Vectors.of(2.0, 1.0),
       Vectors.of(1.0, 1.0),
@@ -58,23 +56,23 @@ public class KMeansParallelTest {
       Vectors.of(4.0, 3.0));
   
   private KMeansParallel kmp;
-  private Random r = new Random(29L);
+  private final Random r = new Random(29L);
   
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     kmp = new KMeansParallel(r, 128, 32);
   }
   
   @Test
   public void testBasic() throws Exception {
     List<Vector> initialPoints = ImmutableList.of(Vectors.of(1.0, 1.0));
-    KMeans km = new KMeans();
-    
+
     List<List<Weighted<Vector>>> points = kmp.initialization(vecs, 5, 4, initialPoints,
         new Crossfold(2, 1729L));
     List<Centers> centers = Lists.newArrayList();
     List<Weighted<Vector>> allPoints = Lists.newArrayList(points.get(0));
     allPoints.addAll(points.get(1));
+    KMeans km = new KMeans();
     centers.add(km.compute(allPoints, 1, new Random(17)));
     centers.add(km.compute(allPoints, 2, new Random(17)));
     centers.add(km.compute(allPoints, 3, new Random(17)));

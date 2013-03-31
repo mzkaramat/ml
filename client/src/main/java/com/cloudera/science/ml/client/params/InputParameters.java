@@ -14,8 +14,9 @@
  */
 package com.cloudera.science.ml.client.params;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.apache.crunch.PCollection;
@@ -61,20 +62,21 @@ public class InputParameters {
     return delim;
   }
   
-  public PCollection<Vector> getVectorsFromPath(final Pipeline pipeline, String path) {
-    return getVectors(pipeline, Arrays.asList(path));
+  public PCollection<Vector> getVectorsFromPath(Pipeline pipeline, String path) {
+    return getVectors(pipeline, Collections.singletonList(path));
   }
   
-  public PCollection<Vector> getVectors(final Pipeline pipeline) {
+  public PCollection<Vector> getVectors(Pipeline pipeline) {
     return getVectors(pipeline, inputPaths);
   }
   
   private PCollection<Vector> getVectors(final Pipeline pipeline, List<String> paths) {
-    format = format.toLowerCase();
-    PCollection<Vector> ret = null;
+    format = format.toLowerCase(Locale.ENGLISH);
     if ("text".equals(format)) {
       throw new IllegalArgumentException("Vectors must be in 'seq' or 'avro' format");
-    } else if ("seq".equals(format)) {
+    }
+    PCollection<Vector> ret;
+    if ("seq".equals(format)) {
       ret = from(paths, new Function<String, PCollection<Vector>>() {
         @Override
         public PCollection<Vector> apply(String input) {
@@ -95,8 +97,8 @@ public class InputParameters {
   }
 
   public PCollection<Record> getRecords(final Pipeline pipeline) {
-    format = format.toLowerCase();
-    PCollection<Record> ret = null;
+    format = format.toLowerCase(Locale.ENGLISH);
+    PCollection<Record> ret;
     if ("text".equals(format)) {
       PCollection<String> text = fromInputs(new Function<String, PCollection<String>>() {
         @Override
@@ -132,7 +134,7 @@ public class InputParameters {
     return from(inputPaths, f);
   }
   
-  private <T> PCollection<T> from(List<String> paths, Function<String, PCollection<T>> f) {
+  private static <T> PCollection<T> from(List<String> paths, Function<String, PCollection<T>> f) {
     PCollection<T> ret = null;
     for (PCollection<T> p : Lists.transform(paths, f)) {
       if (ret == null) {

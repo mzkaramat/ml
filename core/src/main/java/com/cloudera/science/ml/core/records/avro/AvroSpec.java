@@ -69,7 +69,7 @@ public class AvroSpec implements Spec {
     return schema;
   }
 
-  private List<Schema.Field> getFields() {
+  private List<Field> getFields() {
     return getSchema().getFields();
   }
   
@@ -80,7 +80,7 @@ public class AvroSpec implements Spec {
 
   @Override
   public List<String> getFieldNames() {
-    return Lists.transform(getFields(), new Function<Schema.Field, String>() {
+    return Lists.transform(getFields(), new Function<Field, String>() {
       @Override
       public String apply(Field input) {
         return input.name();

@@ -101,7 +101,7 @@ public class KMeansSketchCommand implements Command {
     return 0;
   }
 
-  private List<MLWeightedCenters> toWeightedCenters(List<List<Weighted<Vector>>> in) {
+  private static List<MLWeightedCenters> toWeightedCenters(List<List<Weighted<Vector>>> in) {
     List<MLWeightedCenters> out = Lists.newArrayList();
     for (List<Weighted<Vector>> e : in) {
       MLWeightedCenters mlwc = MLWeightedCenters.newBuilder()

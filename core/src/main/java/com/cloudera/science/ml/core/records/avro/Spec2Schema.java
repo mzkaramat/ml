@@ -18,28 +18,14 @@ import java.util.List;
 
 import org.apache.avro.Schema;
 
-import com.cloudera.science.ml.core.records.DataType;
 import com.cloudera.science.ml.core.records.FieldSpec;
 import com.cloudera.science.ml.core.records.Spec;
 import com.google.common.collect.Lists;
 
-/**
- *
- */
-public class Spec2Schema {
+public final class Spec2Schema {
 
   public static Schema create(Spec spec) {
-    if (DataType.RECORD == spec.getDataType()) {
-      List<Schema.Field> fields = Lists.newArrayList();
-      for (int i = 0; i < spec.size(); i++) {
-        FieldSpec f = spec.getField(i);
-        fields.add(new Schema.Field(f.name(), create(f.spec()), "", null));
-      }
-      Schema s = Schema.createRecord("R" + spec.hashCode(), "", "", false);
-      s.setFields(fields);
-      return s;
-    } else {
-      switch (spec.getDataType()) {
+    switch (spec.getDataType()) {
       case INT:
         return Schema.create(Schema.Type.INT);
       case LONG:
@@ -50,9 +36,17 @@ public class Spec2Schema {
         return Schema.create(Schema.Type.BOOLEAN);
       case STRING:
         return Schema.create(Schema.Type.STRING);
-      }
-      return null;
+      case RECORD:
+        List<Schema.Field> fields = Lists.newArrayList();
+        for (int i = 0; i < spec.size(); i++) {
+          FieldSpec f = spec.getField(i);
+          fields.add(new Schema.Field(f.name(), create(f.spec()), "", null));
+        }
+        Schema s = Schema.createRecord("R" + spec.hashCode(), "", "", false);
+        s.setFields(fields);
+        return s;
     }
+    return null;
   }
   
   private Spec2Schema() {}

@@ -34,8 +34,8 @@ public class ListPObject<V> extends PObjectImpl<Pair<Integer, V>, List<V>> {
     List<Pair<Integer, V>> list = Lists.newArrayList(iterable);
     Collections.sort(list);
     List<V> ret = Lists.newArrayList();
-    for (int i = 0; i < list.size(); i++) {
-      ret.add(list.get(i).second());
+    for (Pair<Integer, V> aList : list) {
+      ret.add(aList.second());
     }
     return ret;
   }

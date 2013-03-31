@@ -76,7 +76,8 @@ public class KMeansEvaluation {
     for (int i = 0; i < testCenters.size(); i++) {
       Centers test = testCenters.get(i);
       Centers train = trainCenters.get(i);
-      double trainCost = 0.0, testCost = 0.0;
+      double trainCost = 0.0;
+      double testCost = 0.0;
       double[][] assignments = new double[test.size()][train.size()];
       int totalPoints = 0;
       for (Weighted<Vector> wv : testPoints) {
