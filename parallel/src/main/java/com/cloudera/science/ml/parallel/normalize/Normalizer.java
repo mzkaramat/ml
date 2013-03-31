@@ -73,7 +73,7 @@ public class Normalizer implements Serializable {
       return this;
     }
     
-    public Builder sparse(boolean sparse) {
+    public Builder sparse(Boolean sparse) {
       this.sparse = sparse;
       return this;
     }

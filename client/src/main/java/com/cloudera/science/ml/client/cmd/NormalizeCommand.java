@@ -46,7 +46,7 @@ public class NormalizeCommand implements Command {
   
   @Parameter(names = "--sparse",
       description = "Write the output in a sparse vector format")
-  private boolean sparse = false;
+  private Boolean sparse;
   
   @Parameter(names = "--summary-file",
       description = "The name of a local JSON file that contains the summary info to use for normalizing the data")
