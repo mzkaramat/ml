@@ -23,6 +23,7 @@ import org.apache.crunch.io.To;
 import org.apache.crunch.types.PType;
 import org.apache.crunch.types.writable.WritableTypeFamily;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.mahout.math.NamedVector;
 import org.apache.mahout.math.Vector;
 
 import com.beust.jcommander.Parameter;
@@ -72,7 +73,7 @@ public class KMeansAssignmentCommand implements Command {
   @Override
   public int execute(Configuration conf) throws Exception {
     Pipeline p = pipelineParams.create(KMeansAssignmentCommand.class, conf);
-    PCollection<Vector> input = inputParams.getVectors(p);
+    PCollection<NamedVector> input = inputParams.<NamedVector>getVectors(p);
     List<MLCenters> centers = AvroIO.read(MLCenters.class, new File(centersFile));
     if (!centerIds.isEmpty()) {
       List<MLCenters> filter = Lists.newArrayListWithExpectedSize(centerIds.size());
@@ -86,7 +87,7 @@ public class KMeansAssignmentCommand implements Command {
     PType<Record> recordType = MLRecords.csvRecord(WritableTypeFamily.getInstance(),
         outputDelim);
     Records assigned = kmp.computeClusterAssignments(input,
-        Lists.transform(centers, VectorConvert.TO_CENTERS), recordType);
+        Lists.transform(centers, VectorConvert.TO_CENTERS), centerIds, recordType);
     p.write(assigned.get(), To.textFile(assignmentsPath));
     p.done();
     return 0;

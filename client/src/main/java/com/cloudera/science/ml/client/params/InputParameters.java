@@ -84,12 +84,12 @@ public class InputParameters {
     return delim;
   }
   
-  public PCollection<Vector> getVectorsFromPath(Pipeline pipeline, String path) {
-    return getVectors(pipeline, Collections.singletonList(path));
+  public <V extends Vector> PCollection<V> getVectorsFromPath(Pipeline pipeline, String path) {
+    return (PCollection<V>) getVectors(pipeline, Collections.singletonList(path));
   }
   
-  public PCollection<Vector> getVectors(Pipeline pipeline) {
-    return getVectors(pipeline, inputPaths);
+  public <V extends Vector> PCollection<V> getVectors(Pipeline pipeline) {
+    return (PCollection<V>) getVectors(pipeline, inputPaths);
   }
   
   private PCollection<Vector> getVectors(final Pipeline pipeline, List<String> paths) {

@@ -33,6 +33,7 @@ import org.apache.crunch.fn.Aggregators;
 import org.apache.crunch.types.PTableType;
 import org.apache.crunch.types.PType;
 import org.apache.crunch.types.PTypeFamily;
+import org.apache.mahout.math.NamedVector;
 import org.apache.mahout.math.Vector;
 
 import com.cloudera.science.ml.avro.MLVector;
@@ -130,16 +131,37 @@ public class KMeansParallel {
   /**
    * For each of the {@code NamedVector} instances in the given {@code PCollection}, calculate which
    * cluster in each of the {@code Centers} it is assigned (i.e., closest) to and its distance from
-   * that closest center.
+   * that closest center. The clusters will be identified by their position in the given list.
    * 
    * @param vecs The named vectors, with the name used as a unique identifier
-   * @param centers The centers
-   * @return A {@code PCollection<Record> containing the cluster assignment info for each point
+   * @param centers The centers of the clusters
+   * @param recordType A PType to use for serializing the returned {@code Records}
+   * @return A {@code Records} instance containing the cluster assignment info for each point
    */
-  public <V extends Vector> Records computeClusterAssignments(
+  public <V extends NamedVector> Records computeClusterAssignments(
       PCollection<V> vecs, List<Centers> centers, PType<Record> recordType) {
+    return computeClusterAssignments(vecs, centers, null, recordType);
+  }
+  
+  /**
+   * For each of the {@code NamedVector} instances in the given {@code PCollection}, calculate which
+   * cluster in each of the {@code Centers} it is assigned (i.e., closest) to and its distance from
+   * that closest center. The clusters will be identified by the given list of cluster IDs.
+   * 
+   * @param vecs The named vectors, with the name used as a unique identifier
+   * @param centers The centers of the clusters
+   * @param clusterIds Integer identifiers to use for the clusters
+   * @param recordType A PType to use for serializing the returned {@code Records}
+   * @return A {@code Records} instance containing the cluster assignment info for each point
+   */
+  public <V extends NamedVector> Records computeClusterAssignments(
+      PCollection<V> vecs, List<Centers> centers, List<Integer> clusterIds, PType<Record> recordType) {
+    if (clusterIds != null && !clusterIds.isEmpty()) {
+      Preconditions.checkArgument(centers.size() == clusterIds.size(),
+          "Num centers and num clusters must be equal");
+    }
     CentersIndex index = createIndex(centers);
-    return new Records(vecs.parallelDo("assignments", new AssignedCenterFn<V>(index),
+    return new Records(vecs.parallelDo("assignments", new AssignedCenterFn<V>(index, clusterIds),
         recordType), ASSIGNMENT_SPEC);
   }
   
@@ -258,11 +280,13 @@ public class KMeansParallel {
     }
   }
   
-  private static class AssignedCenterFn<V extends Vector> extends DoFn<V, Record> {
+  private static class AssignedCenterFn<V extends NamedVector> extends DoFn<V, Record> {
     private final CentersIndex centers;
+    private final List<Integer> clusterIds;
     
-    private AssignedCenterFn(CentersIndex centers) {
+    private AssignedCenterFn(CentersIndex centers, List<Integer> clusterIds) {
       this.centers = centers;
+      this.clusterIds = clusterIds;
     }
 
     @Override
@@ -272,13 +296,20 @@ public class KMeansParallel {
       for (int i = 0; i < d.closestPoints.length; i++) {
         Record r = new SimpleRecord(ASSIGNMENT_SPEC);
         r.set("vector_id", mlvec.getId().toString())
-         .set("cluster_id", i)
+         .set("cluster_id", getClusterId(i))
          .set("closest_center_id", d.closestPoints[i])
          .set("distance", d.clusterDistances[i]);
        emitter.emit(r);
       }
     }
 
+    private Integer getClusterId(int index) {
+      if (clusterIds == null) {
+        return index;
+      } else {
+        return clusterIds.get(index);
+      }
+    }
   }
   
   private static class CenterCostFn<V extends Vector> extends DoFn<V, Pair<Integer, Double>> {
