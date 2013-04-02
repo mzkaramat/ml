@@ -21,13 +21,16 @@ import com.beust.jcommander.Parameter;
 public class RandomParameters {
   @Parameter(names = "--seed",
       description = "The seed to use for the random number generator, if any")
-  private Long seed;
+  private Long seed = null;
   
-  public Random getRandom() {
+  public synchronized Random getRandom() {
+    return getRandom(0);
+  }
+  
+  public synchronized Random getRandom(long increment) {
     if (seed == null) {
-      return null;
-    } else {
-      return new Random(seed);
+      seed = System.currentTimeMillis();
     }
+    return new Random(seed + increment);
   }
 }

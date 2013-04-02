@@ -17,6 +17,10 @@ package com.cloudera.science.ml.client.cmd;
 import java.io.File;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.mahout.math.Vector;
@@ -37,6 +41,10 @@ import com.cloudera.science.ml.kmeans.core.KMeansInitStrategy;
 import com.cloudera.science.ml.kmeans.core.KMeansEvaluation;
 import com.cloudera.science.ml.kmeans.core.StoppingCriteria;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 @Parameters(commandDescription = "Executes k-means++ on Avro vectors stored on the local filesystem")
 public class KMeansCommand implements Command {
@@ -71,9 +79,13 @@ public class KMeansCommand implements Command {
       description = "A local file to store the centers that were created into")
   private String centersOutputFile;
   
+  @Parameter(names = "--num-threads",
+      description = "The number of execution threads to use for running the (computationally intensive) k-means algorithm")
+  private int numThreads = 1;
+  
   @ParametersDelegate
   private RandomParameters randomParams = new RandomParameters();
-
+  
   @Override
   public String getDescription() {
     return "Executes k-means++ on Avro vectors stored on the local filesystem";
@@ -84,13 +96,20 @@ public class KMeansCommand implements Command {
     KMeansInitStrategy initStrategy = KMeansInitStrategy.valueOf(initStrategyName);
     KMeans kmeans = new KMeans(initStrategy, getStoppingCriteria());
     
+    ListeningExecutorService exec;
+    if (numThreads <= 1) {
+      exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+    } else {
+      exec = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(numThreads));
+    }
+    
     List<MLWeightedCenters> mlwc = AvroIO.read(MLWeightedCenters.class, new File(sketchFile));
     List<List<Weighted<Vector>>> sketches = toSketches(mlwc);
     List<Weighted<Vector>> allPoints = Lists.newArrayList();
     for (List<Weighted<Vector>> sketch : sketches) {
       allPoints.addAll(sketch);
     }
-    List<Centers> centers = getClusters(allPoints, kmeans);
+    List<Centers> centers = getClusters(exec, allPoints, kmeans);
     AvroIO.write(Lists.transform(centers, VectorConvert.FROM_CENTERS),
         new File(centersOutputFile));
     
@@ -101,8 +120,8 @@ public class KMeansCommand implements Command {
         train.addAll(sketches.get(i));
       }
       List<Weighted<Vector>> test = sketches.get(sketches.size() - 1);
-      List<Centers> trainCenters = getClusters(train, kmeans);
-      List<Centers> testCenters = getClusters(test, kmeans);
+      List<Centers> trainCenters = getClusters(exec, train, kmeans);
+      List<Centers> testCenters = getClusters(exec, test, kmeans);
       KMeansEvaluation eval = new KMeansEvaluation(testCenters, test, trainCenters);
       System.out.println(
           "ID,NumClusters,TestCost,TrainCost,PredStrength,StableClusters,StablePoints");
@@ -117,16 +136,22 @@ public class KMeansCommand implements Command {
     return 0;
   }
   
-  private List<Centers> getClusters(List<Weighted<Vector>> sketch, KMeans kmeans) {
-    List<Centers> centers = Lists.newArrayList();
+  private List<Centers> getClusters(ListeningExecutorService exec,
+      List<Weighted<Vector>> sketch,
+      KMeans kmeans) {
+    List<ListenableFuture<Centers>> futures = Lists.newArrayList();
     for (Integer nc : clusters) {
-      Random r = randomParams.getRandom();
       int loops = nc == 1 ? 1 : bestOf;
       for (int i = 0; i < loops; i++) {
-        centers.add(kmeans.compute(sketch, nc, r));
+        Random r = randomParams.getRandom(nc + i);
+        futures.add(exec.submit(new Clustering(kmeans, sketch, nc, r)));
       }
     }
-    return centers;
+    try {
+      return Futures.allAsList(futures).get();
+    } catch (Exception e) {
+      throw new CommandException("Error in clustering", e);
+    }
   }
   
   private static List<List<Weighted<Vector>>> toSketches(List<MLWeightedCenters> mlwc) {
@@ -140,5 +165,25 @@ public class KMeansCommand implements Command {
   private StoppingCriteria getStoppingCriteria() {
     return StoppingCriteria.or(StoppingCriteria.threshold(stoppingThreshold),
         StoppingCriteria.maxIterations(maxLloydsIterations));
+  }
+  
+  private static class Clustering implements Callable<Centers> {
+
+    private final KMeans kmeans;
+    private final List<Weighted<Vector>> sketch;
+    private final int numClusters;
+    private final Random r;
+    
+    public Clustering(KMeans kmeans, List<Weighted<Vector>> sketch, int numClusters, Random r) {
+      this.kmeans = kmeans;
+      this.sketch = sketch;
+      this.numClusters = numClusters;
+      this.r = r;
+    }
+
+    @Override
+    public Centers call() throws Exception {
+      return kmeans.compute(sketch, numClusters, r);
+    }
   }
 }
