@@ -37,9 +37,31 @@ import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+/**
+ * Class specifies the common input parameters that may be used across ML commands
+ *
+ * Following are the list of commands that are supported
+ *
+ * --input-paths
+ *     Comma separated paths to be used as input
+ *
+ * --format
+ *     format of the Input. Possible values are seq, text and avro
+ *
+ * --delim
+ *     Delimited to be used for text input files. Default is ','
+ *
+ * --ignore-lines
+ *     Regular expression based on which lines in text input file
+ *
+ */
 public class InputParameters {
-  
-  @Parameter(names = "--input-paths",
+
+    public static final String TEXT = "text";
+    public static final String FORMAT_SEQ = "seq";
+    public static final String FORMAT_AVRO = "avro";
+
+    @Parameter(names = "--input-paths",
       description = "CSV of the input paths to consider",
       splitter = CommaParameterSplitter.class,
       required = true)
@@ -72,18 +94,18 @@ public class InputParameters {
   
   private PCollection<Vector> getVectors(final Pipeline pipeline, List<String> paths) {
     format = format.toLowerCase(Locale.ENGLISH);
-    if ("text".equals(format)) {
+    if (TEXT.equals(format)) {
       throw new IllegalArgumentException("Vectors must be in 'seq' or 'avro' format");
     }
     PCollection<Vector> ret;
-    if ("seq".equals(format)) {
+    if (FORMAT_SEQ.equals(format)) {
       ret = from(paths, new Function<String, PCollection<Vector>>() {
         @Override
         public PCollection<Vector> apply(String input) {
           return pipeline.read(From.sequenceFile(input, MLWritables.vector()));
         }
       });
-    } else if ("avro".equals(format)) {
+    } else if (FORMAT_AVRO.equals(format)) {
       ret = from(paths, new Function<String, PCollection<Vector>>() {
         @Override
         public PCollection<Vector> apply(String input) {
@@ -99,7 +121,7 @@ public class InputParameters {
   public PCollection<Record> getRecords(final Pipeline pipeline) {
     format = format.toLowerCase(Locale.ENGLISH);
     PCollection<Record> ret;
-    if ("text".equals(format)) {
+    if (TEXT.equals(format)) {
       PCollection<String> text = fromInputs(new Function<String, PCollection<String>>() {
         @Override
         public PCollection<String> apply(String input) {
@@ -108,7 +130,7 @@ public class InputParameters {
       });
       Pattern pattern = ignoreLines == null ? null : Pattern.compile(ignoreLines);
       ret = StringSplitFn.apply(text, delim, pattern);
-    } else if ("seq".equals(format)) {
+    } else if (FORMAT_SEQ.equals(format)) {
       final PType<Record> ptype = MLRecords.vectorRecord(MLWritables.vector());
       ret = fromInputs(new Function<String, PCollection<Record>>() {
         @Override
@@ -116,7 +138,7 @@ public class InputParameters {
           return pipeline.read(From.sequenceFile(input, ptype));
         }
       });
-    } else if ("avro".equals(format)) {
+    } else if (FORMAT_AVRO.equals(format)) {
       final AvroType<Record> ptype = (AvroType<Record>) MLRecords.vectorRecord(MLAvros.vector());
       ret = fromInputs(new Function<String, PCollection<Record>>() {
         @Override

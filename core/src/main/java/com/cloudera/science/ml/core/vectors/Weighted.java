@@ -48,7 +48,7 @@ public class Weighted<T> {
   }
   
   /**
-   * Converts an input {@code List<T} into a {@code List<Weighted<T>>}.
+   * Converts an input {@code List<T>} into a {@code List<Weighted<T>>}.
    * 
    * @param things The items to convert
    * @return The items as {@code Weighted<T>} values with weight 1.0
