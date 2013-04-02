@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.mahout.math.Vector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.cloudera.science.ml.core.vectors.Centers;
 import com.cloudera.science.ml.core.vectors.Weighted;
@@ -37,6 +39,8 @@ import com.google.common.collect.Maps;
  */
 public class KMeans {
 
+  private static final Logger LOG = LoggerFactory.getLogger(KMeans.class);
+  
   private final KMeansInitStrategy initStrategy;
   private final StoppingCriteria stoppingCriteria;
   
@@ -94,7 +98,8 @@ public class KMeans {
    * @param centers The initial centers
    * @return The centers that the algorithm converged toward
    */
-  public <V extends Vector> Centers lloydsAlgorithm(Collection<Weighted<V>> points, Centers centers) {
+  public <V extends Vector> Centers lloydsAlgorithm(Collection<Weighted<V>> points,
+      Centers centers) {
     Centers current = centers;
     Centers last = null;
     int iteration = 0;
@@ -102,6 +107,12 @@ public class KMeans {
       last = current;
       current = updateCenters(points, last);
       iteration++;
+      if (current.size() != last.size()) {
+        LOG.warn(String.format(
+            "Centers collapsed: client requested %d centers, but only %d were found",
+            last.size(), current.size()));
+        break;
+      }
     }
     return current;
   }
@@ -113,7 +124,8 @@ public class KMeans {
    * @param centers The current centers
    * @return The new centers computed by the update
    */
-  public <V extends Vector> Centers updateCenters(Collection<Weighted<V>> points, Centers centers) {
+  public <V extends Vector> Centers updateCenters(Collection<Weighted<V>> points,
+      Centers centers) {
     Map<Integer, List<Weighted<V>>> assignments = Maps.newHashMap();
     for (int i = 0; i < centers.size(); i++) {
       assignments.put(i, Lists.<Weighted<V>>newArrayList());
