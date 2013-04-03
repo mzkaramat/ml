@@ -14,6 +14,8 @@
  */
 package com.cloudera.science.ml.core.records;
 
+import com.google.common.base.Joiner;
+
 /**
  * A simple {@code Record} implementation that wraps an {@code Object[]} and performs
  * minimal type checking.
@@ -123,5 +125,10 @@ public class SimpleRecord implements Record {
   @Override
   public double getAsDouble(int index) {
     return ((Number) values[index]).doubleValue();
+  }
+  
+  @Override
+  public String toString() {
+    return Joiner.on(',').join(values);
   }
 }

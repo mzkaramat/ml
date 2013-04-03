@@ -125,4 +125,9 @@ public class VectorRecord implements Record {
   public double getAsDouble(int index) {
     return vector.getQuick(index);
   }
+  
+  @Override
+  public String toString() {
+    return vector.toString();
+  }
 }

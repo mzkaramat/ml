@@ -207,15 +207,12 @@ public class KMeansParallel {
       PCollection<V> vecs, int numIterations, int samplesPerIteration,
       List<Vector> initialPoints, Crossfold crossfold) {
 
-    int[] lValues = new int[crossfold.getNumFolds()];
-    Arrays.fill(lValues, samplesPerIteration);
-    
     CentersIndex centers = new CentersIndex(crossfold.getNumFolds(),
         initialPoints.get(0).size(), projectionBits, projectionSamples,
         random == null ? System.currentTimeMillis() : random.nextLong());
 
     for (Vector initialPoint : initialPoints) {
-      for (int j = 0; j < lValues.length; j++) {
+      for (int j = 0; j < crossfold.getNumFolds(); j++) {
         centers.add(initialPoint, j);
       }
     }
@@ -228,8 +225,8 @@ public class KMeansParallel {
     for (int i = 0; i < numIterations; i++) {
       ScoringFn<V> scoringFn = new ScoringFn<V>(centers);
       PTable<Integer, Pair<V, Double>> scores = folds.parallelDo(scoringFn, ptt);
-      PCollection<Pair<Integer, V>> sample = ReservoirSampling.groupedWeightedSample(
-          scores, lValues, random);
+      PTable<Integer, V> sample = ReservoirSampling.groupedWeightedSample(
+          scores, samplesPerIteration, random);
       updateCenters(sample.materialize(), centers);
     }
     return getWeightedVectors(folds, centers);

@@ -12,25 +12,27 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.client.params;
+package com.cloudera.science.ml.parallel.sample;
 
-import java.util.Random;
+import org.apache.crunch.MapFn;
+import org.apache.crunch.Pair;
 
-import com.beust.jcommander.Parameter;
+import com.cloudera.science.ml.core.records.Record;
 
-public class RandomParameters {
-  @Parameter(names = "--seed",
-      description = "The seed to use for the random number generator, if any")
-  private Long seed;
+/**
+ * Given a weighted {@code Record}, extract a field to use as the grouping key.
+ */
+public class RecordGroupFn extends MapFn<Pair<Record, Double>, String> {
+
+  private final int columnId;
   
-  public synchronized Random getRandom() {
-    return getRandom(0);
+  public RecordGroupFn(int columnId) {
+    this.columnId = columnId;
   }
   
-  public synchronized Random getRandom(long increment) {
-    if (seed == null) {
-      seed = System.currentTimeMillis();
-    }
-    return new Random(seed + increment);
+  @Override
+  public String map(Pair<Record, Double> in) {
+    return in.first().getAsString(columnId);
   }
 }
+

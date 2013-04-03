@@ -83,148 +83,130 @@ public final class ReservoirSampling {
             return Pair.of(0, p);
           }
         }, ptf.tableOf(ptf.ints(), input.getPType()));
-    int[] ss = { sampleSize };
-    return groupedWeightedSample(groupedIn, ss, random)
-        .parallelDo(new MapFn<Pair<Integer, T>, T>() {
-          @Override
-          public T map(Pair<Integer, T> p) {
-            return p.second();
-          }
-        }, (PType<T>) input.getPType().getSubTypes().get(0));
+    return groupedWeightedSample(groupedIn, sampleSize, random).values();
   }
   
-  public static <T, N extends Number> PCollection<Pair<Integer, T>> groupedWeightedSample(
-      PTable<Integer, Pair<T, N>> input,
-      int[] sampleSizes,
+  public static <K, T, N extends Number> PTable<K, T> groupedWeightedSample(
+      PTable<K, Pair<T, N>> input,
+      int sampleSize) {
+    return groupedWeightedSample(input, sampleSize, null);
+  }
+  
+  public static <K, T, N extends Number> PTable<K, T> groupedWeightedSample(
+      PTable<K, Pair<T, N>> input,
+      int sampleSize,
       Random random) {
     PTypeFamily ptf = input.getTypeFamily();
+    PType<K> keyType = input.getPTableType().getKeyType();
     PType<T> ttype = (PType<T>) input.getPTableType().getValueType().getSubTypes().get(0);
-    PTableType<Integer, Pair<Double, T>> ptt = ptf.tableOf(ptf.ints(),
-        ptf.pairs(ptf.doubles(), ttype));
+    PTableType<K, Pair<Double, T>> ptt = ptf.tableOf(keyType, ptf.pairs(ptf.doubles(), ttype));
     
-    return input.parallelDo(new SampleFn<T, N>(sampleSizes, random), ptt)
-        .groupByKey(sampleSizes.length)
-        .combineValues(new WRSCombineFn<T>(sampleSizes))
-        .parallelDo(new MapFn<Pair<Integer, Pair<Double, T>>, Pair<Integer, T>>() {
+    return input.parallelDo(new SampleFn<K, T, N>(sampleSize, random), ptt)
+        .groupByKey()
+        .combineValues(new WRSCombineFn<K, T>(sampleSize))
+        .parallelDo(new MapFn<Pair<K, Pair<Double, T>>, Pair<K, T>>() {
           @Override
-          public Pair<Integer, T> map(Pair<Integer, Pair<Double, T>> p) {
+          public Pair<K, T> map(Pair<K, Pair<Double, T>> p) {
             return Pair.of(p.first(), p.second().second());
           }
-        }, ptf.pairs(ptf.ints(), ttype));
+        }, ptf.tableOf(keyType, ttype));
   }
   
-  private static class SampleFn<T, N extends Number>
-      extends DoFn<Pair<Integer, Pair<T, N>>, Pair<Integer, Pair<Double, T>>> {
+  private static class SampleFn<K, T, N extends Number>
+      extends DoFn<Pair<K, Pair<T, N>>, Pair<K, Pair<Double, T>>> {
   
-    private final int[] sampleSizes;
-    private transient List<SortedMap<Double, T>> archives;
-    private transient List<SortedMap<Double, T>> current;
-    private Random random;
+    private static final int PUT_LIMIT = 100000;
     
-    private SampleFn(int[] sampleSizes, Random random) {
-      this.sampleSizes = sampleSizes;
+    private final int sampleSize;
+    private transient Map<K, SortedMap<Double, T>> current;
+    private Random random;
+    private int puts;
+    
+    private SampleFn(int sampleSize, Random random) {
+      this.sampleSize = sampleSize;
       this.random = random;
+    }
+    
+    @Override
+    public float scaleFactor() {
+      // Indicate that the output of sampling will be on the small side
+      return 0.05f;
     }
     
     @Override
     public void initialize() {
       if (current == null) {
-        this.current = createReservoirs();
+        this.current = Maps.newHashMap();
       } else {
-        for (int i = 0; i < sampleSizes.length; i++) {
-          current.get(i).clear();
-        }
-      }
-      if (archives == null) {
-        this.archives = createReservoirs();
+        current.clear();
       }
       if (random == null) {
         this.random = new Random();
       }
     }
     
-    private List<SortedMap<Double, T>> createReservoirs() {
-      List<SortedMap<Double, T>> ret = Lists.newArrayList();
-      for (int sampleSize : sampleSizes) {
-        ret.add(Maps.<Double, T>newTreeMap());
-      }
-      return ret;
-    }
-    
     @Override
-    public void process(Pair<Integer, Pair<T, N>> input,
-        Emitter<Pair<Integer, Pair<Double, T>>> emitter) {
-      int id = input.first();
+    public void process(Pair<K, Pair<T, N>> input,
+        Emitter<Pair<K, Pair<Double, T>>> emitter) {
+      K id = input.first();
       Pair<T, N> p = input.second();
       double weight = p.second().doubleValue();
       if (weight > 0.0) {
         double score = Math.log(random.nextDouble()) / weight;
-        SortedMap<Double, T> reservoir = archives.get(id);
-        if (reservoir.size() < sampleSizes[id]) { 
+        SortedMap<Double, T> reservoir = current.get(id);
+        if (reservoir == null) {
+          reservoir = Maps.newTreeMap();
+          current.put(id, reservoir);
+        }
+        if (reservoir.size() < sampleSize) { 
           reservoir.put(score, p.first());
-          current.get(id).put(score, p.first());
+          puts++;
         } else if (score > reservoir.firstKey()) {
           reservoir.remove(reservoir.firstKey());
           reservoir.put(score, p.first());
-          
-          SortedMap<Double, T> cur = current.get(id);
-          cur.put(score, p.first());
-          if (cur.size() >= sampleSizes[id]) {
-            cur.remove(cur.firstKey());
-          }
+        }
+        if (puts > PUT_LIMIT) {
+          // On the off-chance this gets huge, cleanup
+          cleanup(emitter);
         }
       }
     }
     
     @Override
-    public void cleanup(Emitter<Pair<Integer, Pair<Double, T>>> emitter) {
-      for (int id = 0; id < current.size(); id++) {
-        SortedMap<Double, T> reservoir = current.get(id);
+    public void cleanup(Emitter<Pair<K, Pair<Double, T>>> emitter) {
+      for (K key : current.keySet()) {
+        SortedMap<Double, T> reservoir = current.get(key);
         for (Map.Entry<Double, T> e : reservoir.entrySet()) {
-          emitter.emit(Pair.of(id, Pair.of(e.getKey(), e.getValue())));
+          emitter.emit(Pair.of(key, Pair.of(e.getKey(), e.getValue())));
         }
       }
+      current.clear();
+      puts = 0;
     }
   }
   
-  private static class WRSCombineFn<T> extends CombineFn<Integer, Pair<Double, T>> {
+  private static class WRSCombineFn<K, T> extends CombineFn<K, Pair<Double, T>> {
 
-    private final int[] sampleSizes;
-    private List<SortedMap<Double, T>> reservoirs;
+    private final int sampleSize;
     
-    private WRSCombineFn(int[] sampleSizes) {
-      this.sampleSizes = sampleSizes;
+    private WRSCombineFn(int sampleSize) {
+      this.sampleSize = sampleSize;
     }
 
     @Override
-    public void initialize() {
-      this.reservoirs = Lists.newArrayList();
-      for (int dummy : sampleSizes) {
-        reservoirs.add(Maps.<Double, T>newTreeMap());
-      }
-    }
-    
-    @Override
-    public void process(Pair<Integer, Iterable<Pair<Double, T>>> input,
-        Emitter<Pair<Integer, Pair<Double, T>>> emitter) {
-      SortedMap<Double, T> reservoir = reservoirs.get(input.first());
+    public void process(Pair<K, Iterable<Pair<Double, T>>> input,
+        Emitter<Pair<K, Pair<Double, T>>> emitter) {
+      SortedMap<Double, T> reservoir = Maps.newTreeMap();
       for (Pair<Double, T> p : input.second()) {
-        if (reservoir.size() < sampleSizes[input.first()]) { 
+        if (reservoir.size() < sampleSize) { 
           reservoir.put(p.first(), p.second());        
         } else if (p.first() > reservoir.firstKey()) {
           reservoir.remove(reservoir.firstKey());
           reservoir.put(p.first(), p.second());  
         }
       }
-    }
-    
-    @Override
-    public void cleanup(Emitter<Pair<Integer, Pair<Double, T>>> emitter) {
-      for (int i = 0; i < reservoirs.size(); i++) {
-        SortedMap<Double, T> reservoir = reservoirs.get(i);
-        for (Map.Entry<Double, T> e : reservoir.entrySet()) {
-          emitter.emit(Pair.of(i, Pair.of(e.getKey(), e.getValue())));
-        }
+      for (Map.Entry<Double, T> e : reservoir.entrySet()) {
+        emitter.emit(Pair.of(input.first(), Pair.of(e.getKey(), e.getValue())));
       }
     }
   }

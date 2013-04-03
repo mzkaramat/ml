@@ -18,5 +18,41 @@ package com.cloudera.science.ml.core.records;
  * A list of currently supported types for {@code Record} instances.
  */
 public enum DataType {
-  BOOLEAN, INT, LONG, DOUBLE, STRING, RECORD
+  BOOLEAN { 
+    @Override
+    public boolean isNumeric() {
+      return true;
+    }
+  },
+  INT {
+    @Override
+    public boolean isNumeric() {
+      return true;
+    }
+  },
+  LONG {
+    @Override
+    public boolean isNumeric() {
+      return true;
+    }
+  }, DOUBLE {
+    @Override
+    public boolean isNumeric() {
+      return true;
+    }
+  },
+  STRING {
+    @Override
+    public boolean isNumeric() {
+      return false;
+    }    
+  },
+  RECORD {
+    @Override
+    public boolean isNumeric() {
+      return false;
+    }
+  };
+  
+  public abstract boolean isNumeric();
 }

@@ -121,4 +121,9 @@ public class AvroRecord implements Record {
   public double getAsDouble(int index) {
     return ((Number) impl.get(index)).doubleValue();
   }
+  
+  @Override
+  public String toString() {
+    return impl.toString();
+  }
 }
