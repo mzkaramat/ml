@@ -97,4 +97,4 @@ client/bin/ml kassign --input-paths kdd99 --format avro --centers-file centers.a
 # Now use the sample command to read in 20 extremal values for each of the clusters from the kassign output- the points in
 # each cluster that are farthest away from their centers.
 client/bin/ml sample --input-paths assigned --format text --header-file examples/kdd99/kassign_header.csv --weight-field squared_distance \
-  --group-fields clustering_id,center_id --output-type text --size 20 --output-path extremal
+  --group-fields clustering_id,closest_center_id --output-type text --size 20 --output-path extremal
