@@ -12,25 +12,16 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.client.params;
+package com.cloudera.science.ml.parallel.fn;
 
-import java.util.Random;
+import org.apache.crunch.MapFn;
 
-import com.beust.jcommander.Parameter;
-
-public class RandomParameters {
-  @Parameter(names = "--seed",
-      description = "The seed to use for the random number generator, if any")
-  private Long seed;
-  
-  public synchronized Random getRandom() {
-    return getRandom(0);
-  }
-  
-  public synchronized Random getRandom(long increment) {
-    if (seed == null) {
-      seed = System.currentTimeMillis();
-    }
-    return new Random(seed + increment);
+/**
+ * Utility function for converting any input type to a {@code String}.
+ */
+public class StringifyFn<T> extends MapFn<T, String> {
+  @Override
+  public String map(T t) {
+    return t.toString();
   }
 }

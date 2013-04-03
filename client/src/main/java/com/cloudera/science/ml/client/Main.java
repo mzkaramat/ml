@@ -77,6 +77,9 @@ public class Main extends Configured implements Tool {
     } catch (CommandException ce) {
       System.err.println("Error: " + ce.getMessage());
       return 1;      
+    } catch (IllegalArgumentException e) {
+      System.err.println("Argument Error: " + e.getMessage());
+      return 1;
     }
   }
   

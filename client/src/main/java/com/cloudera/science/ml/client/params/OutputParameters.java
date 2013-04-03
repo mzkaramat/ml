@@ -16,6 +16,7 @@ package com.cloudera.science.ml.client.params;
 
 import java.util.Locale;
 
+import org.apache.crunch.MapFn;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Target;
 import org.apache.crunch.Target.WriteMode;
@@ -32,6 +33,7 @@ import org.apache.mahout.math.Vector;
 import com.beust.jcommander.Parameter;
 import com.cloudera.science.ml.client.cmd.CommandException;
 import com.cloudera.science.ml.mahout.types.MLWritables;
+import com.cloudera.science.ml.parallel.fn.StringifyFn;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 
 
@@ -78,7 +80,10 @@ public class OutputParameters {
     PType<T> ptype = collect.getPType();
     Target target;
     if ("text".equals(outputType)) {
+      PCollection<String> text = collect.parallelDo(new StringifyFn<T>(),
+          collect.getTypeFamily().strings());
       target = To.textFile(output);
+      text.write(target, WriteMode.OVERWRITE);
     } else if (FORMAT_AVRO.equals(outputType)) {
       if (AvroTypeFamily.getInstance() != ptf) {
         // Attempt to force conversion
@@ -89,8 +94,9 @@ public class OutputParameters {
         collect = collect.parallelDo(IdentityFn.<T>getInstance(), ptype);
       }
       target = At.avroFile(output, (AvroType<T>) ptype);
+      collect.write(target, WriteMode.OVERWRITE);
     } else if (FORMAT_SEQ.equals(outputType)) {
-      if (WritableTypeFamily.getInstance() != ptf) {
+          if (WritableTypeFamily.getInstance() != ptf) {
         ptype = WritableTypeFamily.getInstance().as(ptype);
         if (ptype == null) {
           forceConversionException(output, ptype, FORMAT_SEQ);
@@ -98,10 +104,11 @@ public class OutputParameters {
         collect = collect.parallelDo(IdentityFn.<T>getInstance(), ptype);
       }
       target = At.sequenceFile(output, ptype);
+      collect.write(target, WriteMode.OVERWRITE);
     } else {
       throw new CommandException("Unknown output type: " + outputType);
     }
-    collect.write(target, WriteMode.OVERWRITE);
+    
   }
   
   private static void forceConversionException(String outputFile, PType<?> ptype, String type) {

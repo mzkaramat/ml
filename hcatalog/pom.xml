@@ -9,8 +9,8 @@
     <relativePath>../</relativePath>
   </parent>
 
-  <artifactId>ml-core</artifactId>
-  <name>Cloudera ML Core</name>
+  <artifactId>ml-hcatalog</artifactId>
+  <name>Cloudera ML HCatalog Tools</name>
 
   <dependencies>
     <dependency>
@@ -19,13 +19,24 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.avro</groupId>
-      <artifactId>avro</artifactId>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.mahout</groupId>
-      <artifactId>mahout-math</artifactId>
+      <groupId>org.apache.hcatalog</groupId>
+      <artifactId>hcatalog-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.crunch</groupId>
+      <artifactId>crunch</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.cloudera.science</groupId>
+      <artifactId>ml-core</artifactId>
     </dependency>
 
     <dependency>
@@ -40,10 +51,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.avro</groupId>
-        <artifactId>avro-maven-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

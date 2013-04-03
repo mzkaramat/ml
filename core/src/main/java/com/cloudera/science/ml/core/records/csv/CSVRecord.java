@@ -21,6 +21,7 @@ import com.cloudera.science.ml.core.records.BasicSpec;
 import com.cloudera.science.ml.core.records.DataType;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 /**
@@ -133,5 +134,10 @@ public class CSVRecord implements Record {
     } catch (NumberFormatException ignored) {
       return Double.NaN;
     }
+  }
+  
+  @Override
+  public String toString() {
+    return Joiner.on(',').join(values);
   }
 }
