@@ -14,6 +14,8 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
+import java.util.List;
+
 import org.apache.crunch.PCollection;
 import org.apache.crunch.PTable;
 import org.apache.crunch.Pair;
@@ -26,6 +28,7 @@ import org.apache.hadoop.conf.Configuration;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.cloudera.science.ml.client.params.InputParameters;
 import com.cloudera.science.ml.client.params.OutputParameters;
 import com.cloudera.science.ml.client.params.PipelineParameters;
@@ -36,6 +39,7 @@ import com.cloudera.science.ml.core.records.Specs;
 import com.cloudera.science.ml.parallel.sample.RecordGroupFn;
 import com.cloudera.science.ml.parallel.sample.ReservoirSampling;
 import com.cloudera.science.ml.parallel.sample.WeightingFn;
+import com.google.common.collect.Lists;
 
 @Parameters(commandDescription = "Samples from a dataset and writes the sampled data to HDFS or a local file")
 public class SampleCommand implements Command {
@@ -56,9 +60,10 @@ public class SampleCommand implements Command {
       description = "The header file for the input records")
   private String headerFile;
   
-  @Parameter(names = "--group-field",
-      description = "Samples N records for each distinct value of this input field. Used with the --size and --header-file options")
-  private String groupField;
+  @Parameter(names = "--group-fields",
+      splitter = CommaParameterSplitter.class,
+      description = "Samples N records for each distinct combination of the CSV-separated input fields. Used with the --size and --header-file options")
+  private List<String> groupFields = Lists.newArrayList();
   
   @Parameter(names = "--weight-field",
       description = "Use the given field in the input to weight some samples higher than others. Used with the --size and --header-file options")
@@ -97,11 +102,11 @@ public class SampleCommand implements Command {
             new WeightingFn(spec, weightField, invert),
             ptf.pairs(elements.getPType(), ptf.doubles()));
         
-        if (groupField == null) {
+        if (groupFields.isEmpty()) {
           outputParams.write(ReservoirSampling.weightedSample(weighted, sampleSize), outputPath);
         } else {
-          int columnId = Specs.getFieldId(spec, groupField);
-          PTable<String, Pair<Record, Double>> grouped = weighted.by(new RecordGroupFn(columnId), ptf.strings());
+          List<Integer> columnIds = Specs.getFieldIds(spec, groupFields);
+          PTable<String, Pair<Record, Double>> grouped = weighted.by(new RecordGroupFn(columnIds), ptf.strings());
           PTable<String, Record> sample = ReservoirSampling.groupedWeightedSample(grouped, sampleSize);
           outputParams.write(sample.values(), outputPath);
         }

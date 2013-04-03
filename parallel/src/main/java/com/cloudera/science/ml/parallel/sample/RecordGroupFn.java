@@ -14,25 +14,31 @@
  */
 package com.cloudera.science.ml.parallel.sample;
 
+import java.util.List;
+
 import org.apache.crunch.MapFn;
 import org.apache.crunch.Pair;
 
 import com.cloudera.science.ml.core.records.Record;
 
 /**
- * Given a weighted {@code Record}, extract a field to use as the grouping key.
+ * Given a weighted {@code Record}, extract a set of columns to use as a grouping key.
  */
 public class RecordGroupFn extends MapFn<Pair<Record, Double>, String> {
 
-  private final int columnId;
+  private final List<Integer> columnIds;
   
-  public RecordGroupFn(int columnId) {
-    this.columnId = columnId;
+  public RecordGroupFn(List<Integer> columnIds) {
+    this.columnIds = columnIds;
   }
   
   @Override
   public String map(Pair<Record, Double> in) {
-    return in.first().getAsString(columnId);
+    StringBuilder sb = new StringBuilder();
+    for (Integer columnId : columnIds) {
+      sb.append(in.first().getAsString(columnId));
+    }
+    return sb.toString();
   }
 }
 
