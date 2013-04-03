@@ -75,10 +75,13 @@ public class Main extends Configured implements Tool {
     try {
       return cmd.execute(getConf());
     } catch (CommandException ce) {
-      System.err.println("Error: " + ce.getMessage());
+      System.err.println("Command Error: " + ce.getMessage());
       return 1;      
     } catch (IllegalArgumentException e) {
       System.err.println("Argument Error: " + e.getMessage());
+      return 1;
+    } catch (IllegalStateException e) {
+      System.err.println("State Error: " + e.getMessage());
       return 1;
     }
   }
