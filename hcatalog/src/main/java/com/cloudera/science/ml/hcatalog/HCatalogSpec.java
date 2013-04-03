@@ -26,11 +26,11 @@ import com.cloudera.science.ml.core.records.Spec;
 /**
  *
  */
-public class HCatSpec implements Spec {
+public class HCatalogSpec implements Spec {
 
   private final HCatSchema schema;
   
-  public HCatSpec(HCatSchema schema) {
+  public HCatalogSpec(HCatSchema schema) {
     this.schema = schema;
   }
   
@@ -51,13 +51,13 @@ public class HCatSpec implements Spec {
 
   @Override
   public FieldSpec getField(int index) {
-    return new HCatFieldSpec(schema.get(index), index);
+    return new HCatalogFieldSpec(schema.get(index), index);
   }
 
   @Override
   public FieldSpec getField(String fieldName) {
     try {
-      return new HCatFieldSpec(schema.get(fieldName), schema.getPosition(fieldName));
+      return new HCatalogFieldSpec(schema.get(fieldName), schema.getPosition(fieldName));
     } catch (HCatException e) {
       throw new IllegalArgumentException("Invalid field name: " + fieldName, e);
     }

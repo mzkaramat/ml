@@ -24,12 +24,12 @@ import com.cloudera.science.ml.core.records.Spec;
 /**
  *
  */
-public class HCatFieldSpec implements FieldSpec {
+public class HCatalogFieldSpec implements FieldSpec {
 
   private final HCatFieldSchema schema;
   private final int position;
   
-  public HCatFieldSpec(HCatFieldSchema schema, int position) {
+  public HCatalogFieldSpec(HCatFieldSchema schema, int position) {
     this.schema = schema;
     this.position = position;
   }

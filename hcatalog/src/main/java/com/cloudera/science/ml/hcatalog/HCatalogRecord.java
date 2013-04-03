@@ -35,9 +35,13 @@ public class HCatalogRecord implements Record {
     this.schema = schema;
   }
   
+  public HCatRecord getImpl() {
+    return impl;
+  }
+  
   @Override
   public Spec getSpec() {
-    return new HCatSpec(schema);
+    return new HCatalogSpec(schema);
   }
 
   @Override
