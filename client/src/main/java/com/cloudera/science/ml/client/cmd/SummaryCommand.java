@@ -14,10 +14,7 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
-import java.io.File;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Pipeline;
@@ -29,17 +26,12 @@ import com.beust.jcommander.ParametersDelegate;
 import com.cloudera.science.ml.client.params.InputParameters;
 import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
-import com.cloudera.science.ml.core.records.DataType;
 import com.cloudera.science.ml.core.records.Record;
-import com.cloudera.science.ml.core.records.RecordSpec;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.records.Specs;
 import com.cloudera.science.ml.parallel.summary.Summarizer;
 import com.cloudera.science.ml.parallel.summary.Summary;
-import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 
 @Parameters(commandDescription =
     "Summarize the continuous (and optionally, categorical) attributes of a collection of records")

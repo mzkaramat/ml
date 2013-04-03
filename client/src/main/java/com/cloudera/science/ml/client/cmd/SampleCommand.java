@@ -14,9 +14,6 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
-import org.apache.crunch.DoFn;
-import org.apache.crunch.Emitter;
-import org.apache.crunch.MapFn;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.PTable;
 import org.apache.crunch.Pair;
@@ -79,9 +76,6 @@ public class SampleCommand implements Command {
 
   @ParametersDelegate
   private OutputParameters outputParams = new OutputParameters();
-  
-  @ParametersDelegate
-  private RandomParameters randomParams = new RandomParameters();
   
   @Override
   public int execute(Configuration conf) throws Exception {

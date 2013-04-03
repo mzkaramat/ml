@@ -24,7 +24,6 @@ import org.apache.crunch.types.PType;
 import org.apache.crunch.types.writable.WritableTypeFamily;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.mahout.math.NamedVector;
-import org.apache.mahout.math.Vector;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
