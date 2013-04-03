@@ -34,17 +34,38 @@ import com.cloudera.science.ml.client.cmd.CommandException;
 import com.cloudera.science.ml.mahout.types.MLWritables;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 
+
+/**
+ * Specifies the output parameter that can be specified
+ *
+ * Following commands are support
+ * <PRE>
+ * <b>--output-type</b></br>
+ *      Specifies the output format. Possible values are avro and seq (for SequenceFile)
+ *
+ * </PRE>
+ */
 public class OutputParameters {
 
+  public static final String FORMAT_AVRO = "avro";
+  public static final String FORMAT_SEQ = "seq";
+
   @Parameter(names = "--output-type",
-      description = "One of 'avro' or 'seq', for Avro or SequenceFile output files", required=true)
+    description = "One of 'avro' or 'seq', for Avro or SequenceFile output files", required=true)
   private String outputType;
-  
+
+  /**
+   * Returns the PType based on Output format specified
+   *
+   * @return    an instance of {@code PType<T>} </br>
+   *            For Avro output format, returns an instance of {@code PType<Vector>} </br>
+   *            For SequenceFile output format, returns an instance of {@code AvroType<Vector>}
+   */
   public PType<Vector> getVectorPType() {
     outputType = outputType.toLowerCase(Locale.ENGLISH);
-    if ("avro".equals(outputType)) {
+    if (FORMAT_AVRO.equals(outputType)) {
       return MLAvros.vector();
-    } else if ("seq".equals(outputType)) {
+    } else if (FORMAT_SEQ.equals(outputType)) {
       return MLWritables.vector();
     } else {
       throw new CommandException("Unsupported Vector output type: " + outputType);
@@ -58,21 +79,21 @@ public class OutputParameters {
     Target target;
     if ("text".equals(outputType)) {
       target = To.textFile(output);
-    } else if ("avro".equals(outputType)) {
+    } else if (FORMAT_AVRO.equals(outputType)) {
       if (AvroTypeFamily.getInstance() != ptf) {
         // Attempt to force conversion
         ptype = AvroTypeFamily.getInstance().as(ptype);
         if (ptype == null) {
-          forceConversionException(output, ptype, "avro");
+          forceConversionException(output, ptype, FORMAT_AVRO);
         }
         collect = collect.parallelDo(IdentityFn.<T>getInstance(), ptype);
       }
       target = At.avroFile(output, (AvroType<T>) ptype);
-    } else if ("seq".equals(outputType)) {
+    } else if (FORMAT_SEQ.equals(outputType)) {
       if (WritableTypeFamily.getInstance() != ptf) {
         ptype = WritableTypeFamily.getInstance().as(ptype);
         if (ptype == null) {
-          forceConversionException(output, ptype, "seq");
+          forceConversionException(output, ptype, FORMAT_SEQ);
         }
         collect = collect.parallelDo(IdentityFn.<T>getInstance(), ptype);
       }

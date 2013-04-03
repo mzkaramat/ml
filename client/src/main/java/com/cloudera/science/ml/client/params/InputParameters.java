@@ -42,24 +42,25 @@ import com.google.common.collect.Lists;
  *
  * Following are the list of commands that are supported
  *
- * --input-paths
+ * <PRE>
+ * <b>--input-paths</b>
  *     Comma separated paths to be used as input
  *
- * --format
+ * <b>--format</b>
  *     format of the Input. Possible values are seq, text and avro
  *
- * --delim
+ * <b>--delim</b>
  *     Delimited to be used for text input files. Default is ','
  *
- * --ignore-lines
- *     Regular expression based on which lines in text input file
- *
+ * <b>--ignore-lines</b>
+ *     Regular expression based on which lines in text input file shall be ignored
+ * </PRE>
  */
 public class InputParameters {
 
-    public static final String TEXT = "text";
-    public static final String FORMAT_SEQ = "seq";
-    public static final String FORMAT_AVRO = "avro";
+  public static final String TEXT = "text";
+  public static final String FORMAT_SEQ = "seq";
+  public static final String FORMAT_AVRO = "avro";
 
     @Parameter(names = "--input-paths",
       description = "CSV of the input paths to consider",

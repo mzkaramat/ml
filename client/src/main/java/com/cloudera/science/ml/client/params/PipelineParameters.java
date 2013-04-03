@@ -21,6 +21,18 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.beust.jcommander.Parameter;
 
+/**
+ *
+ * Pipeline parameters to specify which pipeline to use.
+ *
+ * Following are possible options
+ *
+ * <PRE>
+ * <b>--local</b>
+ *   to ask ML to use Local in-memory pipeline implementation
+ *   Default is to use MR pipeline
+ * </PRE>
+ */
 public class PipelineParameters {
   
   @Parameter(names = "--local",
