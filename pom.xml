@@ -17,6 +17,7 @@
     <module>parallel</module>
     <module>kmeans-parallel</module>
     <module>mahout</module>
+    <module>hcatalog</module>
     <module>client</module>
   </modules>
 
