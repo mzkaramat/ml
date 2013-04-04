@@ -15,8 +15,8 @@
 package com.cloudera.science.ml.parallel.summary;
 
 class InternalNumeric {
-  private double min;
-  private double max;
+  private double min = Double.POSITIVE_INFINITY;
+  private double max = Double.NEGATIVE_INFINITY;
   private double sum;
   private double sumSq;
   private long missing;
