@@ -24,12 +24,15 @@ import org.apache.crunch.io.SourceTargetHelper;
 import org.apache.crunch.types.PType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
+import org.apache.hadoop.hive.ql.metadata.Table;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hcatalog.common.HCatConstants;
+import org.apache.hcatalog.common.HCatException;
 import org.apache.hcatalog.common.HCatUtil;
 import org.apache.hcatalog.data.schema.HCatSchema;
 import org.apache.hcatalog.mapreduce.HCatInputFormat;
-import org.apache.hcatalog.mapreduce.HCatTableInfo;
 import org.apache.hcatalog.mapreduce.InputJobInfo;
 
 import com.cloudera.science.ml.core.records.Record;
@@ -40,6 +43,8 @@ import com.cloudera.science.ml.core.records.Record;
  */
 public class HCatalogSource implements Source<Record> {
 
+  private static HiveMetaStoreClient CLIENT_INSTANCE;
+  
   private final InputJobInfo info;
   private final HCatSchema schema;
   private final Path location;
@@ -53,11 +58,38 @@ public class HCatalogSource implements Source<Record> {
   }
   
   public HCatalogSource(String tableName, String filter, Properties props) {
-    // TODO: support databases when they become a real option in Hive
-    this.info = InputJobInfo.create(null, tableName, filter, props);
-    HCatTableInfo tableInfo = info.getTableInfo();
-    this.schema = tableInfo.getDataColumns();
-    this.location = new Path(tableInfo.getTableLocation());
+    String dbName = "default";
+    this.info = InputJobInfo.create(dbName, tableName, filter, props);
+    
+    HiveMetaStoreClient client = getClientInstance();
+    Table table = null;
+    try {
+      table = HCatUtil.getTable(client, dbName, tableName);
+    } catch (Exception e) {
+      throw new RuntimeException("Hive table lookup exception", e);
+    }
+    
+    if (table == null) {
+      throw new IllegalStateException("Could not find info for table: " + tableName);
+    }
+
+    try {
+      this.schema = HCatUtil.extractSchema(table);
+    } catch (HCatException e) {
+      throw new RuntimeException("Error fetching HCatalog schema", e);
+    }
+    this.location = table.getPath();
+  }
+  
+  private static synchronized HiveMetaStoreClient getClientInstance() {
+    if (CLIENT_INSTANCE == null) {
+      try {
+        CLIENT_INSTANCE = HCatUtil.getHiveClient(new HiveConf());
+      } catch (Exception e) {
+        throw new RuntimeException("Could not connect to Hive", e);
+      }
+    }
+    return CLIENT_INSTANCE;
   }
   
   @Override

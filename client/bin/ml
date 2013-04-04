@@ -13,7 +13,24 @@ then
   exit 1
 fi
 
-export LIBJARS=$(echo ${LJ} | tr " " ",")
-export HADOOP_CLASSPATH=`echo ${LIBJARS} | sed s/,/:/g`
+if [ -e $HIVE_HOME ]
+then
+  function join() {
+    local IFS=$1
+    shift
+    echo "$*"
+  }
+  HL=$HIVE_HOME/lib
+  HIVEJARS=$(join ',' $HL/antlr-runtime-* $HL/hive-exec-* $HL/hive-metastore-* $HL/jdo2-api-* $HL/libfb303-* $HL/libthrift-* $HL/slf4j-api-*)
+  LIBJARS=$(echo ${LJ} | tr " " ",")
+  export LIBJARS=$LIBJARS,$HIVEJARS
+  LJ_CLASSPATH=`echo ${LIBJARS} | sed s/,/:/g`
+  HIVE_CONF=$HIVE_HOME/conf
+  export HADOOP_CLASSPATH=$LJ_CLASSPATH:$HIVE_CONF
+else
+  echo "HIVE_HOME not set Hive features are disabled."
+  export LIBJARS=$(echo ${LJ} | tr " " ",")
+  export HADOOP_CLASSPATH=`echo ${LIBJARS} | sed s/,/:/g`
+fi
 
-$HADOOP_PREFIX/bin/hadoop jar $MAINJAR com.cloudera.science.ml.client.Main -libjars ${LIBJARS} $@
+$HH/bin/hadoop jar $MAINJAR com.cloudera.science.ml.client.Main -libjars ${LIBJARS} $@

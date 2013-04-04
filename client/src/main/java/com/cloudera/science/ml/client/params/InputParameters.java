@@ -30,6 +30,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.cloudera.science.ml.client.cmd.CommandException;
 import com.cloudera.science.ml.core.records.Record;
+import com.cloudera.science.ml.hcatalog.HCatalogSource;
 import com.cloudera.science.ml.mahout.types.MLWritables;
 import com.cloudera.science.ml.parallel.normalize.StringSplitFn;
 import com.cloudera.science.ml.parallel.types.MLAvros;
@@ -44,10 +45,10 @@ import com.google.common.collect.Lists;
  *
  * <PRE>
  * <b>--input-paths</b>
- *     Comma separated paths to be used as input
+ *     Comma separated paths to be used as input or Hive table names
  *
  * <b>--format</b>
- *     format of the Input. Possible values are seq, text and avro
+ *     format of the Input. Possible values are seq, text, hive, and avro
  *
  * <b>--delim</b>
  *     Delimited to be used for text input files. Default is ','
@@ -61,15 +62,16 @@ public class InputParameters {
   public static final String TEXT = "text";
   public static final String FORMAT_SEQ = "seq";
   public static final String FORMAT_AVRO = "avro";
-
-    @Parameter(names = "--input-paths",
-      description = "CSV of the input paths to consider",
+  public static final String FORMAT_HIVE = "hive";
+  
+  @Parameter(names = "--input-paths",
+      description = "CSV of the input paths/tables to consider",
       splitter = CommaParameterSplitter.class,
       required = true)
   private List<String> inputPaths;
 
   @Parameter(names = "--format",
-      description = "One of 'seq', 'text', or 'avro' to describe the format of the input files",
+      description = "One of 'seq', 'text', 'hive', or 'avro' to describe the format of the input",
       required = true)
   private String format;
   
@@ -114,14 +116,14 @@ public class InputParameters {
         }
       });
     } else {
-      throw new CommandException("Unknown format: " + format);
+      throw new CommandException("Unsupported vector format: " + format);
     }
     return ret;
   }
 
   public PCollection<Record> getRecords(final Pipeline pipeline) {
     format = format.toLowerCase(Locale.ENGLISH);
-    PCollection<Record> ret;
+    PCollection<Record> ret = null;
     if (TEXT.equals(format)) {
       PCollection<String> text = fromInputs(new Function<String, PCollection<String>>() {
         @Override
@@ -145,6 +147,13 @@ public class InputParameters {
         @Override
         public PCollection<Record> apply(String input) {
           return pipeline.read(From.avroFile(input, ptype));
+        }
+      });
+    } else if (FORMAT_HIVE.equals(format)) {
+      ret = fromInputs(new Function<String, PCollection<Record>>() {
+        @Override
+        public PCollection<Record> apply(String table) {
+          return pipeline.read(new HCatalogSource(table));
         }
       });
     } else {
