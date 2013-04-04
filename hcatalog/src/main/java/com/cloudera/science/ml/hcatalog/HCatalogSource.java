@@ -43,7 +43,7 @@ import com.cloudera.science.ml.core.records.Record;
  */
 public class HCatalogSource implements Source<Record> {
 
-  private static HiveMetaStoreClient CLIENT_INSTANCE;
+  private static HiveMetaStoreClient CLIENT_INSTANCE = null;
   
   private final InputJobInfo info;
   private final HCatSchema schema;
@@ -62,7 +62,7 @@ public class HCatalogSource implements Source<Record> {
     this.info = InputJobInfo.create(dbName, tableName, filter, props);
     
     HiveMetaStoreClient client = getClientInstance();
-    Table table = null;
+    Table table;
     try {
       table = HCatUtil.getTable(client, dbName, tableName);
     } catch (Exception e) {

@@ -47,7 +47,7 @@ public class KMeansTest {
     return Vectors.of(values);
   }
   
-  public Weighted<Vector> wpoint(double... values) {
+  public static Weighted<Vector> wpoint(double... values) {
     return new Weighted<Vector>(vec(values));
   }
   

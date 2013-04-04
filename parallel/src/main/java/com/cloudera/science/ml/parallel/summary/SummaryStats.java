@@ -130,7 +130,7 @@ public class SummaryStats implements Serializable {
     if (e == null) {
       return -1;
     } else {
-      return e.id;
+      return e.getID();
     }
   }  
 }

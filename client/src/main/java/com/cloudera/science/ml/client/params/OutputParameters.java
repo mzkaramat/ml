@@ -16,7 +16,6 @@ package com.cloudera.science.ml.client.params;
 
 import java.util.Locale;
 
-import org.apache.crunch.MapFn;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Target;
 import org.apache.crunch.Target.WriteMode;

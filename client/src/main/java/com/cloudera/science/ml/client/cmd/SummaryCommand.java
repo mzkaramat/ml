@@ -14,6 +14,7 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.crunch.PCollection;
@@ -55,7 +56,7 @@ public class SummaryCommand implements Command {
   private SummaryParameters summaryParams = new SummaryParameters();
   
   @Override
-  public int execute(Configuration conf) throws Exception {
+  public int execute(Configuration conf) throws IOException {
     Pipeline p = pipelineParams.create(SummaryCommand.class, conf);
     PCollection<Record> records = inputParams.getRecords(p);
 

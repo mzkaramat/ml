@@ -15,6 +15,7 @@
 package com.cloudera.science.ml.client.cmd;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.crunch.PCollection;
@@ -77,7 +78,7 @@ public class KMeansSketchCommand implements Command {
   private RandomParameters randomParams = new RandomParameters();
   
   @Override
-  public int execute(Configuration conf) throws Exception {
+  public int execute(Configuration conf) throws IOException {
     Pipeline p = pipelineParams.create(KMeansSketchCommand.class, conf);
     List<Vector> initial = null;
     if (initVectorsPath != null) {

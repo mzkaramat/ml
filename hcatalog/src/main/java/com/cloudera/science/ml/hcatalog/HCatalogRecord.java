@@ -22,9 +22,6 @@ import org.apache.hcatalog.data.schema.HCatSchema;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 
-/**
- *
- */
 public class HCatalogRecord implements Record {
 
   private final HCatRecord impl;
@@ -76,7 +73,7 @@ public class HCatalogRecord implements Record {
     } else {
       try {
         return Double.valueOf(ret.toString());
-      } catch (NumberFormatException e) {
+      } catch (NumberFormatException ignored) {
         return Double.NaN;
       }
     }

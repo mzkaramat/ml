@@ -31,8 +31,12 @@ import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Summarizer {
+  
+  private static final Logger LOG = LoggerFactory.getLogger(Summarizer.class);
   
   private final Set<Integer> ignoredColumns = Sets.newHashSet();
   private boolean defaultToSymbolic = false;
@@ -98,9 +102,8 @@ public class Summarizer {
         String name = spec != null ? spec.getField(p.first()).name() : "c" + p.first();
         SummaryStats stats = p.second().second().toSummaryStats(name, recordCount);
         if (stats.getMissing() > 0) {
-          System.err.println(String.format(
-              "Note: %d missing/invalid values for numeric field %d, named '%s'",
-              stats.getMissing(), p.first(), name));
+          LOG.warn("Note: {} missing/invalid values for numeric field {}, named '{}'",
+                   new Object[] {stats.getMissing(), p.first(), name});
         }
         ss.put(p.first(), stats);
       }

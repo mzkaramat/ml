@@ -101,10 +101,10 @@ class InternalStats {
         Entry entry = other.histogram().get(key);
         Entry newEntry = new Entry(merged.size());
         if (e != null) {
-          newEntry.inc(e.count);
+          newEntry.inc(e.getCount());
         }
         if (entry != null) {
-          newEntry.inc(entry.count);
+          newEntry.inc(entry.getCount());
         }
         merged.put(key, newEntry);
       }

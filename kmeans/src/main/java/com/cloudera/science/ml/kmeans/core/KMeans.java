@@ -152,7 +152,7 @@ public class KMeans {
    */
   public <V extends Vector> Vector centroid(Collection<Weighted<V>> points) {
     Vector center = null;
-    long sz = 0;
+    double sz = 0.0;
     for (Weighted<V> v : points) {
       Vector weighted = v.thing().times(v.weight());
       if (center == null) {

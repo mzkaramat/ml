@@ -36,7 +36,10 @@ import com.cloudera.science.ml.parallel.summary.SummaryStats;
 import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.collect.Maps;
 
-public class Pivot {
+public final class Pivot {
+
+  private Pivot() {
+  }
 
   public enum Agg { SUM, MEAN }
 
@@ -49,11 +52,11 @@ public class Pivot {
     return b.build();
   }
   
-  public Records pivot(SummarizedRecords records,
-      List<Integer> groupColumns,
-      int attributeColumn,
-      int valueColumn,
-      Agg agg) {
+  public static Records pivot(SummarizedRecords records,
+                              List<Integer> groupColumns,
+                              int attributeColumn,
+                              int valueColumn,
+                              Agg agg) {
     Summary summary = records.getSummary();
     Spec keySpec = createSpec(records.getSpec(), groupColumns);
     PTableType<Record, Map<String, Stat>> ptt = Avros.tableOf(
@@ -163,9 +166,9 @@ public class Pivot {
         double stat = 0.0;
         if (ss != null) {
           if (agg == Agg.MEAN) {
-            stat = ss.sum / ss.count;
+            stat = ss.getSum() / ss.getCount();
           } else {
-            stat = ss.sum;
+            stat = ss.getSum();
           }
         }
         r.set(index + i, stat);
