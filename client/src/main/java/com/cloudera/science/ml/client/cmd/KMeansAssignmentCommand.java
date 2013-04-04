@@ -15,6 +15,7 @@
 package com.cloudera.science.ml.client.cmd;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.crunch.PCollection;
@@ -70,9 +71,9 @@ public class KMeansAssignmentCommand implements Command {
   private PipelineParameters pipelineParams = new PipelineParameters();
   
   @Override
-  public int execute(Configuration conf) throws Exception {
+  public int execute(Configuration conf) throws IOException {
     Pipeline p = pipelineParams.create(KMeansAssignmentCommand.class, conf);
-    PCollection<NamedVector> input = inputParams.<NamedVector>getVectors(p);
+    PCollection<NamedVector> input = inputParams.getVectors(p);
     List<MLCenters> centers = AvroIO.read(MLCenters.class, new File(centersFile));
     if (!centerIds.isEmpty()) {
       List<MLCenters> filter = Lists.newArrayListWithExpectedSize(centerIds.size());

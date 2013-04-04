@@ -23,9 +23,6 @@ import com.cloudera.science.ml.core.records.DataType;
 import com.cloudera.science.ml.core.records.FieldSpec;
 import com.cloudera.science.ml.core.records.Spec;
 
-/**
- *
- */
 public class HCatalogSpec implements Spec {
 
   private final HCatSchema schema;

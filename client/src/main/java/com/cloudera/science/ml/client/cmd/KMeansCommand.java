@@ -15,6 +15,7 @@
 package com.cloudera.science.ml.client.cmd;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -90,7 +91,7 @@ public class KMeansCommand implements Command {
   }
   
   @Override
-  public int execute(Configuration conf) throws Exception {
+  public int execute(Configuration conf) throws IOException {
     KMeansInitStrategy initStrategy = KMeansInitStrategy.valueOf(initStrategyName);
     KMeans kmeans = new KMeans(initStrategy, getStoppingCriteria());
     
@@ -172,7 +173,7 @@ public class KMeansCommand implements Command {
     private final int numClusters;
     private final Random r;
     
-    public Clustering(KMeans kmeans, List<Weighted<Vector>> sketch, int numClusters, Random r) {
+    Clustering(KMeans kmeans, List<Weighted<Vector>> sketch, int numClusters, Random r) {
       this.kmeans = kmeans;
       this.sketch = sketch;
       this.numClusters = numClusters;

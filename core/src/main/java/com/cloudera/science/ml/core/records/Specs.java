@@ -16,9 +16,11 @@ package com.cloudera.science.ml.core.records;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -37,20 +39,21 @@ public final class Specs {
       "categorical", "nominal", "string");
   private static final Set<String> NUMERIC_META = ImmutableSet.of("numeric",
       "continuous", "real", "double");
-  
+  private static final Pattern COMMA = Pattern.compile(",");
+
   public static Spec readFromHeaderFile(String headerFile) throws IOException {
     return readFromHeaderFile(headerFile, null, null);
   }
   
   public static Spec readFromHeaderFile(String headerFile,
-      List<Integer> ignoredColumns,
-      List<Integer> symbolicColumns) throws IOException {
+                                        Collection<Integer> ignoredColumns,
+                                        Collection<Integer> symbolicColumns) throws IOException {
     List<String> lines = Files.readLines(new File(headerFile), Charsets.UTF_8);
     RecordSpec.Builder rsb = RecordSpec.builder();
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);
       if (line.contains(",")) {
-        String[] pieces = line.split(",");
+        String[] pieces = COMMA.split(line);
         if (pieces.length != 2) {
           throw new IllegalArgumentException("Invalid header file row: " + line);
         }
@@ -104,7 +107,7 @@ public final class Specs {
         public Integer apply(String input) {
           try {
             return Integer.valueOf(input);
-          } catch (NumberFormatException e) {
+          } catch (NumberFormatException ignored) {
             throw new IllegalArgumentException("Did not recognize column ID: " + input);
           }
         }

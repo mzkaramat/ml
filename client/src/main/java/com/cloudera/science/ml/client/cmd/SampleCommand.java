@@ -14,6 +14,7 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.crunch.PCollection;
@@ -32,7 +33,6 @@ import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.cloudera.science.ml.client.params.InputParameters;
 import com.cloudera.science.ml.client.params.OutputParameters;
 import com.cloudera.science.ml.client.params.PipelineParameters;
-import com.cloudera.science.ml.client.params.RandomParameters;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.records.Specs;
@@ -83,7 +83,7 @@ public class SampleCommand implements Command {
   private OutputParameters outputParams = new OutputParameters();
   
   @Override
-  public int execute(Configuration conf) throws Exception {
+  public int execute(Configuration conf) throws IOException {
     Pipeline p = pipelineParams.create(SampleCommand.class, conf);
     PCollection<Record> elements = inputParams.getRecords(p);
 

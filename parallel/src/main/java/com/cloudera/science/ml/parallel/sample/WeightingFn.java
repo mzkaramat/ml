@@ -27,8 +27,8 @@ import com.cloudera.science.ml.core.records.Specs;
  */
 public class WeightingFn extends DoFn<Record, Pair<Record, Double>> {
 
-  final int columnId;
-  final boolean invert;
+  private final int columnId;
+  private final boolean invert;
   
   public WeightingFn(Spec spec, String weightField, boolean invert) {
     if (weightField != null) {

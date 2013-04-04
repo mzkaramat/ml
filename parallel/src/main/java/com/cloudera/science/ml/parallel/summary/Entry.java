@@ -16,15 +16,26 @@ package com.cloudera.science.ml.parallel.summary;
 
 import java.io.Serializable;
 
+import com.google.common.primitives.Longs;
+
 class Entry implements Serializable, Comparable<Entry> {
-  public int id;
-  public long count;
+
+  private int id;
+  private long count;
   
   Entry() { }
   
   Entry(int id) {
     this.id = id;
     this.count = 0;
+  }
+  
+  int getID() {
+    return id;
+  }
+  
+  long getCount() {
+    return count;
   }
   
   public Entry inc() {
@@ -46,4 +57,19 @@ class Entry implements Serializable, Comparable<Entry> {
     }
     return 0;
   }
+  
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof Entry)) {
+      return false;
+    }
+    Entry other = (Entry) o;
+    return id == other.id && count == other.count;
+  }
+  
+  @Override
+  public int hashCode() {
+    return id ^ Longs.hashCode(count);
+  }
+  
 }

@@ -207,8 +207,8 @@ class CentersIndex implements Serializable {
   }
   
   static class Idx implements Comparable<Idx> {
-    int distance;
-    int index;
+    private int distance;
+    private int index;
     
     Idx(int distance, int index) {
       this.distance = distance;
@@ -224,6 +224,20 @@ class CentersIndex implements Serializable {
         return 1;
       }
       return 0;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Idx)) {
+        return false;
+      }
+      Idx other = (Idx) o;
+      return distance == other.distance && index == other.index;
+    }
+    
+    @Override
+    public int hashCode() {
+      return distance ^ index;
     }
   }
   

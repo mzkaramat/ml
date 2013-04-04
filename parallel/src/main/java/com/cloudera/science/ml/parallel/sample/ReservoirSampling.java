@@ -14,7 +14,6 @@
  */
 package com.cloudera.science.ml.parallel.sample;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.SortedMap;
@@ -30,7 +29,6 @@ import org.apache.crunch.types.PTableType;
 import org.apache.crunch.types.PType;
 import org.apache.crunch.types.PTypeFamily;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -174,10 +172,10 @@ public final class ReservoirSampling {
     
     @Override
     public void cleanup(Emitter<Pair<K, Pair<Double, T>>> emitter) {
-      for (K key : current.keySet()) {
-        SortedMap<Double, T> reservoir = current.get(key);
-        for (Map.Entry<Double, T> e : reservoir.entrySet()) {
-          emitter.emit(Pair.of(key, Pair.of(e.getKey(), e.getValue())));
+      for (Map.Entry<K,SortedMap<Double,T>> entry : current.entrySet()) {
+        SortedMap<Double,T> reservoir = entry.getValue();
+        for (Map.Entry<Double,T> e : reservoir.entrySet()) {
+          emitter.emit(Pair.of(entry.getKey(), Pair.of(e.getKey(), e.getValue())));
         }
       }
       current.clear();

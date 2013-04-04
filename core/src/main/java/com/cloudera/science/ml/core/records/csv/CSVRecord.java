@@ -24,9 +24,6 @@ import com.cloudera.science.ml.core.records.Spec;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
-/**
- *
- */
 public class CSVRecord implements Record {
 
   private final List<String> values;
