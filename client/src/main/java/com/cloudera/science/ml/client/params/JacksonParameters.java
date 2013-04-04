@@ -24,6 +24,9 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 
+/**
+ * Class to handle json data
+ */
 public class JacksonParameters {
 
   private final ObjectMapper mapper = new ObjectMapper();
@@ -38,7 +41,13 @@ public class JacksonParameters {
         .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
         .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
   }
-  
+
+  /**
+   * Writes a object out into a json format
+   *
+   * @param object  Object whose content is to be written
+   * @param target  The target {@code File}
+   */
   public void save(Object object, File target) {
     try {
       ObjectWriter writer = mapper.defaultPrettyPrintingWriter();
@@ -47,7 +56,13 @@ public class JacksonParameters {
       throw new RuntimeException(e);
     }
   }
-  
+
+  /**
+   * Reads a json file and convert it into a Map of key-value pairs
+   *
+   * @param jsonFile    JSON file to be read
+   * @return    Map representation of json file
+   */
   public Map<String, Object> read(File jsonFile) {
     try {
       return (Map<String, Object>) mapper.readValue(jsonFile, Map.class);
@@ -55,7 +70,15 @@ public class JacksonParameters {
       throw new RuntimeException(e);
     }
   }
-  
+
+  /**
+   * Read a json file and convert to Type provided with Type reference
+   * It's a way provided by jackson to avoid Type erasure issue
+   *
+   * @param jsonFile  {@code File} to be read
+   * @param ref       {@code TypeReference<T>} to be used
+   * @return          JSON representation
+   */
   public <T> T read(File jsonFile, TypeReference<T> ref) {
     try {
       return mapper.readValue(jsonFile, ref);
@@ -63,7 +86,14 @@ public class JacksonParameters {
       throw new RuntimeException(e);
     }
   }
-  
+
+  /**
+   * Reads a json file into class specified
+   *
+   * @param jsonFile    {@code File} to be read
+   * @param clazz       Class type for populating json data
+   * @return            JSON Data
+   */
   public <T> T read(File jsonFile, Class<T> clazz) {
     try {
       return mapper.readValue(jsonFile, clazz);

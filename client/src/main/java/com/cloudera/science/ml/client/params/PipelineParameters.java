@@ -38,7 +38,7 @@ public class PipelineParameters {
   @Parameter(names = "--local",
       description = "Use the local, in-memory pipeline implementation")
   private boolean inMemory = false;
-  
+
   public Pipeline create(Class<?> jarClass, Configuration conf) {
     return inMemory ? MemPipeline.getInstance() : new MRPipeline(jarClass, conf);
   }
