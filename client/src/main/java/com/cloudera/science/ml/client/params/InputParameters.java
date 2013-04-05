@@ -123,7 +123,7 @@ public class InputParameters {
 
   public PCollection<Record> getRecords(final Pipeline pipeline) {
     format = format.toLowerCase(Locale.ENGLISH);
-    PCollection<Record> ret = null;
+    PCollection<Record> ret;
     if (TEXT.equals(format)) {
       PCollection<String> text = fromInputs(new Function<String, PCollection<String>>() {
         @Override

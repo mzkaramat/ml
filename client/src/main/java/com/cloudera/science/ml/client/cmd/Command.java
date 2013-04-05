@@ -14,11 +14,13 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 
 public interface Command {
 
-  int execute(Configuration conf) throws Exception;
+  int execute(Configuration conf) throws IOException;
   
   String getDescription();
 }

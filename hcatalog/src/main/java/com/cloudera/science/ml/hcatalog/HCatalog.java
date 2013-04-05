@@ -22,9 +22,6 @@ import org.apache.hcatalog.data.schema.HCatSchema;
 
 import com.cloudera.science.ml.core.records.Record;
 
-/**
- *
- */
 public final class HCatalog {
 
   public static PType<Record> records(HCatSchema dataSchema) {
@@ -35,7 +32,7 @@ public final class HCatalog {
   private static class HCatInFn extends MapFn<HCatRecord, Record> {
     private final HCatSchema dataSchema;
     
-    public HCatInFn(HCatSchema dataSchema) {
+    HCatInFn(HCatSchema dataSchema) {
       this.dataSchema = dataSchema;
     }
     

@@ -15,6 +15,7 @@
 package com.cloudera.science.ml.client.cmd;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -81,6 +82,10 @@ public class KMeansCommand implements Command {
       description = "The number of execution threads to use for running the (computationally intensive) k-means algorithm")
   private int numThreads = 1;
   
+  @Parameter(names = "--eval-details-file",
+      description = "Write detailed stats on the cluster stability information to this file")
+  private String detailsFileName;
+  
   @ParametersDelegate
   private RandomParameters randomParams = new RandomParameters();
   
@@ -90,7 +95,7 @@ public class KMeansCommand implements Command {
   }
   
   @Override
-  public int execute(Configuration conf) throws Exception {
+  public int execute(Configuration conf) throws IOException {
     KMeansInitStrategy initStrategy = KMeansInitStrategy.valueOf(initStrategyName);
     KMeans kmeans = new KMeans(initStrategy, getStoppingCriteria());
     
@@ -120,7 +125,8 @@ public class KMeansCommand implements Command {
       List<Weighted<Vector>> test = sketches.get(sketches.size() - 1);
       List<Centers> trainCenters = getClusters(exec, train, kmeans);
       List<Centers> testCenters = getClusters(exec, test, kmeans);
-      KMeansEvaluation eval = new KMeansEvaluation(testCenters, test, trainCenters);
+      KMeansEvaluation eval = new KMeansEvaluation(testCenters, test, trainCenters,
+          detailsFileName);
       System.out.println(
           "ID,NumClusters,TestCost,TrainCost,PredStrength,StableClusters,StablePoints");
       for (int i = 0; i < trainCenters.size(); i++) {
@@ -172,7 +178,7 @@ public class KMeansCommand implements Command {
     private final int numClusters;
     private final Random r;
     
-    public Clustering(KMeans kmeans, List<Weighted<Vector>> sketch, int numClusters, Random r) {
+    Clustering(KMeans kmeans, List<Weighted<Vector>> sketch, int numClusters, Random r) {
       this.kmeans = kmeans;
       this.sketch = sketch;
       this.numClusters = numClusters;

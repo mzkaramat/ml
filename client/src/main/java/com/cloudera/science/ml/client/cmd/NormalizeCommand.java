@@ -14,6 +14,7 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import org.apache.crunch.PCollection;
@@ -75,7 +76,7 @@ public class NormalizeCommand implements Command {
   }
   
   @Override
-  public int execute(Configuration conf) throws Exception {
+  public int execute(Configuration conf) throws IOException {
     Pipeline p = new MRPipeline(NormalizeCommand.class, conf);
     PCollection<Record> records = inputParams.getRecords(p);
 

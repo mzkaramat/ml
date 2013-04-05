@@ -16,9 +16,6 @@ package com.cloudera.science.ml.parallel.summary;
 
 import java.io.Serializable;
 
-/**
- *
- */
 public class Numeric implements Serializable {
   private double min;
   private double max;

@@ -15,14 +15,22 @@
 package com.cloudera.science.ml.parallel.pivot;
 
 class Stat {
-  public long count = 0L;
-  public double sum = 0.0;
+  private long count = 0L;
+  private double sum = 0.0;
   
   Stat() { this(0L, 0.0); }
   
   Stat(long count, double sum) {
     this.count = count;
     this.sum = sum;
+  }
+  
+  long getCount() {
+    return count;
+  }
+  
+  double getSum() {
+    return sum;
   }
   
   public void inc(double value) {
