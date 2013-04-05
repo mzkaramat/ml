@@ -14,8 +14,11 @@
  */
 package com.cloudera.science.ml.client.params;
 
-import java.util.Locale;
-
+import com.beust.jcommander.Parameter;
+import com.cloudera.science.ml.client.cmd.CommandException;
+import com.cloudera.science.ml.mahout.types.MLWritables;
+import com.cloudera.science.ml.parallel.fn.StringifyFn;
+import com.cloudera.science.ml.parallel.types.MLAvros;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Target;
 import org.apache.crunch.Target.WriteMode;
@@ -29,11 +32,7 @@ import org.apache.crunch.types.avro.AvroTypeFamily;
 import org.apache.crunch.types.writable.WritableTypeFamily;
 import org.apache.mahout.math.Vector;
 
-import com.beust.jcommander.Parameter;
-import com.cloudera.science.ml.client.cmd.CommandException;
-import com.cloudera.science.ml.mahout.types.MLWritables;
-import com.cloudera.science.ml.parallel.fn.StringifyFn;
-import com.cloudera.science.ml.parallel.types.MLAvros;
+import java.util.Locale;
 
 
 /**
@@ -50,8 +49,9 @@ public class OutputParameters {
 
   public static final String FORMAT_AVRO = "avro";
   public static final String FORMAT_SEQ = "seq";
+    public static final String FORMAT_TEXT = "text";
 
-  @Parameter(names = "--output-type",
+    @Parameter(names = "--output-type",
     description = "One of 'avro' or 'seq', for Avro or SequenceFile output files", required=true)
   private String outputType;
 
@@ -78,7 +78,7 @@ public class OutputParameters {
     PTypeFamily ptf = collect.getTypeFamily();
     PType<T> ptype = collect.getPType();
     Target target;
-    if ("text".equals(outputType)) {
+    if (FORMAT_TEXT.equals(outputType)) {
       PCollection<String> text = collect.parallelDo(new StringifyFn<T>(),
           collect.getTypeFamily().strings());
       target = To.textFile(output);
