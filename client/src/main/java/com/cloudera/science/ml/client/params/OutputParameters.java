@@ -51,8 +51,8 @@ public class OutputParameters {
   public static final String FORMAT_SEQ = "seq";
     public static final String FORMAT_TEXT = "text";
 
-    @Parameter(names = "--output-type",
-    description = "One of 'avro' or 'seq', for Avro or SequenceFile output files", required=true)
+  @Parameter(names = "--output-type", required=true,
+      description = "One of 'avro' or 'seq', for Avro or SequenceFile output files")
   private String outputType;
 
   /**
