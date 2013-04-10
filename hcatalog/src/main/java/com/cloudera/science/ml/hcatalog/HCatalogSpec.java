@@ -14,50 +14,21 @@
  */
 package com.cloudera.science.ml.hcatalog;
 
-import java.util.List;
-
-import org.apache.hcatalog.common.HCatException;
+import org.apache.hcatalog.data.schema.HCatFieldSchema;
 import org.apache.hcatalog.data.schema.HCatSchema;
 
-import com.cloudera.science.ml.core.records.DataType;
 import com.cloudera.science.ml.core.records.FieldSpec;
-import com.cloudera.science.ml.core.records.Spec;
+import com.cloudera.science.ml.core.records.RecordSpec;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
-public class HCatalogSpec implements Spec {
-
-  private final HCatSchema schema;
-  
-  public HCatalogSpec(HCatSchema schema) {
-    this.schema = schema;
+public class HCatalogSpec extends RecordSpec {
+  public HCatalogSpec(final HCatSchema schema) {
+    super(Lists.transform(schema.getFields(), new Function<HCatFieldSchema, FieldSpec>() {
+      @Override
+      public FieldSpec apply(HCatFieldSchema fs) {
+        return new HCatalogFieldSpec(fs, schema.getPosition(fs.getName()));
+      }
+    }));
   }
-  
-  @Override
-  public DataType getDataType() {
-    return DataType.RECORD;
-  }
-
-  @Override
-  public int size() {
-    return schema.size();
-  }
-
-  @Override
-  public List<String> getFieldNames() {
-    return schema.getFieldNames();
-  }
-
-  @Override
-  public FieldSpec getField(int index) {
-    return new HCatalogFieldSpec(schema.get(index), index);
-  }
-
-  @Override
-  public FieldSpec getField(String fieldName) {
-    try {
-      return new HCatalogFieldSpec(schema.get(fieldName), schema.getPosition(fieldName));
-    } catch (HCatException e) {
-      throw new IllegalArgumentException("Invalid field name: " + fieldName, e);
-    }
-  }
-
 }

@@ -26,8 +26,20 @@ public class RecordSpec implements Spec {
 
   private final List<FieldSpec> fields;
   
-  private RecordSpec(List<FieldSpec> fields) {
+  protected RecordSpec(List<FieldSpec> fields) {
     this.fields = fields;
+  }
+  
+  public Header toHeader() {
+    Header.Builder hb = Header.builder();
+    for (FieldSpec fs : fields) {
+      if (fs.spec().getDataType().isNumeric()) {
+        hb.addNumeric(fs.name());
+      } else {
+        hb.addSymbolic(fs.name());
+      }
+    }
+    return hb.build();
   }
   
   @Override
@@ -114,7 +126,7 @@ public class RecordSpec implements Spec {
       return add(name, DataType.STRING);
     }
     
-    public Spec build() {
+    public RecordSpec build() {
       return new RecordSpec(fields);
     }
   }

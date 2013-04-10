@@ -83,11 +83,44 @@ public class Header {
     return new Header(data);
   }
   
-  public Header(LinkedHashMap<String, Type> data) {
+  public static class Builder {
+    
+    LinkedHashMap<String, Type> data = Maps.newLinkedHashMap();
+    
+    public Builder addNumeric(String name) {
+      data.put(name, Type.NUMERIC);
+      return this;
+    }
+    
+    public Builder addSymbolic(String name) {
+      data.put(name, Type.SYMBOLIC);
+      return this;
+    }
+    
+    public Builder addIgnored(String name) {
+      data.put(name, Type.IGNORED);
+      return this;
+    }
+    
+    public Builder addIdentifier(String name) {
+      data.put(name, Type.ID);
+      return this;
+    }
+    
+    public Header build() {
+      return new Header(data);
+    }
+  }
+  
+  public static Builder builder() {
+    return new Builder();
+  }
+  
+  private Header(LinkedHashMap<String, Type> data) {
     this.data = data;
   }
   
-  public Spec getSpec() {
+  public Spec toSpec() {
     RecordSpec.Builder rsb = RecordSpec.builder();
     for (Map.Entry<String, Type> e : data.entrySet()) {
       switch (e.getValue()) {

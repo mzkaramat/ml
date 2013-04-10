@@ -43,8 +43,6 @@ import com.cloudera.science.ml.core.records.Record;
  */
 public class HCatalogSource implements Source<Record> {
 
-  private static HiveMetaStoreClient CLIENT_INSTANCE = null;
-  
   private final InputJobInfo info;
   private final HCatSchema schema;
   private final Path location;
@@ -60,36 +58,13 @@ public class HCatalogSource implements Source<Record> {
   public HCatalogSource(String tableName, String filter, Properties props) {
     String dbName = "default";
     this.info = InputJobInfo.create(dbName, tableName, filter, props);
-    
-    HiveMetaStoreClient client = getClientInstance();
-    Table table;
-    try {
-      table = HCatUtil.getTable(client, dbName, tableName);
-    } catch (Exception e) {
-      throw new RuntimeException("Hive table lookup exception", e);
-    }
-    
-    if (table == null) {
-      throw new IllegalStateException("Could not find info for table: " + tableName);
-    }
-
+    Table table = HCatalog.getTable(dbName, tableName);
     try {
       this.schema = HCatUtil.extractSchema(table);
     } catch (HCatException e) {
       throw new RuntimeException("Error fetching HCatalog schema", e);
     }
     this.location = table.getPath();
-  }
-  
-  private static synchronized HiveMetaStoreClient getClientInstance() {
-    if (CLIENT_INSTANCE == null) {
-      try {
-        CLIENT_INSTANCE = HCatUtil.getHiveClient(new HiveConf());
-      } catch (Exception e) {
-        throw new RuntimeException("Could not connect to Hive", e);
-      }
-    }
-    return CLIENT_INSTANCE;
   }
   
   @Override

@@ -96,7 +96,7 @@ public class SampleCommand implements Command {
     if (sampleSize > 0) {
       if (headerFile != null) {
         Header header = Header.fromFile(new File(headerFile));
-        Spec spec = header.getSpec();
+        Spec spec = header.toSpec();
         PTypeFamily ptf = elements.getTypeFamily();
         if (weightField != null && !Specs.isNumeric(spec, weightField)) {
           throw new CommandException("Non-numeric weight field: " + weightField);

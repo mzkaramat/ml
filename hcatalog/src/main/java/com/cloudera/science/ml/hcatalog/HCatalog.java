@@ -17,13 +17,56 @@ package com.cloudera.science.ml.hcatalog;
 import org.apache.crunch.MapFn;
 import org.apache.crunch.types.PType;
 import org.apache.crunch.types.writable.Writables;
+import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
+import org.apache.hadoop.hive.ql.metadata.Table;
+import org.apache.hcatalog.common.HCatException;
+import org.apache.hcatalog.common.HCatUtil;
 import org.apache.hcatalog.data.HCatRecord;
 import org.apache.hcatalog.data.schema.HCatSchema;
 
 import com.cloudera.science.ml.core.records.Record;
+import com.cloudera.science.ml.core.records.RecordSpec;
 
 public final class HCatalog {
 
+  private static HiveMetaStoreClient CLIENT_INSTANCE = null;
+  
+  private static synchronized HiveMetaStoreClient getClientInstance() {
+    if (CLIENT_INSTANCE == null) {
+      try {
+        CLIENT_INSTANCE = HCatUtil.getHiveClient(new HiveConf());
+      } catch (Exception e) {
+        throw new RuntimeException("Could not connect to Hive", e);
+      }
+    }
+    return CLIENT_INSTANCE;
+  }
+  
+  public static Table getTable(String dbName, String tableName) {
+    HiveMetaStoreClient client = getClientInstance();
+    Table table;
+    try {
+      table = HCatUtil.getTable(client, dbName, tableName);
+    } catch (Exception e) {
+      throw new RuntimeException("Hive table lookup exception", e);
+    }
+    
+    if (table == null) {
+      throw new IllegalStateException("Could not find info for table: " + tableName);
+    }
+    return table;
+  }
+  
+  public static RecordSpec getSpec(String dbName, String tableName) {
+    Table table = getTable(dbName, tableName);
+    try {
+      return new HCatalogSpec(HCatUtil.extractSchema(table));
+    } catch (HCatException e) {
+      throw new RuntimeException("HCatalog schema extraction error", e);
+    }
+  }
+  
   public static PType<Record> records(HCatSchema dataSchema) {
     return Writables.derived(Record.class, new HCatInFn(dataSchema),
         new HCatOutFn(), Writables.writables(HCatRecord.class));

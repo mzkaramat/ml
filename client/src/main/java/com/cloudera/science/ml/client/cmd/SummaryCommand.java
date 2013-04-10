@@ -66,7 +66,7 @@ public class SummaryCommand implements Command {
     List<Integer> ignoredColumns = ImmutableList.of();
     if (headerFile != null) {
       Header header = Header.fromFile(new File(headerFile));
-      spec = header.getSpec();
+      spec = header.toSpec();
       symbolicColumns = header.getSymbolicColumns();
       ignoredColumns = header.getIgnoredColumns();
     }
