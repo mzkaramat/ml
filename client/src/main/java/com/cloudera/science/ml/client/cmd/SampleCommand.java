@@ -14,6 +14,7 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.cloudera.science.ml.client.params.InputParameters;
 import com.cloudera.science.ml.client.params.OutputParameters;
 import com.cloudera.science.ml.client.params.PipelineParameters;
+import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.records.Specs;
@@ -93,7 +95,8 @@ public class SampleCommand implements Command {
     
     if (sampleSize > 0) {
       if (headerFile != null) {
-        Spec spec = Specs.readFromHeaderFile(headerFile);
+        Header header = Header.fromFile(new File(headerFile));
+        Spec spec = header.getSpec();
         PTypeFamily ptf = elements.getTypeFamily();
         if (weightField != null && !Specs.isNumeric(spec, weightField)) {
           throw new CommandException("Non-numeric weight field: " + weightField);

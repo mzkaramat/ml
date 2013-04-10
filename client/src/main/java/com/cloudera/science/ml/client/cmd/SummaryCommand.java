@@ -14,6 +14,7 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -27,15 +28,15 @@ import com.beust.jcommander.ParametersDelegate;
 import com.cloudera.science.ml.client.params.InputParameters;
 import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
+import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
-import com.cloudera.science.ml.core.records.Specs;
 import com.cloudera.science.ml.parallel.summary.Summarizer;
 import com.cloudera.science.ml.parallel.summary.Summary;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
 @Parameters(commandDescription =
-    "Summarize the continuous (and optionally, categorical) attributes of a collection of records")
+    "Summarize the numeric and symbolic attributes of a collection of records")
 public class SummaryCommand implements Command {
 
   @Parameter(names = "--header-file",
@@ -61,10 +62,13 @@ public class SummaryCommand implements Command {
     PCollection<Record> records = inputParams.getRecords(p);
 
     Spec spec = null;
-    List<Integer> symbolicColumns = Lists.newArrayList();
-    List<Integer> ignoredColumns = Lists.newArrayList();
+    List<Integer> symbolicColumns = ImmutableList.of();
+    List<Integer> ignoredColumns = ImmutableList.of();
     if (headerFile != null) {
-      spec = Specs.readFromHeaderFile(headerFile, ignoredColumns, symbolicColumns);
+      Header header = Header.fromFile(new File(headerFile));
+      spec = header.getSpec();
+      symbolicColumns = header.getSymbolicColumns();
+      ignoredColumns = header.getIgnoredColumns();
     }
     
     Summarizer summarizer = new Summarizer()
@@ -81,7 +85,7 @@ public class SummaryCommand implements Command {
 
   @Override
   public String getDescription() {
-    return "Summarize the continuous (and optionally, categorical) attributes of a collection of records";
+    return "Summarize the numeric and symbolic attributes of a collection of records";
   }
 
 }

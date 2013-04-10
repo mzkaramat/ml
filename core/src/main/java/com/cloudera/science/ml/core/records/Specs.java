@@ -14,74 +14,17 @@
  */
 package com.cloudera.science.ml.core.records;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.regex.Pattern;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 
 /**
  * Utility functions for working with header files and {@code Spec} data.
  */
 public final class Specs {
 
-  // Indicators that a header file contains metadata
-  private static final Set<String> SYMBOL_META = ImmutableSet.of("symbolic",
-      "categorical", "nominal", "string");
-  private static final Set<String> NUMERIC_META = ImmutableSet.of("numeric",
-      "continuous", "real", "double");
-  private static final Pattern COMMA = Pattern.compile(",");
-
-  public static Spec readFromHeaderFile(String headerFile) throws IOException {
-    return readFromHeaderFile(headerFile, null, null);
-  }
-  
-  public static Spec readFromHeaderFile(String headerFile,
-                                        Collection<Integer> ignoredColumns,
-                                        Collection<Integer> symbolicColumns) throws IOException {
-    List<String> lines = Files.readLines(new File(headerFile), Charsets.UTF_8);
-    RecordSpec.Builder rsb = RecordSpec.builder();
-    for (int i = 0; i < lines.size(); i++) {
-      String line = lines.get(i);
-      if (line.contains(",")) {
-        String[] pieces = COMMA.split(line);
-        if (pieces.length != 2) {
-          throw new IllegalArgumentException("Invalid header file row: " + line);
-        }
-        String name = pieces[0];
-        String meta = pieces[1].toLowerCase(Locale.ENGLISH).trim();
-        if (meta.startsWith("ignore") || meta.startsWith("id")) {
-          if (ignoredColumns != null) {
-            ignoredColumns.add(i);
-          }
-          rsb.add(name, DataType.STRING);
-        } else if (SYMBOL_META.contains(meta)) {
-          if (symbolicColumns != null) {
-            symbolicColumns.add(i);
-          }
-          rsb.add(name, DataType.STRING);
-        } else if (NUMERIC_META.contains(meta)) {
-          rsb.add(name, DataType.DOUBLE);
-        } else {
-          throw new IllegalArgumentException(String.format(
-              "Did not recognize metadata %s for field %s", meta, name));
-        }
-      } else {
-        rsb.add(line, DataType.DOUBLE);
-      }
-    }
-    return rsb.build();  
-  }
-  
   public static boolean isNumeric(Spec spec, String fieldId) {
     FieldSpec fs = spec.getField(getFieldId(spec, fieldId));
     return fs.spec().getDataType().isNumeric();

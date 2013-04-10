@@ -17,6 +17,7 @@ package com.cloudera.science.ml.core.records;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 public class BasicSpec implements Spec {
@@ -25,8 +26,12 @@ public class BasicSpec implements Spec {
   private final int size;
   private final List<String> fieldNames;
   
+  public BasicSpec(DataType dataType) {
+    this(dataType, 0);
+  }
+  
   public BasicSpec(DataType dataType, int size) {
-    this.dataType = dataType;
+    this.dataType = Preconditions.checkNotNull(dataType);
     this.size = size;
     if (size > 0) {
       String[] n = new String[size];
@@ -40,7 +45,7 @@ public class BasicSpec implements Spec {
   }
   
   public BasicSpec(DataType dataType, List<String> fieldNames) {
-    this.dataType = dataType;
+    this.dataType = Preconditions.checkNotNull(dataType);
     this.size = fieldNames.size();
     this.fieldNames = fieldNames;
   }

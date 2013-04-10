@@ -91,7 +91,7 @@ public class RecordSpec implements Spec {
     }
     
     public Builder add(String name, DataType dataType) {
-      return add(name, new BasicSpec(dataType, 0));
+      return add(name, new BasicSpec(dataType));
     }
 
     public Builder addBoolean(String name) {
