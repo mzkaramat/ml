@@ -25,6 +25,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.cloudera.science.ml.client.cmd.Command;
 import com.cloudera.science.ml.client.cmd.CommandException;
+import com.cloudera.science.ml.client.cmd.GetHeaderCommand;
 import com.cloudera.science.ml.client.cmd.KMeansAssignmentCommand;
 import com.cloudera.science.ml.client.cmd.KMeansCommand;
 import com.cloudera.science.ml.client.cmd.KMeansSketchCommand;
@@ -40,6 +41,7 @@ public class Main extends Configured implements Tool {
   private Help help = new Help();
   
   private static final Map<String, Command> COMMANDS = ImmutableSortedMap.<String, Command>naturalOrder()
+      .put("header", new GetHeaderCommand())
       .put("sample", new SampleCommand())
       .put("show", new ShowCommand())
       .put("summary", new SummaryCommand())

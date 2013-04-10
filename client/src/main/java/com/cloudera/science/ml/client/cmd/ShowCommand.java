@@ -32,7 +32,7 @@ import com.cloudera.science.ml.client.params.VectorInputParameters;
 public class ShowCommand implements Command {
 
   @Parameter(names = "--count",
-      description = "The maximum number of records to print")
+      description = "The maximum number of vectors to print")
   private int count = 20;
   
   @ParametersDelegate
