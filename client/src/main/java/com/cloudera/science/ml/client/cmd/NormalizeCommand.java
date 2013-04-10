@@ -31,7 +31,6 @@ import com.beust.jcommander.ParametersDelegate;
 import com.cloudera.science.ml.client.params.OutputParameters;
 import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
-import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.records.Specs;
 import com.cloudera.science.ml.parallel.normalize.Normalizer;

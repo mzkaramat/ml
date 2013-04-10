@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.crunch.PCollection;
 import org.apache.crunch.Pipeline;
 import org.apache.hadoop.conf.Configuration;
 
@@ -29,7 +28,6 @@ import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
 import com.cloudera.science.ml.core.records.Header;
-import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.summary.Summarizer;
