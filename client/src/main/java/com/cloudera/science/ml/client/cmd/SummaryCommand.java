@@ -31,6 +31,7 @@ import com.cloudera.science.ml.client.params.SummaryParameters;
 import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
+import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.summary.Summarizer;
 import com.cloudera.science.ml.parallel.summary.Summary;
 import com.google.common.collect.ImmutableList;
@@ -59,24 +60,23 @@ public class SummaryCommand implements Command {
   @Override
   public int execute(Configuration conf) throws IOException {
     Pipeline p = pipelineParams.create(SummaryCommand.class, conf);
-    PCollection<Record> records = inputParams.getRecords(p);
 
-    Spec spec = null;
+    Header header = null;
     List<Integer> symbolicColumns = ImmutableList.of();
     List<Integer> ignoredColumns = ImmutableList.of();
     if (headerFile != null) {
-      Header header = Header.fromFile(new File(headerFile));
-      spec = header.toSpec();
+      header = Header.fromFile(new File(headerFile));
       symbolicColumns = header.getSymbolicColumns();
       ignoredColumns = header.getIgnoredColumns();
     }
+    Records records = inputParams.getRecords(p, header);
     
     Summarizer summarizer = new Summarizer()
-        .spec(spec)
+        .spec(records.getSpec())
         .defaultToSymbolic(false)
         .exceptionColumns(symbolicColumns)
         .ignoreColumns(ignoredColumns);
-    Summary summary = summarizer.build(records).getValue();
+    Summary summary = summarizer.build(records.get()).getValue();
     summaryParams.save(summary, summaryFile);
 
     p.done();

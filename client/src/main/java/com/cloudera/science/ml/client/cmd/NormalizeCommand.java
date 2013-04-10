@@ -36,6 +36,7 @@ import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.records.Specs;
 import com.cloudera.science.ml.parallel.normalize.Normalizer;
 import com.cloudera.science.ml.parallel.normalize.Transform;
+import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.summary.Summary;
 
 @Parameters(commandDescription = "Prepare input (CSV or Vectors) for k-means runs")
@@ -78,7 +79,7 @@ public class NormalizeCommand implements Command {
   @Override
   public int execute(Configuration conf) throws IOException {
     Pipeline p = new MRPipeline(NormalizeCommand.class, conf);
-    PCollection<Record> records = inputParams.getRecords(p);
+    Records records = inputParams.getRecords(p, null);
 
     Summary summary = null;
     Spec spec = null;
@@ -95,7 +96,7 @@ public class NormalizeCommand implements Command {
         .build();
     
     PType<Vector> vecPType = outputParams.getVectorPType();
-    PCollection<Vector> vecs = normalizer.apply(records, vecPType);
+    PCollection<Vector> vecs = normalizer.apply(records.get(), vecPType);
     outputParams.write(vecs, outputFile);
     
     PipelineResult pr = p.done();

@@ -30,10 +30,14 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.cloudera.science.ml.client.cmd.CommandException;
 import com.cloudera.science.ml.client.util.UnionIO;
+import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.Record;
+import com.cloudera.science.ml.core.records.Spec;
+import com.cloudera.science.ml.hcatalog.HCatalog;
 import com.cloudera.science.ml.hcatalog.HCatalogSource;
 import com.cloudera.science.ml.mahout.types.MLWritables;
 import com.cloudera.science.ml.parallel.normalize.StringSplitFn;
+import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.base.Function;
@@ -72,7 +76,7 @@ public class RecordInputParameters {
   private List<String> inputPaths;
 
   @Parameter(names = "--format",
-      description = "One of 'text', 'hive', or 'avro' to describe the format of the input",
+      description = "One of 'text', 'hive', 'seq', or 'avro' to describe the format of the input",
       required = true)
   private String format;
   
@@ -88,9 +92,10 @@ public class RecordInputParameters {
     return delim;
   }
   
-  public PCollection<Record> getRecords(final Pipeline pipeline) {
+  public Records getRecords(final Pipeline pipeline, Header header) {
     format = format.toLowerCase(Locale.ENGLISH);
     PCollection<Record> ret;
+    Spec spec = header == null ? null : header.toSpec();
     if (TEXT.equals(format)) {
       PCollection<String> text = fromInputs(new Function<String, PCollection<String>>() {
         @Override
@@ -100,6 +105,9 @@ public class RecordInputParameters {
       });
       Pattern pattern = ignoreLines == null ? null : Pattern.compile(ignoreLines);
       ret = StringSplitFn.apply(text, delim, pattern);
+      if (spec == null) {
+        throw new CommandException("Text input records must have a --header-file provided");
+      }
     } else if (FORMAT_SEQ.equals(format)) {
       final PType<Record> ptype = MLRecords.vectorRecord(MLWritables.vector());
       ret = fromInputs(new Function<String, PCollection<Record>>() {
@@ -123,10 +131,13 @@ public class RecordInputParameters {
           return pipeline.read(new HCatalogSource(table));
         }
       });
+      if (spec == null) {
+        spec = HCatalog.getSpec("default", inputPaths.get(0));
+      }
     } else {
       throw new CommandException("Unknown format: " + format);
     }
-    return ret;
+    return new Records(ret, spec);
   }
 
   private <T> PCollection<T> fromInputs(Function<String, PCollection<T>> f) {

@@ -38,6 +38,7 @@ import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.records.Specs;
+import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.sample.RecordGroupFn;
 import com.cloudera.science.ml.parallel.sample.ReservoirSampling;
 import com.cloudera.science.ml.parallel.sample.WeightingFn;
@@ -87,23 +88,26 @@ public class SampleCommand implements Command {
   @Override
   public int execute(Configuration conf) throws IOException {
     Pipeline p = pipelineParams.create(SampleCommand.class, conf);
-    PCollection<Record> elements = inputParams.getRecords(p);
+    Header header = null;
+    if (headerFile != null) {
+      header = Header.fromFile(new File(headerFile));
+    }
+    Records elements = inputParams.getRecords(p, header);
 
     if (sampleSize > 0 && samplingProbability > 0.0) {
       throw new IllegalArgumentException("--size and --prob are mutually exclusive options.");
     }
     
     if (sampleSize > 0) {
-      if (headerFile != null) {
-        Header header = Header.fromFile(new File(headerFile));
-        Spec spec = header.toSpec();
-        PTypeFamily ptf = elements.getTypeFamily();
+      if (elements.getSpec() != null) {
+        Spec spec = elements.getSpec();
+        PTypeFamily ptf = elements.get().getTypeFamily();
         if (weightField != null && !Specs.isNumeric(spec, weightField)) {
           throw new CommandException("Non-numeric weight field: " + weightField);
         }
-        PCollection<Pair<Record, Double>> weighted = elements.parallelDo("weights",
+        PCollection<Pair<Record, Double>> weighted = elements.get().parallelDo("weights",
             new WeightingFn(spec, weightField, invert),
-            ptf.pairs(elements.getPType(), ptf.doubles()));
+            ptf.pairs(elements.get().getPType(), ptf.doubles()));
         
         if (groupFields.isEmpty()) {
           outputParams.write(ReservoirSampling.weightedSample(weighted, sampleSize), outputPath);
@@ -114,10 +118,10 @@ public class SampleCommand implements Command {
           outputParams.write(sample.values(), outputPath);
         }
       } else {
-        outputParams.write(ReservoirSampling.sample(elements, sampleSize), outputPath);  
+        outputParams.write(ReservoirSampling.sample(elements.get(), sampleSize), outputPath);  
       }
     } else if (samplingProbability > 0.0 && samplingProbability < 1.0) {
-      outputParams.write(Sample.sample(elements, samplingProbability), outputPath);
+      outputParams.write(Sample.sample(elements.get(), samplingProbability), outputPath);
     } else {
       throw new IllegalArgumentException(String.format(
           "Invalid input args: sample size = %d, sample prob = %.4f", 
