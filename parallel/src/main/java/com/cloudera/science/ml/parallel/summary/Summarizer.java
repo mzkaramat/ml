@@ -102,7 +102,7 @@ public class Summarizer {
         String name = spec != null ? spec.getField(p.first()).name() : "c" + p.first();
         SummaryStats stats = p.second().second().toSummaryStats(name, recordCount);
         if (stats.getMissing() > 0) {
-          LOG.warn("Note: {} missing/invalid values for numeric field {}, named '{}'",
+          LOG.warn("{} missing/invalid values for numeric field {}, named '{}'",
                    new Object[] {stats.getMissing(), p.first(), name});
         }
         ss.put(p.first(), stats);

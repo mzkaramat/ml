@@ -93,4 +93,9 @@ public class HCatalogSource implements Source<Record> {
   public PType<Record> getType() {
     return HCatalog.records(schema);
   }
+  
+  @Override
+  public String toString() {
+    return "Hive(" + info.getTableName() + ")";
+  }
 }

@@ -45,22 +45,28 @@ public class HCatalogFieldSpec implements FieldSpec {
   public Spec spec() {
     switch (schema.getType()) {
     case BOOLEAN:
-      return new BasicSpec(DataType.BOOLEAN, 0);
+      return new BasicSpec(DataType.BOOLEAN);
     case INT:
     case SMALLINT:
     case TINYINT:
-      return new BasicSpec(DataType.INT, 0);
+      return new BasicSpec(DataType.INT);
     case BIGINT:
-      return new BasicSpec(DataType.LONG, 0);
+      return new BasicSpec(DataType.LONG);
     case FLOAT:
     case DOUBLE:
-      return new BasicSpec(DataType.DOUBLE, 0);
+      return new BasicSpec(DataType.DOUBLE);
     case STRING:
-      return new BasicSpec(DataType.STRING, 0);
+      return new BasicSpec(DataType.STRING);
       default:
         throw new IllegalArgumentException(
             "Unsupported field type: " + schema.getType());
     }
   }
 
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder(schema.getName());
+    sb.append(" ").append(schema.getType());
+    return sb.toString();
+  }
 }

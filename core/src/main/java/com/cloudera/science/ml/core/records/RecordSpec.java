@@ -17,6 +17,7 @@ package com.cloudera.science.ml.core.records;
 import java.util.List;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 /**
@@ -77,6 +78,11 @@ public class RecordSpec implements Spec {
     return null;
   }
 
+  @Override
+  public String toString() {
+    return Joiner.on(',').join(fields);
+  }
+  
   public static Builder builder() {
     return new Builder();
   }

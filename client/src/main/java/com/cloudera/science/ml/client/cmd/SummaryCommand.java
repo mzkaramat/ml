@@ -35,6 +35,7 @@ import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.summary.Summarizer;
 import com.cloudera.science.ml.parallel.summary.Summary;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @Parameters(commandDescription =
     "Summarize the numeric and symbolic attributes of a collection of records")
@@ -62,17 +63,27 @@ public class SummaryCommand implements Command {
     Pipeline p = pipelineParams.create(SummaryCommand.class, conf);
 
     Header header = null;
-    List<Integer> symbolicColumns = ImmutableList.of();
-    List<Integer> ignoredColumns = ImmutableList.of();
     if (headerFile != null) {
       header = Header.fromFile(new File(headerFile));
-      symbolicColumns = header.getSymbolicColumns();
-      ignoredColumns = header.getIgnoredColumns();
     }
     Records records = inputParams.getRecords(p, header);
+    Spec spec = records.getSpec();
+    List<Integer> symbolicColumns = ImmutableList.of();
+    List<Integer> ignoredColumns = ImmutableList.of();
+    if (header != null) {
+      symbolicColumns = header.getSymbolicColumns();
+      ignoredColumns = header.getIgnoredColumns();
+    } else if (spec != null) {
+      symbolicColumns = Lists.newArrayList();
+      for (int i = 0; i < spec.size(); i++) {
+        if (!spec.getField(i).spec().getDataType().isNumeric()) {
+          symbolicColumns.add(i);
+        }
+      }
+    }
     
     Summarizer summarizer = new Summarizer()
-        .spec(records.getSpec())
+        .spec(spec)
         .defaultToSymbolic(false)
         .exceptionColumns(symbolicColumns)
         .ignoreColumns(ignoredColumns);

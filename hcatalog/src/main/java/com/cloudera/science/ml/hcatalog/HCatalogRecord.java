@@ -165,4 +165,8 @@ public class HCatalogRecord implements Record {
     return this;
   }
 
+  @Override
+  public String toString() {
+    return impl.toString();
+  }
 }
