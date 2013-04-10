@@ -32,8 +32,8 @@ import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.beust.jcommander.converters.IntegerConverter;
 import com.cloudera.science.ml.avro.MLCenters;
-import com.cloudera.science.ml.client.params.InputParameters;
 import com.cloudera.science.ml.client.params.PipelineParameters;
+import com.cloudera.science.ml.client.params.VectorInputParameters;
 import com.cloudera.science.ml.client.util.AvroIO;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.vectors.VectorConvert;
@@ -65,7 +65,7 @@ public class KMeansAssignmentCommand implements Command {
   private String outputDelim = ",";
   
   @ParametersDelegate
-  private InputParameters inputParams = new InputParameters();
+  private VectorInputParameters inputParams = new VectorInputParameters();
   
   @ParametersDelegate
   private PipelineParameters pipelineParams = new PipelineParameters();

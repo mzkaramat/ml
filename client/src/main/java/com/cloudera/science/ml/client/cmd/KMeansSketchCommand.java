@@ -27,9 +27,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 import com.cloudera.science.ml.avro.MLWeightedCenters;
-import com.cloudera.science.ml.client.params.InputParameters;
 import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.RandomParameters;
+import com.cloudera.science.ml.client.params.VectorInputParameters;
 import com.cloudera.science.ml.client.util.AvroIO;
 import com.cloudera.science.ml.core.vectors.VectorConvert;
 import com.cloudera.science.ml.core.vectors.Weighted;
@@ -72,7 +72,7 @@ public class KMeansSketchCommand implements Command {
   private PipelineParameters pipelineParams = new PipelineParameters();
   
   @ParametersDelegate
-  private InputParameters inputParams = new InputParameters();
+  private VectorInputParameters inputParams = new VectorInputParameters();
   
   @ParametersDelegate
   private RandomParameters randomParams = new RandomParameters();

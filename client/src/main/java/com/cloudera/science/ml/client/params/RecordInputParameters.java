@@ -29,6 +29,7 @@ import org.apache.mahout.math.Vector;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.cloudera.science.ml.client.cmd.CommandException;
+import com.cloudera.science.ml.client.util.UnionIO;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.hcatalog.HCatalogSource;
 import com.cloudera.science.ml.mahout.types.MLWritables;
@@ -57,7 +58,7 @@ import com.google.common.collect.Lists;
  *     Regular expression based on which lines in text input file shall be ignored
  * </PRE>
  */
-public class InputParameters {
+public class RecordInputParameters {
 
   public static final String TEXT = "text";
   public static final String FORMAT_SEQ = "seq";
@@ -71,7 +72,7 @@ public class InputParameters {
   private List<String> inputPaths;
 
   @Parameter(names = "--format",
-      description = "One of 'seq', 'text', 'hive', or 'avro' to describe the format of the input",
+      description = "One of 'text', 'hive', or 'avro' to describe the format of the input",
       required = true)
   private String format;
   
@@ -87,40 +88,6 @@ public class InputParameters {
     return delim;
   }
   
-  public <V extends Vector> PCollection<V> getVectorsFromPath(Pipeline pipeline, String path) {
-    return (PCollection<V>) getVectors(pipeline, Collections.singletonList(path));
-  }
-  
-  public <V extends Vector> PCollection<V> getVectors(Pipeline pipeline) {
-    return (PCollection<V>) getVectors(pipeline, inputPaths);
-  }
-  
-  private PCollection<Vector> getVectors(final Pipeline pipeline, List<String> paths) {
-    format = format.toLowerCase(Locale.ENGLISH);
-    if (TEXT.equals(format)) {
-      throw new IllegalArgumentException("Vectors must be in 'seq' or 'avro' format");
-    }
-    PCollection<Vector> ret;
-    if (FORMAT_SEQ.equals(format)) {
-      ret = from(paths, new Function<String, PCollection<Vector>>() {
-        @Override
-        public PCollection<Vector> apply(String input) {
-          return pipeline.read(From.sequenceFile(input, MLWritables.vector()));
-        }
-      });
-    } else if (FORMAT_AVRO.equals(format)) {
-      ret = from(paths, new Function<String, PCollection<Vector>>() {
-        @Override
-        public PCollection<Vector> apply(String input) {
-          return pipeline.read(From.avroFile(input, MLAvros.vector()));
-        }
-      });
-    } else {
-      throw new CommandException("Unsupported vector format: " + format);
-    }
-    return ret;
-  }
-
   public PCollection<Record> getRecords(final Pipeline pipeline) {
     format = format.toLowerCase(Locale.ENGLISH);
     PCollection<Record> ret;
@@ -163,18 +130,6 @@ public class InputParameters {
   }
 
   private <T> PCollection<T> fromInputs(Function<String, PCollection<T>> f) {
-    return from(inputPaths, f);
-  }
-  
-  private static <T> PCollection<T> from(List<String> paths, Function<String, PCollection<T>> f) {
-    PCollection<T> ret = null;
-    for (PCollection<T> p : Lists.transform(paths, f)) {
-      if (ret == null) {
-        ret = p;
-      } else {
-        ret = ret.union(p);
-      }
-    }
-    return ret;
+    return UnionIO.from(inputPaths, f);
   }
 }

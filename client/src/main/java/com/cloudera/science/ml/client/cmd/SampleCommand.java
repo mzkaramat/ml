@@ -31,9 +31,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.converters.CommaParameterSplitter;
-import com.cloudera.science.ml.client.params.InputParameters;
 import com.cloudera.science.ml.client.params.OutputParameters;
 import com.cloudera.science.ml.client.params.PipelineParameters;
+import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
@@ -79,7 +79,7 @@ public class SampleCommand implements Command {
   private PipelineParameters pipelineParams = new PipelineParameters();
   
   @ParametersDelegate
-  private InputParameters inputParams = new InputParameters();
+  private RecordInputParameters inputParams = new RecordInputParameters();
 
   @ParametersDelegate
   private OutputParameters outputParams = new OutputParameters();

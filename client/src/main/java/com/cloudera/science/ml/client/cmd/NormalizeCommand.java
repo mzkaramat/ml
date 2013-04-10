@@ -28,8 +28,8 @@ import org.apache.mahout.math.Vector;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
-import com.cloudera.science.ml.client.params.InputParameters;
 import com.cloudera.science.ml.client.params.OutputParameters;
+import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
@@ -62,7 +62,7 @@ public class NormalizeCommand implements Command {
   private String transform = "NONE";
 
   @ParametersDelegate
-  private InputParameters inputParams = new InputParameters();
+  private RecordInputParameters inputParams = new RecordInputParameters();
 
   @ParametersDelegate
   private OutputParameters outputParams = new OutputParameters();
