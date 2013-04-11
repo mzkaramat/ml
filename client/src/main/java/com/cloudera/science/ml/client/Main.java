@@ -31,7 +31,7 @@ import com.cloudera.science.ml.client.cmd.KMeansCommand;
 import com.cloudera.science.ml.client.cmd.KMeansSketchCommand;
 import com.cloudera.science.ml.client.cmd.NormalizeCommand;
 import com.cloudera.science.ml.client.cmd.SampleCommand;
-import com.cloudera.science.ml.client.cmd.ShowCommand;
+import com.cloudera.science.ml.client.cmd.ShowVecCommand;
 import com.cloudera.science.ml.client.cmd.SummaryCommand;
 import com.google.common.collect.ImmutableSortedMap;
 
@@ -43,7 +43,7 @@ public class Main extends Configured implements Tool {
   private static final Map<String, Command> COMMANDS = ImmutableSortedMap.<String, Command>naturalOrder()
       .put("header", new GetHeaderCommand())
       .put("sample", new SampleCommand())
-      .put("show", new ShowCommand())
+      .put("showvec", new ShowVecCommand())
       .put("summary", new SummaryCommand())
       .put("normalize", new NormalizeCommand())
       .put("kassign", new KMeansAssignmentCommand())

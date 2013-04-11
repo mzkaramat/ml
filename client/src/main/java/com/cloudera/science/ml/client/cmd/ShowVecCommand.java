@@ -29,7 +29,7 @@ import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.VectorInputParameters;
 
 @Parameters(commandDescription = "Print the first few vectors from the given path to the command line")
-public class ShowCommand implements Command {
+public class ShowVecCommand implements Command {
 
   @Parameter(names = "--count",
       description = "The maximum number of vectors to print")
@@ -43,7 +43,7 @@ public class ShowCommand implements Command {
 
   @Override
   public int execute(Configuration conf) throws IOException {
-    Pipeline p = pipelineParams.create(ShowCommand.class, conf);
+    Pipeline p = pipelineParams.create(ShowVecCommand.class, conf);
     // Use a default header so we can read text files w/o a header
     PCollection<Vector> vectors = inputParams.getVectors(p);
     
