@@ -31,6 +31,8 @@ import com.beust.jcommander.ParametersDelegate;
 import com.cloudera.science.ml.client.params.OutputParameters;
 import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
+import com.cloudera.science.ml.core.records.Header;
+import com.cloudera.science.ml.core.records.RecordSpec;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.records.Specs;
 import com.cloudera.science.ml.parallel.normalize.Normalizer;
@@ -78,15 +80,18 @@ public class NormalizeCommand implements Command {
   @Override
   public int execute(Configuration conf) throws IOException {
     Pipeline p = new MRPipeline(NormalizeCommand.class, conf);
-    Records records = inputParams.getRecords(p, null);
-
+    
     Summary summary = null;
-    Spec spec = null;
+    RecordSpec spec = null;
+    Header header = null;
     if (summaryFile != null) {
       summary = summaryParams.get(summaryFile);
       spec = summary.getSpec();
+      header = spec.toHeader();
     }
     
+    Records records = inputParams.getRecords(p, header);
+
     Normalizer normalizer = Normalizer.builder()
         .summary(summary)
         .sparse(sparse)

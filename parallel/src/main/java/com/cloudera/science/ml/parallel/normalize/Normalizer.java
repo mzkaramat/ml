@@ -15,6 +15,7 @@
 package com.cloudera.science.ml.parallel.normalize;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,9 +65,11 @@ public class Normalizer implements Serializable {
     public Builder summary(Summary s) {
       if (s != null) {
         this.s = s;
-        for (Map.Entry<Integer, SummaryStats> e : s.getAllStats().entrySet()) {
-          if (e.getValue().getTransform() != null) {
-            transforms.put(e.getKey(), Transform.forName(e.getValue().getTransform()));
+        List<SummaryStats> stats = s.getAllStats();
+        for (int i = 0; i < stats.size(); i++) {
+          SummaryStats ss = stats.get(i);
+          if (ss != null && ss.getTransform() != null) {
+            transforms.put(i, Transform.forName(ss.getTransform()));
           }
         }
       }

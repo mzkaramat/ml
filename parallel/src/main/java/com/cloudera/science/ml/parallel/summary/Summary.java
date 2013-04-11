@@ -15,6 +15,7 @@
 package com.cloudera.science.ml.parallel.summary;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -23,29 +24,27 @@ import com.cloudera.science.ml.core.records.DataType;
 import com.cloudera.science.ml.core.records.RecordSpec;
 import com.cloudera.science.ml.core.records.Spec;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class Summary implements Serializable {
 
-  private final SortedMap<Integer, SummaryStats> stats = Maps.newTreeMap();
+  private List<SummaryStats> stats = Lists.newArrayList();
   private long recordCount;
   private int fieldCount;
   
   public Summary() {}
   
-  public Summary(long recordCount, int fieldCount, Map<Integer, SummaryStats> stats) {
+  public Summary(long recordCount, int fieldCount, List<SummaryStats> stats) {
     this.recordCount = recordCount;
     this.fieldCount = fieldCount;
-    for (Map.Entry<Integer, SummaryStats> e : stats.entrySet()) {
-      this.stats.put(e.getKey(), e.getValue());
-    }
+    this.stats = stats;
   }
   
-  public Spec getSpec() {
+  public RecordSpec getSpec() {
     RecordSpec.Builder rsb = RecordSpec.builder();
-    int maxId = stats.lastKey();
-    for (int i = 0; i <= maxId; i++) {
+    for (int i = 0; i < stats.size(); i++) {
       SummaryStats ss = stats.get(i);
       if (ss != null) {
         String field = ss.getName();
@@ -64,7 +63,7 @@ public class Summary implements Serializable {
     return rsb.build();
   }
   
-  public Map<Integer, SummaryStats> getAllStats() {
+  public List<SummaryStats> getAllStats() {
     return stats;
   }
   
@@ -81,8 +80,7 @@ public class Summary implements Serializable {
       return ImmutableSet.of();
     }
     Set<Integer> ignored = Sets.newHashSet();
-    int maxId = stats.lastKey();
-    for (int i = 0; i <= maxId; i++) {
+    for (int i = 0; i < stats.size(); i++) {
       SummaryStats ss = stats.get(i);
       if (ss == null || ss.isEmpty()) {
         ignored.add(i);
@@ -92,13 +90,16 @@ public class Summary implements Serializable {
   }
   
   public SummaryStats getStats(int field) {
+    if (field >= stats.size()) {
+      return null;
+    }
     return stats.get(field);
   }
   
   public int getNetLevels() {
     int netLevels = 0;
-    for (SummaryStats ss : stats.values()) {
-      if (!ss.isEmpty()) {
+    for (SummaryStats ss : stats) {
+      if (ss != null && !ss.isEmpty()) {
         netLevels += ss.numLevels() - 1;
       }
     }
