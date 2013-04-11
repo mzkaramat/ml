@@ -32,7 +32,17 @@ import com.cloudera.science.ml.parallel.types.MLAvros;
 import com.google.common.base.Function;
 
 /**
+ * Class specifies the common input parameters that may be used across ML commands
+ * that process vectors.
  *
+ * The following options are supported:
+ *
+ * <PRE>
+ * <b>--input-paths</b>
+ *     Comma separated paths to be used as input
+ *
+ * <b>--format</b>
+ *     format of the Input. Possible values are seq and avro
  */
 public class VectorInputParameters {
 

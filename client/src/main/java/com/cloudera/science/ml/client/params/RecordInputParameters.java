@@ -14,7 +14,6 @@
  */
 package com.cloudera.science.ml.client.params;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -24,7 +23,6 @@ import org.apache.crunch.Pipeline;
 import org.apache.crunch.io.From;
 import org.apache.crunch.types.PType;
 import org.apache.crunch.types.avro.AvroType;
-import org.apache.mahout.math.Vector;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.CommaParameterSplitter;
@@ -41,12 +39,12 @@ import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 
 /**
  * Class specifies the common input parameters that may be used across ML commands
+ * that process records.
  *
- * Following are the list of commands that are supported
+ * The following options are supported:
  *
  * <PRE>
  * <b>--input-paths</b>
