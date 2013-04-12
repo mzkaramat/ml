@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -29,23 +30,11 @@ public class SummaryStats implements Serializable {
 
   private String name;
   private Numeric numeric;
-  private Map<String, Entry> histogram;
+  private SortedMap<String, Entry> histogram;
   private Double scale;
   
   // For serialization
   private SummaryStats() { }
-  
-  public static SummaryStats createNumeric(String name, Numeric numeric) {
-    return new SummaryStats(name, numeric);
-  }
-  
-  public static SummaryStats createCategorical(String name, List<String> levels) {
-    Map<String, Entry> histogram = Maps.newHashMap();
-    for (int i = 0; i < levels.size(); i++) {
-      histogram.put(levels.get(i), new Entry(i));
-    }
-    return new SummaryStats(name, histogram);
-  }
   
   SummaryStats(String name) {
     this.name = name;
@@ -62,7 +51,10 @@ public class SummaryStats implements Serializable {
   SummaryStats(String name, Map<String, Entry> histogram) {
     this.name = name;
     this.numeric = null;
-    this.histogram = Preconditions.checkNotNull(histogram);
+    this.histogram = Maps.newTreeMap();
+    if (histogram != null) {
+      this.histogram.putAll(histogram);
+    }
   }
   
   public boolean isEmpty() {
@@ -130,7 +122,7 @@ public class SummaryStats implements Serializable {
     if (e == null) {
       return -1;
     } else {
-      return e.getID();
+      return histogram.headMap(value).size();
     }
   }  
 }

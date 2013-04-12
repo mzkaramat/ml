@@ -77,11 +77,10 @@ class InternalStats {
     Map<String, Entry> h = histogram();
     Entry entry = h.get(symbol);
     if (entry == null) {
-      entry = new Entry(h.size()).inc(); // init with count = 1
+      entry = new Entry();
       h.put(symbol, entry);
-    } else {
-      entry.inc();
-    }
+    } 
+    entry.inc();
   }
   
   public void addNumeric(double value) {
@@ -99,7 +98,7 @@ class InternalStats {
       for (String key : keys) {
         Entry e = entries.get(key);
         Entry entry = other.histogram().get(key);
-        Entry newEntry = new Entry(merged.size());
+        Entry newEntry = new Entry();
         if (e != null) {
           newEntry.inc(e.getCount());
         }

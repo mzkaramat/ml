@@ -11,332 +11,252 @@
     "name" : "protocol_type",
     "histogram" : {
       "icmp" : {
-        "id" : 0,
         "count" : 283602
       },
       "tcp" : {
-        "id" : 1,
         "count" : 190065
       },
       "udp" : {
-        "id" : 2,
         "count" : 20354
       }
     }
   }, {
     "name" : "service",
     "histogram" : {
-      "vmnet" : {
-        "id" : 64,
-        "count" : 106
-      },
-      "ntp_u" : {
-        "id" : 39,
-        "count" : 380
-      },
-      "shell" : {
-        "id" : 49,
-        "count" : 112
-      },
-      "smtp" : {
-        "id" : 50,
-        "count" : 9723
-      },
-      "kshell" : {
-        "id" : 27,
-        "count" : 98
-      },
-      "imap4" : {
-        "id" : 24,
-        "count" : 117
-      },
-      "netbios_ssn" : {
-        "id" : 35,
-        "count" : 107
-      },
-      "urh_i" : {
-        "id" : 60,
-        "count" : 14
-      },
-      "mtp" : {
-        "id" : 31,
-        "count" : 107
-      },
-      "tftp_u" : {
-        "id" : 57,
-        "count" : 1
-      },
-      "uucp" : {
-        "id" : 62,
-        "count" : 106
-      },
-      "nnsp" : {
-        "id" : 37,
-        "count" : 105
-      },
-      "echo" : {
-        "id" : 12,
-        "count" : 112
-      },
-      "ssh" : {
-        "id" : 52,
-        "count" : 105
-      },
-      "tim_i" : {
-        "id" : 58,
-        "count" : 7
-      },
-      "iso_tsap" : {
-        "id" : 25,
-        "count" : 115
-      },
-      "time" : {
-        "id" : 59,
-        "count" : 157
-      },
-      "netbios_ns" : {
-        "id" : 34,
-        "count" : 102
-      },
-      "systat" : {
-        "id" : 55,
-        "count" : 115
-      },
-      "hostnames" : {
-        "id" : 21,
-        "count" : 104
-      },
-      "login" : {
-        "id" : 30,
-        "count" : 104
-      },
-      "efs" : {
-        "id" : 15,
-        "count" : 103
-      },
-      "supdup" : {
-        "id" : 54,
-        "count" : 105
-      },
-      "courier" : {
-        "id" : 5,
-        "count" : 108
-      },
-      "ctf" : {
-        "id" : 7,
-        "count" : 97
-      },
-      "finger" : {
-        "id" : 17,
-        "count" : 670
-      },
-      "nntp" : {
-        "id" : 38,
-        "count" : 108
-      },
-      "ftp_data" : {
-        "id" : 19,
-        "count" : 4721
-      },
-      "ldap" : {
-        "id" : 28,
-        "count" : 101
-      },
-      "red_i" : {
-        "id" : 46,
-        "count" : 1
-      },
-      "http" : {
-        "id" : 22,
-        "count" : 64293
-      },
-      "ftp" : {
-        "id" : 18,
-        "count" : 798
-      },
-      "pm_dump" : {
-        "id" : 41,
-        "count" : 1
-      },
-      "exec" : {
-        "id" : 16,
-        "count" : 99
-      },
-      "klogin" : {
-        "id" : 26,
-        "count" : 106
-      },
-      "auth" : {
-        "id" : 3,
-        "count" : 328
-      },
-      "netbios_dgm" : {
-        "id" : 33,
-        "count" : 99
-      },
-      "other" : {
-        "id" : 40,
-        "count" : 7237
-      },
-      "link" : {
-        "id" : 29,
-        "count" : 102
-      },
-      "X11" : {
-        "id" : 1,
-        "count" : 11
-      },
-      "discard" : {
-        "id" : 9,
-        "count" : 116
-      },
-      "private" : {
-        "id" : 45,
-        "count" : 110893
-      },
-      "remote_job" : {
-        "id" : 47,
-        "count" : 120
-      },
       "IRC" : {
-        "id" : 0,
         "count" : 43
       },
+      "X11" : {
+        "count" : 11
+      },
+      "Z39_50" : {
+        "count" : 92
+      },
+      "auth" : {
+        "count" : 328
+      },
+      "bgp" : {
+        "count" : 106
+      },
+      "courier" : {
+        "count" : 108
+      },
+      "csnet_ns" : {
+        "count" : 126
+      },
+      "ctf" : {
+        "count" : 97
+      },
       "daytime" : {
-        "id" : 8,
         "count" : 103
       },
-      "pop_3" : {
-        "id" : 43,
-        "count" : 202
+      "discard" : {
+        "count" : 116
+      },
+      "domain" : {
+        "count" : 116
+      },
+      "domain_u" : {
+        "count" : 5863
+      },
+      "echo" : {
+        "count" : 112
+      },
+      "eco_i" : {
+        "count" : 1642
+      },
+      "ecr_i" : {
+        "count" : 281400
+      },
+      "efs" : {
+        "count" : 103
+      },
+      "exec" : {
+        "count" : 99
+      },
+      "finger" : {
+        "count" : 670
+      },
+      "ftp" : {
+        "count" : 798
+      },
+      "ftp_data" : {
+        "count" : 4721
       },
       "gopher" : {
-        "id" : 20,
         "count" : 117
       },
-      "pop_2" : {
-        "id" : 42,
+      "hostnames" : {
+        "count" : 104
+      },
+      "http" : {
+        "count" : 64293
+      },
+      "http_443" : {
+        "count" : 99
+      },
+      "imap4" : {
+        "count" : 117
+      },
+      "iso_tsap" : {
+        "count" : 115
+      },
+      "klogin" : {
+        "count" : 106
+      },
+      "kshell" : {
+        "count" : 98
+      },
+      "ldap" : {
         "count" : 101
       },
-      "sunrpc" : {
-        "id" : 53,
+      "link" : {
+        "count" : 102
+      },
+      "login" : {
+        "count" : 104
+      },
+      "mtp" : {
         "count" : 107
       },
       "name" : {
-        "id" : 32,
         "count" : 98
       },
-      "rje" : {
-        "id" : 48,
-        "count" : 111
+      "netbios_dgm" : {
+        "count" : 99
       },
-      "domain" : {
-        "id" : 10,
-        "count" : 116
+      "netbios_ns" : {
+        "count" : 102
       },
-      "uucp_path" : {
-        "id" : 63,
-        "count" : 106
-      },
-      "Z39_50" : {
-        "id" : 2,
-        "count" : 92
-      },
-      "domain_u" : {
-        "id" : 11,
-        "count" : 5863
-      },
-      "csnet_ns" : {
-        "id" : 6,
-        "count" : 126
-      },
-      "eco_i" : {
-        "id" : 13,
-        "count" : 1642
-      },
-      "whois" : {
-        "id" : 65,
-        "count" : 110
-      },
-      "bgp" : {
-        "id" : 4,
-        "count" : 106
-      },
-      "sql_net" : {
-        "id" : 51,
-        "count" : 110
-      },
-      "ecr_i" : {
-        "id" : 14,
-        "count" : 281400
-      },
-      "printer" : {
-        "id" : 44,
-        "count" : 109
-      },
-      "telnet" : {
-        "id" : 56,
-        "count" : 513
-      },
-      "urp_i" : {
-        "id" : 61,
-        "count" : 538
+      "netbios_ssn" : {
+        "count" : 107
       },
       "netstat" : {
-        "id" : 36,
         "count" : 95
       },
-      "http_443" : {
-        "id" : 23,
-        "count" : 99
+      "nnsp" : {
+        "count" : 105
+      },
+      "nntp" : {
+        "count" : 108
+      },
+      "ntp_u" : {
+        "count" : 380
+      },
+      "other" : {
+        "count" : 7237
+      },
+      "pm_dump" : {
+        "count" : 1
+      },
+      "pop_2" : {
+        "count" : 101
+      },
+      "pop_3" : {
+        "count" : 202
+      },
+      "printer" : {
+        "count" : 109
+      },
+      "private" : {
+        "count" : 110893
+      },
+      "red_i" : {
+        "count" : 1
+      },
+      "remote_job" : {
+        "count" : 120
+      },
+      "rje" : {
+        "count" : 111
+      },
+      "shell" : {
+        "count" : 112
+      },
+      "smtp" : {
+        "count" : 9723
+      },
+      "sql_net" : {
+        "count" : 110
+      },
+      "ssh" : {
+        "count" : 105
+      },
+      "sunrpc" : {
+        "count" : 107
+      },
+      "supdup" : {
+        "count" : 105
+      },
+      "systat" : {
+        "count" : 115
+      },
+      "telnet" : {
+        "count" : 513
+      },
+      "tftp_u" : {
+        "count" : 1
+      },
+      "tim_i" : {
+        "count" : 7
+      },
+      "time" : {
+        "count" : 157
+      },
+      "urh_i" : {
+        "count" : 14
+      },
+      "urp_i" : {
+        "count" : 538
+      },
+      "uucp" : {
+        "count" : 106
+      },
+      "uucp_path" : {
+        "count" : 106
+      },
+      "vmnet" : {
+        "count" : 106
+      },
+      "whois" : {
+        "count" : 110
       }
     }
   }, {
     "name" : "flag",
     "histogram" : {
+      "OTH" : {
+        "count" : 8
+      },
+      "REJ" : {
+        "count" : 26875
+      },
+      "RSTO" : {
+        "count" : 579
+      },
+      "RSTOS0" : {
+        "count" : 11
+      },
       "RSTR" : {
-        "id" : 4,
         "count" : 903
       },
+      "S0" : {
+        "count" : 87007
+      },
+      "S1" : {
+        "count" : 57
+      },
+      "S2" : {
+        "count" : 24
+      },
       "S3" : {
-        "id" : 8,
         "count" : 10
       },
       "SF" : {
-        "id" : 9,
         "count" : 378440
       },
-      "RSTO" : {
-        "id" : 2,
-        "count" : 579
-      },
       "SH" : {
-        "id" : 10,
         "count" : 107
-      },
-      "OTH" : {
-        "id" : 0,
-        "count" : 8
-      },
-      "S2" : {
-        "id" : 7,
-        "count" : 24
-      },
-      "RSTOS0" : {
-        "id" : 3,
-        "count" : 11
-      },
-      "S1" : {
-        "id" : 6,
-        "count" : 57
-      },
-      "REJ" : {
-        "id" : 1,
-        "count" : 26875
-      },
-      "S0" : {
-        "id" : 5,
-        "count" : 87007
       }
     }
   }, {
@@ -358,13 +278,11 @@
   }, {
     "name" : "land",
     "histogram" : {
-      "1" : {
-        "id" : 1,
-        "count" : 22
-      },
       "0" : {
-        "id" : 0,
         "count" : 493999
+      },
+      "1" : {
+        "count" : 22
       }
     }
   }, {
@@ -402,13 +320,11 @@
   }, {
     "name" : "logged_in",
     "histogram" : {
-      "1" : {
-        "id" : 1,
-        "count" : 73237
-      },
       "0" : {
-        "id" : 0,
         "count" : 420784
+      },
+      "1" : {
+        "count" : 73237
       }
     }
   }, {
@@ -479,20 +395,17 @@
     "name" : "is_host_login",
     "histogram" : {
       "0" : {
-        "id" : 0,
         "count" : 494021
       }
     }
   }, {
     "name" : "is_guest_login",
     "histogram" : {
-      "1" : {
-        "id" : 1,
-        "count" : 685
-      },
       "0" : {
-        "id" : 0,
         "count" : 493336
+      },
+      "1" : {
+        "count" : 685
       }
     }
   }, {
@@ -651,96 +564,73 @@
     "name" : "category",
     "histogram" : {
       "back." : {
-        "id" : 0,
         "count" : 2203
       },
-      "teardrop." : {
-        "id" : 20,
-        "count" : 979
-      },
-      "loadmodule." : {
-        "id" : 7,
-        "count" : 9
-      },
-      "neptune." : {
-        "id" : 9,
-        "count" : 107201
-      },
-      "phf." : {
-        "id" : 13,
-        "count" : 4
-      },
-      "rootkit." : {
-        "id" : 16,
-        "count" : 10
-      },
-      "satan." : {
-        "id" : 17,
-        "count" : 1589
-      },
       "buffer_overflow." : {
-        "id" : 1,
         "count" : 30
       },
       "ftp_write." : {
-        "id" : 2,
         "count" : 8
       },
-      "land." : {
-        "id" : 6,
-        "count" : 21
-      },
-      "spy." : {
-        "id" : 19,
-        "count" : 2
-      },
-      "ipsweep." : {
-        "id" : 5,
-        "count" : 1247
-      },
-      "multihop." : {
-        "id" : 8,
-        "count" : 7
-      },
-      "smurf." : {
-        "id" : 18,
-        "count" : 280790
-      },
-      "pod." : {
-        "id" : 14,
-        "count" : 264
-      },
-      "perl." : {
-        "id" : 12,
-        "count" : 3
+      "guess_passwd." : {
+        "count" : 53
       },
       "imap." : {
-        "id" : 4,
         "count" : 12
       },
+      "ipsweep." : {
+        "count" : 1247
+      },
+      "land." : {
+        "count" : 21
+      },
+      "loadmodule." : {
+        "count" : 9
+      },
+      "multihop." : {
+        "count" : 7
+      },
+      "neptune." : {
+        "count" : 107201
+      },
       "nmap." : {
-        "id" : 10,
         "count" : 231
       },
+      "normal." : {
+        "count" : 97278
+      },
+      "perl." : {
+        "count" : 3
+      },
+      "phf." : {
+        "count" : 4
+      },
+      "pod." : {
+        "count" : 264
+      },
+      "portsweep." : {
+        "count" : 1040
+      },
+      "rootkit." : {
+        "count" : 10
+      },
+      "satan." : {
+        "count" : 1589
+      },
+      "smurf." : {
+        "count" : 280790
+      },
+      "spy." : {
+        "count" : 2
+      },
+      "teardrop." : {
+        "count" : 979
+      },
       "warezclient." : {
-        "id" : 21,
         "count" : 1020
       },
       "warezmaster." : {
-        "id" : 22,
         "count" : 20
-      },
-      "portsweep." : {
-        "id" : 15,
-        "count" : 1040
-      },
-      "normal." : {
-        "id" : 11,
-        "count" : 97278
-      },
-      "guess_passwd." : {
-        "id" : 3,
-        "count" : 53
       }
     }
   } ],
