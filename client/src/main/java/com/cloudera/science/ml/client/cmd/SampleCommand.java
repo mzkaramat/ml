@@ -76,6 +76,10 @@ public class SampleCommand implements Command {
       description = "Invert the weight field, which will prefer records with a small value for this field instead of a large one")
   private boolean invert = false;
   
+  @Parameter(names = "--default-weight",
+      description = "An optional default value to use when the value of the weight field is <= 0")
+  private double defaultWeight = 0.0;
+  
   @ParametersDelegate
   private PipelineParameters pipelineParams = new PipelineParameters();
   
@@ -106,7 +110,7 @@ public class SampleCommand implements Command {
           throw new CommandException("Non-numeric weight field: " + weightField);
         }
         PCollection<Pair<Record, Double>> weighted = elements.get().parallelDo("weights",
-            new WeightingFn(spec, weightField, invert),
+            new WeightingFn(spec, weightField, invert, defaultWeight),
             ptf.pairs(elements.get().getPType(), ptf.doubles()));
         
         if (groupFields.isEmpty()) {

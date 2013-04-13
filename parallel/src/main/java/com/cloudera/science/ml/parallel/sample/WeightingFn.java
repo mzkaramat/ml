@@ -29,14 +29,16 @@ public class WeightingFn extends DoFn<Record, Pair<Record, Double>> {
 
   private final int columnId;
   private final boolean invert;
+  private final double defaultWeight;
   
-  public WeightingFn(Spec spec, String weightField, boolean invert) {
+  public WeightingFn(Spec spec, String weightField, boolean invert, double defaultWeight) {
     if (weightField != null) {
       this.columnId = Specs.getFieldId(spec, weightField);
     } else {
       this.columnId = -1;
     }
     this.invert = invert;
+    this.defaultWeight = defaultWeight;
   }
 
   @Override
@@ -45,7 +47,10 @@ public class WeightingFn extends DoFn<Record, Pair<Record, Double>> {
       emitter.emit(Pair.of(rec, 1.0));
     } else {
       double w = rec.getAsDouble(columnId);
-      if (!Double.isNaN(w) && w != 0.0) {
+      if (Double.isNaN(w) || w <= 0.0) {
+        w = defaultWeight;
+      }
+      if (w != 0.0) {
         emitter.emit(Pair.of(rec, invert ? 1.0 / w : w));
       }
     }
