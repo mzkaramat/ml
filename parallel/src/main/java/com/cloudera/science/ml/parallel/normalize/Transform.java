@@ -29,7 +29,13 @@ public abstract class Transform implements Serializable {
     if ("linear".equalsIgnoreCase(name)) {
       return LINEAR;
     }
-    return NONE;
+    if ("log".equalsIgnoreCase(name)) {
+      return LOG;
+    }
+    if ("none".equalsIgnoreCase(name)) {
+      return NONE;
+    }
+    throw new IllegalArgumentException("Did not recognize transform: " + name);
   }
   
   public static final Transform NONE = new Transform() {
@@ -56,6 +62,13 @@ public abstract class Transform implements Serializable {
         return value;
       }
       return (value - stats.min()) / stats.range();
+    }
+  };
+  
+  public static final Transform LOG = new Transform() {
+    @Override
+    public double apply(double value, SummaryStats stats) {
+      return Math.log(value);
     }
   };
 }

@@ -33,7 +33,6 @@ import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
 import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.RecordSpec;
-import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.records.Specs;
 import com.cloudera.science.ml.parallel.normalize.Normalizer;
 import com.cloudera.science.ml.parallel.normalize.Transform;
@@ -60,7 +59,7 @@ public class NormalizeCommand implements Command {
   private String outputFile;
   
   @Parameter(names = "--transform",
-      description = "A transform to apply to the continuous columns: either NONE, Z, or LINEAR")
+      description = "A transform to apply to the continuous columns: either NONE, Z, LOG, or LINEAR")
   private String transform = "NONE";
 
   @ParametersDelegate
