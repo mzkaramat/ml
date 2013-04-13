@@ -30,6 +30,7 @@ import org.apache.crunch.types.avro.Avros;
 
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -44,9 +45,16 @@ public class Summarizer {
   private boolean defaultToSymbolic = false;
   private final Set<Integer> exceptionColumns = Sets.newHashSet();
   private Spec spec = null;
+  private int maxLevels = 1000000;
   
   public Summarizer spec(Spec spec) {
     this.spec = spec;
+    return this;
+  }
+  
+  public Summarizer maxLevels(int maxLevels) {
+    Preconditions.checkArgument(maxLevels >= 0);
+    this.maxLevels = maxLevels;
     return this;
   }
   
@@ -79,10 +87,10 @@ public class Summarizer {
 
   public PObject<Summary> build(PCollection<Record> input) {
     return new SummaryPObject(spec, input.parallelDo("summarize",
-        new SummarizeFn(ignoredColumns, defaultToSymbolic, exceptionColumns),
+        new SummarizeFn(ignoredColumns, defaultToSymbolic, exceptionColumns, maxLevels),
         Avros.tableOf(Avros.ints(), Avros.pairs(Avros.longs(), Avros.reflects(InternalStats.class))))
         .groupByKey(1)
-        .combineValues(Aggregators.pairAggregator(Aggregators.SUM_LONGS(), InternalStats.AGGREGATOR)));
+        .combineValues(Aggregators.pairAggregator(Aggregators.SUM_LONGS(), new InternalStats.Aggregator(maxLevels))));
   }
 
   private static class SummaryPObject extends PObjectImpl<Pair<Integer, Pair<Long, InternalStats>>, Summary> {
@@ -130,14 +138,19 @@ public class Summarizer {
     private final Set<Integer> ignoredColumns;
     private final boolean defaultToSymbolic;
     private final Set<Integer> exceptionColumns;
+    private final int maxLevels;
     private final Map<Integer, InternalStats> stats;
     private long count;
     
-    private SummarizeFn(Set<Integer> ignoreColumns,
-                        boolean defaultToSymbolic, Set<Integer> exceptionColumns) {
+    private SummarizeFn(
+        Set<Integer> ignoreColumns,
+        boolean defaultToSymbolic,
+        Set<Integer> exceptionColumns,
+        int maxLevels) {
       this.ignoredColumns = ignoreColumns;
       this.defaultToSymbolic = defaultToSymbolic;
       this.exceptionColumns = exceptionColumns;
+      this.maxLevels = maxLevels;
       this.stats = Maps.newHashMap();
       this.count = 0;
     }
@@ -154,7 +167,7 @@ public class Summarizer {
           }
           boolean symbolic = exceptionColumns.contains(idx) ? !defaultToSymbolic : defaultToSymbolic;
           if (symbolic) {
-            ss.addSymbol(record.getAsString(idx));
+            ss.addSymbol(record.getAsString(idx), maxLevels);
           } else {
             ss.addNumeric(record.getAsDouble(idx));
           }

@@ -31,9 +31,10 @@ public class SummaryStats implements Serializable {
   private String name;
   private Numeric numeric;
   private SortedMap<String, Entry> histogram;
+  private Boolean trimmed;
   private Double scale;
   
-  // For serialization
+  // For Jackson serialization
   private SummaryStats() { }
   
   SummaryStats(String name) {
@@ -48,12 +49,15 @@ public class SummaryStats implements Serializable {
     this.histogram = null;
   }
   
-  SummaryStats(String name, Map<String, Entry> histogram) {
+  SummaryStats(String name, Map<String, Entry> histogram, boolean trimmed) {
     this.name = name;
     this.numeric = null;
     this.histogram = Maps.newTreeMap();
     if (histogram != null) {
       this.histogram.putAll(histogram);
+    }
+    if (trimmed) {
+      this.trimmed = Boolean.TRUE;
     }
   }
   
@@ -99,6 +103,10 @@ public class SummaryStats implements Serializable {
   
   public String getTransform() {
     return numeric == null ? null : numeric.getTransform();
+  }
+  
+  public boolean isTrimmed() {
+    return trimmed != null ? trimmed.booleanValue() : false;
   }
   
   public List<String> getLevels() {

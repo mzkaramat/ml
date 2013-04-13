@@ -17,7 +17,6 @@ package com.cloudera.science.ml.parallel.summary;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.crunch.Aggregator;
 import org.apache.crunch.fn.Aggregators.SimpleAggregator;
 
 import com.google.common.collect.ImmutableList;
@@ -26,8 +25,14 @@ import com.google.common.collect.Sets;
 
 class InternalStats {
 
-  public static final Aggregator<InternalStats> AGGREGATOR = new SimpleAggregator<InternalStats>() {
+  public static final class Aggregator extends SimpleAggregator<InternalStats> {
     private InternalStats agg;
+    private int maxLevels;
+    
+    public Aggregator(int maxLevels) {
+      this.maxLevels = maxLevels;
+    }
+    
     @Override
     public void reset() {
       agg = new InternalStats();
@@ -40,19 +45,20 @@ class InternalStats {
 
     @Override
     public void update(InternalStats other) {
-      agg.merge(other);
+      agg.merge(other, maxLevels);
     }
-  };
+  }
   
   private InternalNumeric internalNumeric;
   private Map<String, Entry> histogram;
-
+  private boolean trimmed;
+  
   public SummaryStats toSummaryStats(String name, long recordCount) {
     if (internalNumeric == null) {
       if (histogram == null) {
         return new SummaryStats(name);
       } else {
-        return new SummaryStats(name, histogram);
+        return new SummaryStats(name, histogram, trimmed);
       }
     } else {
       return new SummaryStats(name, internalNumeric.toNumeric(recordCount));
@@ -73,12 +79,17 @@ class InternalStats {
     return histogram;
   }
   
-  public void addSymbol(String symbol) {
+  public void addSymbol(String symbol, int maxLevels) {
     Map<String, Entry> h = histogram();
     Entry entry = h.get(symbol);
     if (entry == null) {
-      entry = new Entry();
-      h.put(symbol, entry);
+      if (h.size() < maxLevels) {
+        entry = new Entry();
+        h.put(symbol, entry);
+      } else {
+        trimmed = true;
+        return;
+      }
     } 
     entry.inc();
   }
@@ -87,7 +98,7 @@ class InternalStats {
     internalNumeric().update(value);
   }
   
-  public void merge(InternalStats other) {
+  public void merge(InternalStats other, int maxLevels) {
     if (other.internalNumeric != null) {
       internalNumeric().merge(other.internalNumeric);
     } else {
@@ -106,9 +117,16 @@ class InternalStats {
           newEntry.inc(entry.getCount());
         }
         merged.put(key, newEntry);
+        if (merged.size() == maxLevels) {
+          this.trimmed = true;
+          break;
+        }
       }
       entries.clear();
       entries.putAll(merged);
+      if (other.trimmed) {
+        this.trimmed = true;
+      }
     }
   }
 }

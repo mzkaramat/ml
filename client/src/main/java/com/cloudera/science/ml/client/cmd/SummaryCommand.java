@@ -47,6 +47,10 @@ public class SummaryCommand implements Command {
       description = "The name of the local file to store the JSON summary data to")
   private String summaryFile;
 
+  @Parameter(names = "--max-levels",
+      description = "The maximum number of distinct levels to track for any categorical column")
+  private int maxLevels = 1000000;
+  
   @ParametersDelegate
   private RecordInputParameters inputParams = new RecordInputParameters();
   
@@ -82,6 +86,7 @@ public class SummaryCommand implements Command {
     
     Summarizer summarizer = new Summarizer()
         .spec(spec)
+        .maxLevels(maxLevels)
         .defaultToSymbolic(false)
         .exceptionColumns(symbolicColumns)
         .ignoreColumns(ignoredColumns);
