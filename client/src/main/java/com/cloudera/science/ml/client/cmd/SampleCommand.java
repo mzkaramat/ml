@@ -65,19 +65,19 @@ public class SampleCommand implements Command {
   
   @Parameter(names = "--group-fields",
       splitter = CommaParameterSplitter.class,
-      description = "Samples N records for each distinct combination of the CSV-separated input fields. Used with the --size and --header-file options")
+      description = "Sample N records for each distinct combination of the CSV-separated input fields. Used with the --size option")
   private List<String> groupFields = Lists.newArrayList();
   
   @Parameter(names = "--weight-field",
-      description = "Use the given field in the input to weight some samples higher than others. Used with the --size and --header-file options")
+      description = "Use the given field in the input to weight some samples higher than others. Used with the --size and option")
   private String weightField;
   
-  @Parameter(names = "--invert-weight",
+  @Parameter(names = "--weight-invert",
       description = "Invert the weight field, which will prefer records with a small value for this field instead of a large one")
   private boolean invert = false;
   
-  @Parameter(names = "--default-weight",
-      description = "An optional default value to use when the value of the weight field is <= 0")
+  @Parameter(names = "--weight-default",
+      description = "The default value to use when the value of the weight field is <= 0")
   private double defaultWeight = 0.0;
   
   @ParametersDelegate
