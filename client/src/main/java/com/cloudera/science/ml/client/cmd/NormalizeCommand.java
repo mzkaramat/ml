@@ -28,9 +28,9 @@ import org.apache.mahout.math.Vector;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
-import com.cloudera.science.ml.client.params.OutputParameters;
 import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
+import com.cloudera.science.ml.client.params.VectorOutputParameters;
 import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.RecordSpec;
 import com.cloudera.science.ml.core.records.Specs;
@@ -66,7 +66,7 @@ public class NormalizeCommand implements Command {
   private RecordInputParameters inputParams = new RecordInputParameters();
 
   @ParametersDelegate
-  private OutputParameters outputParams = new OutputParameters();
+  private VectorOutputParameters outputParams = new VectorOutputParameters();
   
   @ParametersDelegate
   private SummaryParameters summaryParams = new SummaryParameters();
@@ -98,24 +98,15 @@ public class NormalizeCommand implements Command {
         .idColumn(Specs.getFieldId(spec, idColumn))
         .build();
     
-    PType<Vector> vecPType = outputParams.getVectorPType();
+    PType<Vector> vecPType = outputParams.getPType();
     PCollection<Vector> vecs = normalizer.apply(records.get(), vecPType);
-    outputParams.write(vecs, outputFile);
+    outputParams.writeVectors(vecs, outputFile);
     
     PipelineResult pr = p.done();
     return pr.succeeded() ? 0 : 1;
   }
   
   private Transform getDefaultTransform() {
-    String t = transform.toLowerCase(Locale.ENGLISH);
-    if ("none".equals(t)) {
-      return Transform.NONE;
-    } else if ("linear".equals(t)) {
-      return Transform.LINEAR;
-    } else if ("z".equals(t)) {
-      return Transform.Z;
-    } else {
-      throw new IllegalArgumentException("Unknown default transform type: " + t);
-    }
+    return Transform.forName(transform.toLowerCase(Locale.ENGLISH));
   }
 }

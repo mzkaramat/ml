@@ -32,9 +32,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.converters.CommaParameterSplitter;
-import com.cloudera.science.ml.client.params.OutputParameters;
 import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.RecordInputParameters;
+import com.cloudera.science.ml.client.params.RecordOutputParameters;
 import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
@@ -89,7 +89,7 @@ public class SampleCommand implements Command {
   private RecordInputParameters inputParams = new RecordInputParameters();
 
   @ParametersDelegate
-  private OutputParameters outputParams = new OutputParameters();
+  private RecordOutputParameters outputParams = new RecordOutputParameters();
   
   @Override
   public int execute(Configuration conf) throws IOException {
@@ -115,18 +115,18 @@ public class SampleCommand implements Command {
             Avros.pairs(MLRecords.record(spec), Avros.doubles()));
         
         if (groupFields.isEmpty()) {
-          outputParams.write(ReservoirSampling.weightedSample(weighted, sampleSize), outputPath);
+          outputParams.writeRecords(ReservoirSampling.weightedSample(weighted, sampleSize), spec, outputPath);
         } else {
           List<Integer> columnIds = Specs.getFieldIds(spec, groupFields);
           PTable<String, Pair<Record, Double>> grouped = weighted.by(new RecordGroupFn(columnIds), Avros.strings());
           PTable<String, Record> sample = ReservoirSampling.groupedWeightedSample(grouped, sampleSize);
-          outputParams.write(sample.values(), outputPath);
+          outputParams.writeRecords(sample.values(), spec, outputPath);
         }
       } else {
-        outputParams.write(ReservoirSampling.sample(elements.get(), sampleSize), outputPath);  
+        outputParams.writeRecords(ReservoirSampling.sample(elements.get(), sampleSize), outputPath);  
       }
     } else if (samplingProbability > 0.0 && samplingProbability < 1.0) {
-      outputParams.write(Sample.sample(elements.get(), samplingProbability), outputPath);
+      outputParams.writeRecords(Sample.sample(elements.get(), samplingProbability), elements.getSpec(), outputPath);
     } else {
       throw new IllegalArgumentException(String.format(
           "Invalid input args: sample size = %d, sample prob = %.4f", 
