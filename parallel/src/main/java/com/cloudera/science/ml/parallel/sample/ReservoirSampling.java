@@ -99,9 +99,9 @@ public final class ReservoirSampling {
     PType<T> ttype = (PType<T>) input.getPTableType().getValueType().getSubTypes().get(0);
     PTableType<K, Pair<Double, T>> ptt = ptf.tableOf(keyType, ptf.pairs(ptf.doubles(), ttype));
     
-    return input.parallelDo(new SampleFn<K, T, N>(sampleSize, random), ptt)
+    return input.parallelDo(new SampleFn<K, T, N>(sampleSize, random, ttype), ptt)
         .groupByKey()
-        .combineValues(new WRSCombineFn<K, T>(sampleSize))
+        .combineValues(new WRSCombineFn<K, T>(sampleSize, ttype))
         .parallelDo(new MapFn<Pair<K, Pair<Double, T>>, Pair<K, T>>() {
           @Override
           public Pair<K, T> map(Pair<K, Pair<Double, T>> p) {
@@ -116,12 +116,14 @@ public final class ReservoirSampling {
     private static final int PUT_LIMIT = 100000;
     
     private final int sampleSize;
+    private final PType<T> ptype;
     private transient Map<K, SortedMap<Double, T>> current;
     private Random random;
     private int puts;
     
-    private SampleFn(int sampleSize, Random random) {
+    private SampleFn(int sampleSize, Random random, PType<T> ptype) {
       this.sampleSize = sampleSize;
+      this.ptype = ptype;
       this.random = random;
     }
     
@@ -133,6 +135,7 @@ public final class ReservoirSampling {
     
     @Override
     public void initialize() {
+      ptype.initialize(getConfiguration());
       if (current == null) {
         this.current = Maps.newHashMap();
       } else {
@@ -157,11 +160,11 @@ public final class ReservoirSampling {
           current.put(id, reservoir);
         }
         if (reservoir.size() < sampleSize) { 
-          reservoir.put(score, p.first());
+          reservoir.put(score, ptype.getDetachedValue(p.first()));
           puts++;
         } else if (score > reservoir.firstKey()) {
           reservoir.remove(reservoir.firstKey());
-          reservoir.put(score, p.first());
+          reservoir.put(score, ptype.getDetachedValue(p.first()));
         }
         if (puts > PUT_LIMIT) {
           // On the off-chance this gets huge, cleanup
@@ -186,21 +189,28 @@ public final class ReservoirSampling {
   private static class WRSCombineFn<K, T> extends CombineFn<K, Pair<Double, T>> {
 
     private final int sampleSize;
+    private final PType<T> ptype;
     
-    private WRSCombineFn(int sampleSize) {
+    private WRSCombineFn(int sampleSize, PType<T> ptype) {
       this.sampleSize = sampleSize;
+      this.ptype = ptype;
     }
 
+    @Override
+    public void initialize() {
+      ptype.initialize(getConfiguration());
+    }
+    
     @Override
     public void process(Pair<K, Iterable<Pair<Double, T>>> input,
         Emitter<Pair<K, Pair<Double, T>>> emitter) {
       SortedMap<Double, T> reservoir = Maps.newTreeMap();
       for (Pair<Double, T> p : input.second()) {
         if (reservoir.size() < sampleSize) { 
-          reservoir.put(p.first(), p.second());        
+          reservoir.put(p.first(), ptype.getDetachedValue(p.second()));        
         } else if (p.first() > reservoir.firstKey()) {
           reservoir.remove(reservoir.firstKey());
-          reservoir.put(p.first(), p.second());  
+          reservoir.put(p.first(), ptype.getDetachedValue(p.second()));  
         }
       }
       for (Map.Entry<Double, T> e : reservoir.entrySet()) {

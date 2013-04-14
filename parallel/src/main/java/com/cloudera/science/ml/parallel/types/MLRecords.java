@@ -40,28 +40,16 @@ public final class MLRecords {
   }
 
   public static PType<Record> record(Spec spec) {
-    final Schema schema = Spec2Schema.create(spec);
+    Schema schema = Spec2Schema.create(spec);
     return Avros.derived(Record.class,
         new MapFn<GenericData.Record, Record>() {
           @Override
           public Record map(GenericData.Record gdr) {
-            return new AvroRecord(gdr);
+            GenericData.Record copy = new GenericData.Record(gdr, true);
+            return new AvroRecord(copy);
           }
         },
-        new MapFn<Record, GenericData.Record>() {
-          @Override
-          public GenericData.Record map(Record r) {
-            if (r instanceof AvroRecord) {
-              return ((AvroRecord) r).getImpl();
-            } else {
-              GenericData.Record gdr = new GenericData.Record(schema);
-              for (int i = 0; i < r.getSpec().size(); i++) {
-                gdr.put(i, r.get(i));
-              }
-              return gdr;
-            }
-          }
-        },
+        new AvroRecordFn(schema),
         Avros.generics(schema));
   }
   
@@ -86,6 +74,43 @@ public final class MLRecords {
         },
         new Record2VectorFn(sparse),
         ptype);
+  }
+  
+  private static class AvroRecordFn extends MapFn<Record, GenericData.Record> {
+    
+    private final String schemaJson;
+    private transient Schema schema;
+    private transient List<Schema.Field> fields;
+    public AvroRecordFn(Schema schema) {
+      this.schemaJson = schema.toString();
+    }
+    
+    @Override
+    public void initialize() {
+      this.schema = (new Schema.Parser()).parse(schemaJson);
+      this.fields = schema.getFields();
+    }
+    
+    @Override
+    public GenericData.Record map(Record r) {
+      if (r instanceof AvroRecord) {
+        return ((AvroRecord) r).getImpl();
+      } else {
+        GenericData.Record gdr = new GenericData.Record(schema);
+        for (int i = 0; i < fields.size(); i++) {
+          Schema.Type t = fields.get(i).schema().getType();
+          if (t == Schema.Type.DOUBLE) {
+            gdr.put(i, r.getAsDouble(i));
+          } else if (t == Schema.Type.STRING) {
+            gdr.put(i, r.getAsString(i));
+          } else {
+            gdr.put(i, r.get(i));
+          }
+        }
+        return gdr;
+      }
+    }
+    
   }
   
   private static class Record2VectorFn extends MapFn<Record, Vector> {

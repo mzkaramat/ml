@@ -25,6 +25,7 @@ import org.apache.crunch.Pipeline;
 import org.apache.crunch.PipelineResult;
 import org.apache.crunch.lib.Sample;
 import org.apache.crunch.types.PTypeFamily;
+import org.apache.crunch.types.avro.Avros;
 import org.apache.hadoop.conf.Configuration;
 
 import com.beust.jcommander.Parameter;
@@ -42,6 +43,7 @@ import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.sample.RecordGroupFn;
 import com.cloudera.science.ml.parallel.sample.ReservoirSampling;
 import com.cloudera.science.ml.parallel.sample.WeightingFn;
+import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.collect.Lists;
 
 @Parameters(commandDescription = "Samples from a dataset and writes the sampled data to HDFS or a local file")
@@ -105,19 +107,18 @@ public class SampleCommand implements Command {
     if (sampleSize > 0) {
       if (elements.getSpec() != null) {
         Spec spec = elements.getSpec();
-        PTypeFamily ptf = elements.get().getTypeFamily();
         if (weightField != null && !Specs.isNumeric(spec, weightField)) {
           throw new CommandException("Non-numeric weight field: " + weightField);
         }
         PCollection<Pair<Record, Double>> weighted = elements.get().parallelDo("weights",
             new WeightingFn(spec, weightField, invert, defaultWeight),
-            ptf.pairs(elements.get().getPType(), ptf.doubles()));
+            Avros.pairs(MLRecords.record(spec), Avros.doubles()));
         
         if (groupFields.isEmpty()) {
           outputParams.write(ReservoirSampling.weightedSample(weighted, sampleSize), outputPath);
         } else {
           List<Integer> columnIds = Specs.getFieldIds(spec, groupFields);
-          PTable<String, Pair<Record, Double>> grouped = weighted.by(new RecordGroupFn(columnIds), ptf.strings());
+          PTable<String, Pair<Record, Double>> grouped = weighted.by(new RecordGroupFn(columnIds), Avros.strings());
           PTable<String, Record> sample = ReservoirSampling.groupedWeightedSample(grouped, sampleSize);
           outputParams.write(sample.values(), outputPath);
         }
