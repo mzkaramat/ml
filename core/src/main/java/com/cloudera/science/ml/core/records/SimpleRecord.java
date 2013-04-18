@@ -14,7 +14,10 @@
  */
 package com.cloudera.science.ml.core.records;
 
+import java.util.Arrays;
+
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 
 /**
  * A simple {@code Record} implementation that wraps an {@code Object[]} and performs
@@ -130,5 +133,19 @@ public class SimpleRecord implements Record {
   @Override
   public String toString() {
     return Joiner.on(',').join(values);
+  }
+  
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(values);
+  }
+  
+  @Override
+  public boolean equals(Object other) {
+    if (other == null || !(other instanceof SimpleRecord)) {
+      return false;
+    }
+    SimpleRecord r = (SimpleRecord) other;
+    return Arrays.equals(values, r.values);
   }
 }

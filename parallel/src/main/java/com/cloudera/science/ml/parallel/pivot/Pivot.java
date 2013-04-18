@@ -55,7 +55,7 @@ public final class Pivot {
   public static Records pivot(SummarizedRecords records,
                               List<Integer> groupColumns,
                               int attributeColumn,
-                              int valueColumn,
+                              List<Integer> valueColumns,
                               Agg agg) {
     Summary summary = records.getSummary();
     Spec keySpec = createSpec(records.getSpec(), groupColumns);
@@ -65,26 +65,30 @@ public final class Pivot {
 
     RecordSpec.Builder b = RecordSpec.builder(keySpec);
     SummaryStats attrStats = summary.getStats(attributeColumn);
-    SummaryStats valueStats = summary.getStats(valueColumn);
-    if (!valueStats.isNumeric()) {
-      throw new IllegalArgumentException("Non-numeric value column in pivot op");
-    }
     if (attrStats.isNumeric() || attrStats.numLevels() == 1) {
       throw new IllegalArgumentException("Non-categorical attribute column in pivot op");
     }
+    
     List<String> levels = attrStats.getLevels();
-    for (String level : levels) {
-      b.addDouble(level);
+    for (Integer valueColumn : valueColumns) {
+      SummaryStats valueStats = summary.getStats(valueColumn);
+      if (!valueStats.isNumeric()) {
+        throw new IllegalArgumentException("Non-numeric value column in pivot op");
+      }
+      String valueName = summary.getSpec().getField(valueColumn).name();
+      for (String level : levels) {
+        b.addDouble(String.format("%s_%s", valueName, level));
+      }
     }
 
     Spec outSpec = b.build();
     return new Records(records.get().parallelDo("pivotmap",
-        new PivotMapperFn(keySpec, groupColumns, attributeColumn, valueColumn),
+        new PivotMapperFn(keySpec, groupColumns, attributeColumn, valueColumns),
         ptt)
         .groupByKey()
         .combineValues(new MapAggregator())
         .parallelDo("makerecord",
-            new PivotFinishFn(outSpec, levels, agg),
+            new PivotFinishFn(outSpec, levels, valueColumns.size(), agg),
             MLRecords.record(outSpec)), outSpec);
   }
   
@@ -93,15 +97,16 @@ public final class Pivot {
     private final Spec spec;
     private final List<Integer> groupColumns;
     private final int attributeColumn;
-    private final int valueColumn;
+    private final List<Integer> valueColumns;
     private final Map<Record, Map<String, Stat>> cache;
     private int cacheAdds = 0;
     
-    private PivotMapperFn(Spec spec, List<Integer> groupColumns, int attributeColumn, int valueColumn) {
+    private PivotMapperFn(Spec spec, List<Integer> groupColumns, int attributeColumn,
+        List<Integer> valueColumns) {
       this.spec = spec;
       this.groupColumns = groupColumns;
       this.attributeColumn = attributeColumn;
-      this.valueColumn = valueColumn;
+      this.valueColumns = valueColumns;
       this.cache = Maps.newHashMap();
     }
     
@@ -119,14 +124,19 @@ public final class Pivot {
       }
       
       String level = r.getAsString(attributeColumn);
-      Stat stats = ss.get(level);
-      if (stats == null) {
-        stats = new Stat();
-        ss.put(level, stats);
+      Stat stat = ss.get(level);
+      if (stat == null) {
+        stat = new Stat(valueColumns.size());
+        ss.put(level, stat);
         cacheAdds++;
+        System.out.println("Created new stat");
+      } else {
+        System.out.println("Found existing stat");
       }
       
-      stats.inc(r.getAsDouble(valueColumn));
+      for (int i = 0; i < valueColumns.size(); i++) {
+        stat.inc(i, r.getAsDouble(valueColumns.get(i)));
+      }
       
       if (cacheAdds > 10000) { //TODO parameterize
         cleanup(emitter);
@@ -135,6 +145,7 @@ public final class Pivot {
     
     @Override
     public void cleanup(Emitter<Pair<Record, Map<String, Stat>>> emitter) {
+      System.out.println("Cleaning up...");
       for (Map.Entry<Record, Map<String, Stat>> e : cache.entrySet()) {
         emitter.emit(Pair.of(e.getKey(), e.getValue()));
       }
@@ -146,11 +157,13 @@ public final class Pivot {
   private static class PivotFinishFn extends MapFn<Pair<Record, Map<String, Stat>>, Record> {
     private final Spec spec;
     private final List<String> levels;
+    private final int numValues;
     private final Agg agg;
     
-    private PivotFinishFn(Spec spec, List<String> levels, Agg agg) {
+    private PivotFinishFn(Spec spec, List<String> levels, int numValues, Agg agg) {
       this.spec = spec;
       this.levels = levels;
+      this.numValues = numValues;
       this.agg = agg;
     }
     
@@ -161,17 +174,20 @@ public final class Pivot {
       for (int i = 0; i < index; i++) {
         r.set(i, p.first().get(i));
       }
-      for (int i = 0; i < levels.size(); i++) {
-        Stat ss = p.second().get(levels.get(i));
-        double stat = 0.0;
-        if (ss != null) {
-          if (agg == Agg.MEAN) {
-            stat = ss.getSum() / ss.getCount();
-          } else {
-            stat = ss.getSum();
+      for (int i = 0; i < numValues; i++) {
+        for (int j = 0; j < levels.size(); j++) {
+          Stat ss = p.second().get(levels.get(j));
+          double stat = 0.0;
+          if (ss != null) {
+            if (agg == Agg.MEAN) {
+              stat = ss.getSum(i) / ss.getCount(i);
+            } else {
+              stat = ss.getSum(i);
+            }
           }
+          r.set(index, stat);
+          index++;
         }
-        r.set(index + i, stat);
       }
       return r;
     }

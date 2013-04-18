@@ -36,6 +36,8 @@ import com.cloudera.science.ml.hcatalog.HCatalogSource;
 import com.cloudera.science.ml.mahout.types.MLWritables;
 import com.cloudera.science.ml.parallel.normalize.StringSplitFn;
 import com.cloudera.science.ml.parallel.records.Records;
+import com.cloudera.science.ml.parallel.records.SummarizedRecords;
+import com.cloudera.science.ml.parallel.summary.Summary;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.base.Function;
@@ -90,10 +92,19 @@ public class RecordInputParameters {
     return delim;
   }
   
+  public SummarizedRecords getSummarizedRecords(final Pipeline pipeline, Summary summary) {
+    Records records = getRecords(pipeline, summary.getSpec());
+    return new SummarizedRecords(records.get(), summary);
+  }
+  
   public Records getRecords(final Pipeline pipeline, Header header) {
+    Spec spec = header == null ? null : header.toSpec();
+    return getRecords(pipeline, spec);
+  }
+  
+  private Records getRecords(final Pipeline pipeline, Spec spec) {
     format = format.toLowerCase(Locale.ENGLISH);
     PCollection<Record> ret;
-    Spec spec = header == null ? null : header.toSpec();
     if (TEXT.equals(format)) {
       PCollection<String> text = fromInputs(new Function<String, PCollection<String>>() {
         @Override

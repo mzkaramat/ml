@@ -30,6 +30,7 @@ import com.cloudera.science.ml.client.cmd.KMeansAssignmentCommand;
 import com.cloudera.science.ml.client.cmd.KMeansCommand;
 import com.cloudera.science.ml.client.cmd.KMeansSketchCommand;
 import com.cloudera.science.ml.client.cmd.NormalizeCommand;
+import com.cloudera.science.ml.client.cmd.PivotCommand;
 import com.cloudera.science.ml.client.cmd.SampleCommand;
 import com.cloudera.science.ml.client.cmd.ShowVecCommand;
 import com.cloudera.science.ml.client.cmd.SummaryCommand;
@@ -49,6 +50,7 @@ public class Main extends Configured implements Tool {
       .put("kassign", new KMeansAssignmentCommand())
       .put("ksketch", new KMeansSketchCommand())
       .put("kmeans", new KMeansCommand())
+      .put("pivot", new PivotCommand())
       .build();
   
   public Main() {

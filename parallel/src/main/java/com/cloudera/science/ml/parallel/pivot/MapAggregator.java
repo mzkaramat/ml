@@ -41,7 +41,7 @@ public class MapAggregator extends SimpleAggregator<Map<String, Stat>> {
       if (values.containsKey(e.getKey())) {
         values.get(e.getKey()).merge(e.getValue());
       } else {
-        values.put(e.getKey(), e.getValue());
+        values.put(e.getKey(), e.getValue().copy());
       }
     }
   }

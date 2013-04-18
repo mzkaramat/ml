@@ -15,30 +15,55 @@
 package com.cloudera.science.ml.parallel.pivot;
 
 class Stat {
-  private long count = 0L;
-  private double sum = 0.0;
+  private long[] counts;
+  private double[] sums;
   
-  Stat() { this(0L, 0.0); }
+  // For Avro serialization
+  private Stat() { }
   
-  Stat(long count, double sum) {
-    this.count = count;
-    this.sum = sum;
+  Stat(int n) {
+    this.counts = new long[n];
+    this.sums = new double[n];
   }
   
-  long getCount() {
-    return count;
+  Stat(long[] counts, double[] sums) {
+    this.counts = new long[counts.length];
+    this.sums = new double[sums.length];
+    System.arraycopy(counts, 0, this.counts, 0, counts.length);
+    System.arraycopy(sums, 0, this.sums, 0, sums.length);
   }
   
-  double getSum() {
-    return sum;
+  public Stat copy() {
+    return new Stat(counts, sums);
   }
   
-  public void inc(double value) {
-    this.count++;
-    this.sum += value;
+  int size() {
+    return counts.length;
+  }
+  
+  long getCount(int i) {
+    return counts[i];
+  }
+  
+  double getSum(int i) {
+    return sums[i];
+  }
+  
+  public void inc(int i, double value) {
+    if (!Double.isNaN(value)) {
+      counts[i]++;
+      sums[i] += value;
+      System.out.println(String.format("Inc %d by %f to get %f", i, value, sums[i]));
+    }
   }
   
   public Stat merge(Stat other) {
-    return new Stat(count + other.count, sum + other.sum);
+    long[] c = new long[counts.length];
+    double[] s = new double[sums.length];
+    for (int i = 0; i < c.length; i++) {
+      c[i] = counts[i] + other.counts[i];
+      s[i] = sums[i] + other.sums[i];
+    }
+    return new Stat(c, s);
   }
 }
