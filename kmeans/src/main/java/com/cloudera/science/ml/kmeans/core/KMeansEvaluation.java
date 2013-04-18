@@ -15,7 +15,9 @@
 package com.cloudera.science.ml.kmeans.core;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.List;
 
 import org.apache.mahout.math.Vector;
@@ -66,6 +68,22 @@ public class KMeansEvaluation {
     this.trainCenters = trainCenters;
     this.detailsFile = detailsFileName == null ? null : new File(detailsFileName);
     init();
+  }
+  
+  public void writeStatsToFile(File file) throws IOException {
+    PrintStream ps = new PrintStream(file);
+    writeStats(ps);
+    ps.close();
+  }
+  
+  public void writeStats(PrintStream ps) {
+    ps.println("ID,NumClusters,TestCost,TrainCost,PredStrength,StableClusters,StablePoints");
+    for (int i = 0; i < trainCenters.size(); i++) {
+      ps.println(String.format("%d,%d,%.2f,%.2f,%.4f,%.2f,%.4f",
+          i, trainCenters.get(i).size(), getTestCenterCosts().get(i),
+          getTrainCosts().get(i), getPredictionStrengths().get(i),
+          getStableClusters().get(i), getStablePoints().get(i)));
+    }
   }
   
   public List<Double> getPredictionStrengths() {

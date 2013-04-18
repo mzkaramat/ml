@@ -74,7 +74,7 @@ public class KMeansCommand implements Command {
       description = "Stop the Lloyd's iterations if the delta between centers falls below this")
   private double stoppingThreshold = 1.0e-4;  
 
-  @Parameter(names = "--centers-file",
+  @Parameter(names = "--centers-file", required=true,
       description = "A local file to store the centers that were created into")
   private String centersOutputFile;
   
@@ -85,6 +85,10 @@ public class KMeansCommand implements Command {
   @Parameter(names = "--eval-details-file",
       description = "Write detailed stats on the cluster stability information to this file")
   private String detailsFileName;
+  
+  @Parameter(names = "--eval-stats-file",
+      description = "Write the high-level stats on the cluster stability to this file")
+  private String statsFileName = "kmeans_stats.csv";
   
   @ParametersDelegate
   private RandomParameters randomParams = new RandomParameters();
@@ -127,14 +131,8 @@ public class KMeansCommand implements Command {
       List<Centers> testCenters = getClusters(exec, test, kmeans);
       KMeansEvaluation eval = new KMeansEvaluation(testCenters, test, trainCenters,
           detailsFileName);
-      System.out.println(
-          "ID,NumClusters,TestCost,TrainCost,PredStrength,StableClusters,StablePoints");
-      for (int i = 0; i < trainCenters.size(); i++) {
-        System.out.println(String.format("%d,%d,%.2f,%.2f,%.4f,%.2f,%.4f",
-            i, trainCenters.get(i).size(), eval.getTestCenterCosts().get(i),
-            eval.getTrainCosts().get(i), eval.getPredictionStrengths().get(i),
-            eval.getStableClusters().get(i), eval.getStablePoints().get(i)));
-      }
+      eval.writeStatsToFile(new File(statsFileName));
+      eval.writeStats(System.out);
     }
     
     return 0;
