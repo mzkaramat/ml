@@ -50,6 +50,7 @@ import com.cloudera.science.ml.parallel.pobject.ListOfListsPObject;
 import com.cloudera.science.ml.parallel.pobject.ListPObject;
 import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.sample.ReservoirSampling;
+import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.base.Preconditions;
 
 /**
@@ -139,8 +140,8 @@ public class KMeansParallel {
    * @return A {@code Records} instance containing the cluster assignment info for each point
    */
   public <V extends NamedVector> Records computeClusterAssignments(
-      PCollection<V> vecs, List<Centers> centers, PType<Record> recordType) {
-    return computeClusterAssignments(vecs, centers, null, recordType);
+      PCollection<V> vecs, List<Centers> centers) {
+    return computeClusterAssignments(vecs, centers, null);
   }
   
   /**
@@ -155,14 +156,14 @@ public class KMeansParallel {
    * @return A {@code Records} instance containing the cluster assignment info for each point
    */
   public <V extends NamedVector> Records computeClusterAssignments(
-      PCollection<V> vecs, List<Centers> centers, List<Integer> clusterIds, PType<Record> recordType) {
+      PCollection<V> vecs, List<Centers> centers, List<Integer> clusterIds) {
     if (clusterIds != null && !clusterIds.isEmpty()) {
       Preconditions.checkArgument(centers.size() == clusterIds.size(),
           "Num centers and num clusters must be equal");
     }
     CentersIndex index = createIndex(centers);
     return new Records(vecs.parallelDo("assignments", new AssignedCenterFn<V>(index, clusterIds),
-        recordType), ASSIGNMENT_SPEC);
+        MLRecords.record(ASSIGNMENT_SPEC)), ASSIGNMENT_SPEC);
   }
   
   /**

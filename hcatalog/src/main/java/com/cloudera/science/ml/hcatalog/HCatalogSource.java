@@ -24,8 +24,6 @@ import org.apache.crunch.io.SourceTargetHelper;
 import org.apache.crunch.types.PType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hive.conf.HiveConf;
-import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
 import org.apache.hadoop.hive.ql.metadata.Table;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hcatalog.common.HCatConstants;
@@ -44,8 +42,9 @@ import com.cloudera.science.ml.core.records.Record;
 public class HCatalogSource implements Source<Record> {
 
   private final InputJobInfo info;
-  private final HCatSchema schema;
-  private final Path location;
+  
+  private HCatSchema schema;
+  private Path location;
   
   public HCatalogSource(String tableName) {
     this(tableName, null, null);
@@ -58,13 +57,10 @@ public class HCatalogSource implements Source<Record> {
   public HCatalogSource(String tableName, String filter, Properties props) {
     String dbName = "default";
     this.info = InputJobInfo.create(dbName, tableName, filter, props);
-    Table table = HCatalog.getTable(dbName, tableName);
-    try {
-      this.schema = HCatUtil.extractSchema(table);
-    } catch (HCatException e) {
-      throw new RuntimeException("Error fetching HCatalog schema", e);
-    }
-    this.location = table.getPath();
+  }
+  
+  public InputJobInfo getInfo() {
+    return info;
   }
   
   @Override
@@ -75,12 +71,15 @@ public class HCatalogSource implements Source<Record> {
     } else {
       FormatBundle<HCatInputFormat> bundle = FormatBundle.forInput(HCatInputFormat.class);
       bundle.set(HCatConstants.HCAT_KEY_JOB_INFO, HCatUtil.serialize(info));
-      CrunchInputs.addInputPath(job, location, bundle, inputId);
+      CrunchInputs.addInputPath(job, new Path(info.getTableName()), bundle, inputId);
     }
   }
 
   @Override
   public long getSize(Configuration conf) {
+    if (location == null) {
+      fetchTableData();
+    }
     try {
       // TODO: be smarter about partitions
       return SourceTargetHelper.getPathSize(conf, location);
@@ -91,7 +90,34 @@ public class HCatalogSource implements Source<Record> {
 
   @Override
   public PType<Record> getType() {
+    if (schema == null) {
+      fetchTableData();
+    }
     return HCatalog.records(schema);
+  }
+  
+  private void fetchTableData() {
+    Table table = HCatalog.getTable(info.getDatabaseName(), info.getTableName());
+    try {
+      this.schema = HCatUtil.extractSchema(table);
+    } catch (HCatException e) {
+      throw new RuntimeException("Error fetching HCatalog schema", e);
+    }
+    this.location = table.getPath();
+  }
+  
+  @Override
+  public boolean equals(Object other) {
+    if (other == null || !(other instanceof HCatalogSource)) {
+      return false;
+    }
+    HCatalogSource hs = (HCatalogSource) other;
+    return info.equals(hs.info);
+  }
+  
+  @Override
+  public int hashCode() {
+    return info.hashCode();
   }
   
   @Override

@@ -38,6 +38,11 @@ public class VectorRecord implements Record {
   }
 
   @Override
+  public int size() {
+    return vector.size();
+  }
+  
+  @Override
   public Record copy(boolean deep) {
     if (deep) {
       return new VectorRecord(vector.like().assign(vector));

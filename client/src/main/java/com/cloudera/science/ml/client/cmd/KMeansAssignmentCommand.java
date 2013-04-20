@@ -33,6 +33,7 @@ import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.beust.jcommander.converters.IntegerConverter;
 import com.cloudera.science.ml.avro.MLCenters;
 import com.cloudera.science.ml.client.params.PipelineParameters;
+import com.cloudera.science.ml.client.params.RecordOutputParameters;
 import com.cloudera.science.ml.client.params.VectorInputParameters;
 import com.cloudera.science.ml.client.util.AvroIO;
 import com.cloudera.science.ml.core.records.Record;
@@ -57,18 +58,17 @@ public class KMeansAssignmentCommand implements Command {
   private List<Integer> centerIds = Lists.newArrayList();
   
   @Parameter(names = "--output-path", required=true,
-      description = "The path to write the CSV output to (format: id, clustering_id, center_id, distance)")
+      description = "The path to write the output to (id, clustering_id, center_id, distance)")
   private String assignmentsPath;
-  
-  @Parameter(names = "--output-delim",
-      description = "The delimiter to use for the CSV assignment output")
-  private String outputDelim = ",";
   
   @ParametersDelegate
   private VectorInputParameters inputParams = new VectorInputParameters();
   
   @ParametersDelegate
   private PipelineParameters pipelineParams = new PipelineParameters();
+
+  @ParametersDelegate
+  private RecordOutputParameters outputParams = new RecordOutputParameters();
   
   @Override
   public int execute(Configuration conf) throws IOException {
@@ -84,11 +84,9 @@ public class KMeansAssignmentCommand implements Command {
     }
     KMeansParallel kmp = new KMeansParallel();
 
-    PType<Record> recordType = MLRecords.csvRecord(WritableTypeFamily.getInstance(),
-        outputDelim);
     Records assigned = kmp.computeClusterAssignments(input,
-        Lists.transform(centers, VectorConvert.TO_CENTERS), centerIds, recordType);
-    p.write(assigned.get(), To.textFile(assignmentsPath));
+        Lists.transform(centers, VectorConvert.TO_CENTERS), centerIds);
+    outputParams.writeRecords(assigned.get(), assigned.getSpec(), assignmentsPath);
     p.done();
     return 0;
   }

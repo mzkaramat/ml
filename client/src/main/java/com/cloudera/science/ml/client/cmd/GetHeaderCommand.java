@@ -21,8 +21,8 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.cloudera.science.ml.core.records.RecordSpec;
 import com.cloudera.science.ml.hcatalog.HCatalog;
+import com.cloudera.science.ml.hcatalog.HCatalogSpec;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
@@ -39,7 +39,7 @@ public class GetHeaderCommand implements Command {
   
   @Override
   public int execute(Configuration conf) throws IOException {
-    RecordSpec spec = HCatalog.getSpec("default", table);
+    HCatalogSpec spec = HCatalog.getSpec("default", table);
     Files.write(spec.toHeader().toString(), new File(headerFile), Charsets.UTF_8);
     return 0;
   }

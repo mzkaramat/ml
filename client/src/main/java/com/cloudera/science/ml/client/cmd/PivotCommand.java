@@ -43,19 +43,19 @@ public class PivotCommand implements Command {
       description = "The local summary stats created by the summary command")
   String summaryFile;
   
-  @Parameter(names = "--id-fields",
+  @Parameter(names = "--id-fields", required=true,
       splitter = CommaParameterSplitter.class,
       description = "The fields in the long format that identify a group of records that belong in the same row of the wide format")
   private List<String> idFields = Lists.newArrayList();
   
-  @Parameter(names = "--value-fields",
+  @Parameter(names = "--value-fields", required=true,
       splitter = CommaParameterSplitter.class,
       description = "The time-varying values in the long format that correspond to individual columns in the wide format")
   private List<String> valueFields = Lists.newArrayList();
   
-  @Parameter(names = "--time-field",
+  @Parameter(names = "--var-field", required=true,
       description = "The variable that differentiates multiple records from the same group/individual in the long format")
-  private String timeField;
+  private String varField;
   
   @Parameter(names = "--aggregation",
       description = "The type of strategy to use for aggregating values (either SUM or MEAN)")
@@ -85,7 +85,7 @@ public class PivotCommand implements Command {
     
     Spec spec = summary.getSpec();
     List<Integer> idColumns = Specs.getFieldIds(spec, idFields);
-    Integer timeColumn = Specs.getFieldId(spec, timeField);
+    Integer timeColumn = Specs.getFieldId(spec, varField);
     List<Integer> valueColumns = Specs.getFieldIds(spec, valueFields);
     Pivot.Agg agg = Pivot.Agg.valueOf(aggregation);
     

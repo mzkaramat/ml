@@ -14,19 +14,29 @@
  */
 package com.cloudera.science.ml.hcatalog;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.crunch.MapFn;
 import org.apache.crunch.types.PType;
 import org.apache.crunch.types.writable.Writables;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
+import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.ql.metadata.Table;
 import org.apache.hcatalog.common.HCatException;
 import org.apache.hcatalog.common.HCatUtil;
+import org.apache.hcatalog.data.DefaultHCatRecord;
 import org.apache.hcatalog.data.HCatRecord;
+import org.apache.hcatalog.data.schema.HCatFieldSchema;
 import org.apache.hcatalog.data.schema.HCatSchema;
+import org.apache.hcatalog.data.schema.HCatFieldSchema.Type;
 
+import com.cloudera.science.ml.core.records.DataType;
+import com.cloudera.science.ml.core.records.FieldSpec;
 import com.cloudera.science.ml.core.records.Record;
-import com.cloudera.science.ml.core.records.RecordSpec;
+import com.cloudera.science.ml.core.records.Spec;
+import com.google.common.collect.Lists;
 
 public final class HCatalog {
 
@@ -58,7 +68,35 @@ public final class HCatalog {
     return table;
   }
   
-  public static RecordSpec getSpec(String dbName, String tableName) {
+  public static boolean tableExists(String dbName, String tableName) {
+    HiveMetaStoreClient client = getClientInstance();
+    try {
+      return client.tableExists(dbName, tableName);
+    } catch (Exception e) {
+      throw new RuntimeException("Hive metastore exception", e);
+    }
+  }
+  
+  public static void createTable(Table tbl) {
+    HiveMetaStoreClient client = getClientInstance();
+    try {
+      client.createTable(tbl.getTTable());
+    } catch (Exception e) {
+      throw new RuntimeException("Hive table creation exception", e);
+    }
+  }
+  
+  public static void dropTable(String dbName, String tableName) {
+    HiveMetaStoreClient client = getClientInstance();
+    try {
+      client.dropTable(dbName, tableName, true /* deleteData */,
+          true /* ignoreUnknownTable */);
+    } catch (Exception e) {
+      throw new RuntimeException("Hive metastore exception", e);
+    }
+  }
+  
+  public static HCatalogSpec getSpec(String dbName, String tableName) {
     Table table = getTable(dbName, tableName);
     try {
       return new HCatalogSpec(HCatUtil.extractSchema(table));
@@ -67,11 +105,50 @@ public final class HCatalog {
     }
   }
   
+  public static HCatSchema getHCatSchema(Spec spec) {
+    if (spec instanceof HCatalogSpec) {
+      return ((HCatalogSpec) spec).getImpl();
+    }
+    List<HCatFieldSchema> fields = Lists.newArrayListWithExpectedSize(spec.size());
+    try {
+      for (int i = 0; i < spec.size(); i++) {
+        FieldSpec fs = spec.getField(i);
+        DataType dt = fs.spec().getDataType();
+        switch (dt) {
+        case BOOLEAN:
+          fields.add(new HCatFieldSchema(fs.name(), Type.BOOLEAN, ""));
+          break;
+        case INT:
+          fields.add(new HCatFieldSchema(fs.name(), Type.INT, ""));
+          break;
+        case DOUBLE:
+          fields.add(new HCatFieldSchema(fs.name(), Type.DOUBLE, ""));
+          break;
+        case STRING:
+          fields.add(new HCatFieldSchema(fs.name(), Type.STRING, ""));
+          break;
+        case LONG:
+          fields.add(new HCatFieldSchema(fs.name(), Type.BIGINT, ""));
+          break;
+        default:
+          throw new UnsupportedOperationException("Unhandled data type = " + dt);
+        }
+      }
+    } catch (HCatException e) {
+      throw new RuntimeException(e);
+    }
+    return new HCatSchema(fields);
+  }
+  
   public static PType<Record> records(HCatSchema dataSchema) {
     return Writables.derived(Record.class, new HCatInFn(dataSchema),
-        new HCatOutFn(), Writables.writables(HCatRecord.class));
+        new HCatOutFn(dataSchema), Writables.writables(HCatRecord.class));
   }
 
+  public static PType<Record> records(Spec spec) {
+    return records(getHCatSchema(spec));
+  }
+  
   private static class HCatInFn extends MapFn<HCatRecord, Record> {
     private final HCatSchema dataSchema;
     
@@ -86,12 +163,51 @@ public final class HCatalog {
   }
   
   private static class HCatOutFn extends MapFn<Record, HCatRecord> {
+    private final HCatSchema dataSchema;
+    
+    public HCatOutFn(HCatSchema dataSchema) {
+      this.dataSchema = dataSchema;
+    }
+    
     @Override
     public HCatRecord map(Record rec) {
       if (rec instanceof HCatalogRecord) {
-        return ((HCatalogRecord) rec).getImpl();
-      } else {
-        throw new UnsupportedOperationException("HCatOut does not support generic records yet");
+        HCatalogRecord hcrec = (HCatalogRecord) rec;
+        if (dataSchema.equals(hcrec.getSchema())) {
+          return ((HCatalogRecord) rec).getImpl();
+        }
+      }
+
+      Spec spec = rec.getSpec();
+      List<Object> base = Arrays.asList(new Object[spec.size()]);
+      DefaultHCatRecord out = new DefaultHCatRecord(base);
+      try {
+        for (int i = 0; i < spec.size(); i++) {
+          FieldSpec fs = spec.getField(i);
+          DataType dt = fs.spec().getDataType();
+          switch (dt) {
+          case BOOLEAN:
+            out.setBoolean(fs.name(), dataSchema, rec.getBoolean(i));
+            break;
+          case INT:
+            out.setInteger(fs.name(), dataSchema, rec.getInteger(i));
+            break;
+          case DOUBLE:
+            out.setDouble(fs.name(), dataSchema, rec.getAsDouble(i));
+            break;
+          case STRING:
+            out.setString(fs.name(), dataSchema, rec.getAsString(i));
+            break;
+          case LONG:
+            out.setLong(fs.name(), dataSchema, rec.getLong(i));
+            break;
+          default:
+            throw new UnsupportedOperationException("Unhandled data type = " + dt);
+          }
+        }
+        return out;
+      } catch (HCatException e) {
+        throw new RuntimeException(e);
       }
     }
   }

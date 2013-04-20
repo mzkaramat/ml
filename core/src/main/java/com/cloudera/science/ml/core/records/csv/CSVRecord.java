@@ -42,6 +42,11 @@ public class CSVRecord implements Record {
   }
 
   @Override
+  public int size() {
+    return values.size();
+  }
+  
+  @Override
   public Record copy(boolean deep) {
     if (deep) {
       List<String> v = Lists.newArrayList(values);

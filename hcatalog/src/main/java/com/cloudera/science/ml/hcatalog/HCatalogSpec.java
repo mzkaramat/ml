@@ -23,6 +23,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 public class HCatalogSpec extends RecordSpec {
+  private final HCatSchema schema;
+  
   public HCatalogSpec(final HCatSchema schema) {
     super(Lists.transform(schema.getFields(), new Function<HCatFieldSchema, FieldSpec>() {
       @Override
@@ -30,5 +32,10 @@ public class HCatalogSpec extends RecordSpec {
         return new HCatalogFieldSpec(fs, schema.getPosition(fs.getName()));
       }
     }));
+    this.schema = schema;
+  }
+  
+  public HCatSchema getImpl() {
+    return schema;
   }
 }

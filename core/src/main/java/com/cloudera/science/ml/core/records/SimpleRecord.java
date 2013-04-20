@@ -43,6 +43,11 @@ public class SimpleRecord implements Record {
   }
 
   @Override
+  public int size() {
+    return values.length;
+  }
+  
+  @Override
   public Record copy(boolean deep) {
     if (deep) {
       Object[] v = new Object[spec.size()];

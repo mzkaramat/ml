@@ -36,11 +36,20 @@ public class HCatalogRecord implements Record {
     return impl;
   }
   
+  public HCatSchema getSchema() {
+    return schema;
+  }
+  
   @Override
   public Spec getSpec() {
     return new HCatalogSpec(schema);
   }
 
+  @Override
+  public int size() {
+    return impl.size();
+  }
+  
   @Override
   public Record copy(boolean deep) {
     if (deep) {

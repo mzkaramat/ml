@@ -32,6 +32,11 @@ public class AvroRecord implements Record {
   }
   
   @Override
+  public int size() {
+    return impl.getSchema().getFields().size();
+  }
+  
+  @Override
   public Record copy(boolean deep) {
     if (deep) {
       return new AvroRecord(new GenericData.Record(impl, true));

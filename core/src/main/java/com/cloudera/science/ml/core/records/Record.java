@@ -20,11 +20,16 @@ package com.cloudera.science.ml.core.records;
  */
 public interface Record {
   /**
-   * Returns the {@code Spec} for this Record instance, which describes the
+   * Returns the {@code RecordSpec} for this Record instance, which describes the
    * names and types of its fields.
    */
   Spec getSpec();
 
+  /**
+   * Returns the number of fields in this record.
+   */
+  int size();
+  
   /**
    * Creates a copy of this {@code Record} instance, either a shallow copy that has
    * the same {@code Spec} but not the same data, or a deep copy that contains copies
