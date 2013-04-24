@@ -65,22 +65,6 @@ public class VectorOutputParameters {
       description = "For 'seq' outputs, the type of the id of each vector, one of 'int', 'long', or 'text'")
   private String keyType;
   
-  /**
-   * Returns the PType based on the output format specified
-   *
-   * @return    an instance of {@code PType<Vector>} </br>
-   */
-  public PType<Vector> getPType() {
-    outputType = outputType.toLowerCase(Locale.ENGLISH);
-    if (FORMAT_AVRO.equals(outputType)) {
-      return MLAvros.vector();
-    } else if (FORMAT_SEQ.equals(outputType)) {
-      return MLWritables.vector();
-    } else {
-      throw new CommandException("Unsupported Vector output type: " + outputType);
-    }
-  }
-  
   public <V extends Vector> void writeVectors(PCollection<V> vectors, String output) {
     outputType = outputType.toLowerCase(Locale.ENGLISH);
     if (FORMAT_AVRO.equals(outputType)) {

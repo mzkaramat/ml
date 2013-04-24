@@ -21,7 +21,6 @@ import org.apache.crunch.PCollection;
 import org.apache.crunch.Pipeline;
 import org.apache.crunch.PipelineResult;
 import org.apache.crunch.impl.mr.MRPipeline;
-import org.apache.crunch.types.PType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.mahout.math.Vector;
 
@@ -38,6 +37,7 @@ import com.cloudera.science.ml.parallel.normalize.Normalizer;
 import com.cloudera.science.ml.parallel.normalize.Transform;
 import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.summary.Summary;
+import com.cloudera.science.ml.parallel.types.MLAvros;
 
 @Parameters(commandDescription = "Prepare input (CSV or Vectors) for k-means runs")
 public class NormalizeCommand implements Command {
@@ -98,8 +98,7 @@ public class NormalizeCommand implements Command {
         .idColumn(Specs.getFieldId(spec, idColumn))
         .build();
     
-    PType<Vector> vecPType = outputParams.getPType();
-    PCollection<Vector> vecs = normalizer.apply(records.get(), vecPType);
+    PCollection<Vector> vecs = normalizer.apply(records.get(), MLAvros.vector());
     outputParams.writeVectors(vecs, outputFile);
     
     PipelineResult pr = p.done();
