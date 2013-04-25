@@ -7,7 +7,8 @@ tools for data preparation and analysis.
 
 We're kicking things off by introducing a set of tools for performing scalable k-means clustering on
 Hadoop. We will expand the set of model fitting algorithms we support over time, but our primary focus will
-always be on data preparation and model evaluation.
+always be on data preparation and model evaluation. If you'd like to see the currently supported set of commands,
+checkout the [Cloudera ML Wiki](https://github.com/cloudera/ml/wiki), which has detailed usage information.
 
 Getting Started
 ---------------
@@ -30,11 +31,3 @@ An Example Workflow
 The `examples/kdd99` directory contains an annotated workflow that describes the process of finding clusters
 in some data from [KDD Cup '99](http://kdd.ics.uci.edu/databases/kddcup99/kddcup99.html), a publicly available
 dataset that is widely used as a reference for evaluating clustering algorithms for anomaly detection.
-
-Some Obvious TODOs
-------------------
-A handful of high-priority items for the old TODO list, in no particular order:
-
-* HCatalog integration
-* Javadoc-ing, well, everything
-* Commandline support for the pivot table operators
