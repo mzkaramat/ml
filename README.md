@@ -8,7 +8,7 @@ tools for data preparation and analysis.
 We're kicking things off by introducing a set of tools for performing scalable k-means clustering on
 Hadoop. We will expand the set of model fitting algorithms we support over time, but our primary focus will
 always be on data preparation and model evaluation. If you'd like to see the currently supported set of commands,
-checkout the [Cloudera ML Wiki](https://github.com/cloudera/ml/wiki), which has detailed usage information.
+check out the [Cloudera ML Wiki](https://github.com/cloudera/ml/wiki), which has detailed usage information.
 
 Getting Started
 ---------------
