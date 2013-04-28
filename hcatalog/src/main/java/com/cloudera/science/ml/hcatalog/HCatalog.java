@@ -45,6 +45,11 @@ public final class HCatalog {
   private static synchronized HiveMetaStoreClient getClientInstance() {
     if (CLIENT_INSTANCE == null) {
       try {
+        Class.forName("org.apache.hadoop.hive.conf.HiveConf");
+      } catch (ClassNotFoundException e) {
+        throw new IllegalStateException("Hive features requested, but Hive libraries not on classpath");
+      }
+      try {
         CLIENT_INSTANCE = HCatUtil.getHiveClient(new HiveConf());
       } catch (Exception e) {
         throw new RuntimeException("Could not connect to Hive", e);
