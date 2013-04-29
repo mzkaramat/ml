@@ -1,3 +1,4 @@
+#!/bin/bash
 
 # Summarize (the 10% subset of) the kdd99 data set. This should be the first step in any analysis you do using ML: the
 # summary file contains information on the distribution of all of the numerical and categorical variables in your dataset,
@@ -92,9 +93,10 @@ client/bin/ml kmeans --input-file wc.avro --centers-file centers.avro --seed 19 
 # This output data can then be analyzed using Impala or any other analytical framework you like in order to study how the
 # points clustered and quickly identify the anomalous events in your data (i.e., small, unstable clusters and points that
 # ended up far from their assigned center.)
-client/bin/ml kassign --input-paths kdd99 --format avro --centers-file centers.avro --center-ids 4 --output-path assigned
+client/bin/ml kassign --input-paths kdd99 --format avro --centers-file centers.avro --center-ids 4 --output-path assigned \
+  --output-type csv
 
 # Now use the sample command to read in 20 extremal values for each of the clusters from the kassign output- the points in
 # each cluster that are farthest away from their centers.
 client/bin/ml sample --input-paths assigned --format text --header-file examples/kdd99/kassign_header.csv --weight-field squared_distance \
-  --group-fields clustering_id,closest_center_id --output-type text --size 20 --output-path extremal
+  --group-fields clustering_id,closest_center_id --output-type csv --size 20 --output-path extremal
