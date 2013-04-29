@@ -28,6 +28,7 @@ will create a handy little archive with everything you need.
 
 An Example Workflow
 -------------------
-The `examples/kdd99` directory contains an annotated workflow that describes the process of finding clusters
-in some data from [KDD Cup '99](http://kdd.ics.uci.edu/databases/kddcup99/kddcup99.html), a publicly available
+The [examples/kdd99](https://github.com/cloudera/ml/tree/master/examples/kdd99) directory contains an annotated
+workflow that describes the process of finding clusters in some data from
+[KDD Cup '99](http://kdd.ics.uci.edu/databases/kddcup99/kddcup99.html), a publicly available
 dataset that is widely used as a reference for evaluating clustering algorithms for anomaly detection.
