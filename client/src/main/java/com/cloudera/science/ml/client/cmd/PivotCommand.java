@@ -30,10 +30,10 @@ import com.cloudera.science.ml.client.params.RecordOutputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.records.Specs;
+import com.cloudera.science.ml.core.summary.Summary;
 import com.cloudera.science.ml.parallel.pivot.Pivot;
 import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.records.SummarizedRecords;
-import com.cloudera.science.ml.parallel.summary.Summary;
 import com.google.common.collect.Lists;
 
 @Parameters(commandDescription = "Performs a pivot operation to convert a 'long' table into a 'wide' table")

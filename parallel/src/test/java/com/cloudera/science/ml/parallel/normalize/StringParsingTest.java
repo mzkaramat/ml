@@ -25,9 +25,9 @@ import org.apache.mahout.math.Vector;
 import org.junit.Test;
 
 import com.cloudera.science.ml.core.records.Record;
+import com.cloudera.science.ml.core.summary.Summary;
 import com.cloudera.science.ml.core.vectors.Vectors;
 import com.cloudera.science.ml.parallel.summary.Summarizer;
-import com.cloudera.science.ml.parallel.summary.Summary;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 import com.google.common.collect.ImmutableList;
 

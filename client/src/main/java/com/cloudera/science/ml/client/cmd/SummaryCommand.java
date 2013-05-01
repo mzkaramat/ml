@@ -29,9 +29,9 @@ import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
 import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.Spec;
+import com.cloudera.science.ml.core.summary.Summary;
 import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.summary.Summarizer;
-import com.cloudera.science.ml.parallel.summary.Summary;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 

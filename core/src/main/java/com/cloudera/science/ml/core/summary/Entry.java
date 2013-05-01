@@ -12,19 +12,23 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.parallel.summary;
+package com.cloudera.science.ml.core.summary;
 
 import java.io.Serializable;
 
-class Entry implements Serializable {
+public class Entry implements Serializable {
 
   private long count;
   
-  Entry() {
-    this.count = 0;
+  public Entry() {
+    this(0L);
   }
   
-  long getCount() {
+  public Entry(long count) {
+    this.count = count;
+  }
+  
+  public long getCount() {
     return count;
   }
   

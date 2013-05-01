@@ -19,6 +19,8 @@ import java.util.Set;
 
 import org.apache.crunch.fn.Aggregators.SimpleAggregator;
 
+import com.cloudera.science.ml.core.summary.Entry;
+import com.cloudera.science.ml.core.summary.SummaryStats;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;

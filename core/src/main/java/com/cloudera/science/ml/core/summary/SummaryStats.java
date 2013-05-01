@@ -12,7 +12,7 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.parallel.summary;
+package com.cloudera.science.ml.core.summary;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -25,7 +25,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-
 public class SummaryStats implements Serializable {
 
   private String name;
@@ -37,19 +36,19 @@ public class SummaryStats implements Serializable {
   // For Jackson serialization
   private SummaryStats() { }
   
-  SummaryStats(String name) {
+  public SummaryStats(String name) {
     this.name = name;
     this.numeric = null;
     this.histogram = null;
   }
   
-  SummaryStats(String name, Numeric numeric) {
+  public SummaryStats(String name, Numeric numeric) {
     this.name = name;
     this.numeric = Preconditions.checkNotNull(numeric);
     this.histogram = null;
   }
   
-  SummaryStats(String name, Map<String, Entry> histogram, boolean trimmed) {
+  public SummaryStats(String name, Map<String, Entry> histogram, boolean trimmed) {
     this.name = name;
     this.numeric = null;
     this.histogram = Maps.newTreeMap();

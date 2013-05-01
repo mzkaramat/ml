@@ -18,6 +18,7 @@ import java.util.Arrays;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 /**
  * A simple {@code Record} implementation that wraps an {@code Object[]} and performs
@@ -32,9 +33,11 @@ public class SimpleRecord implements Record {
     this(spec, new Object[spec.size()]);
   }
   
-  private SimpleRecord(Spec spec, Object[] values) {
+  public SimpleRecord(Spec spec, Object... values) {
     this.spec = spec;
     this.values = values;
+    Preconditions.checkArgument(spec.size() == values.length,
+        "Not enough args for spec: %d vs. %d", values.length, spec.size());
   }
   
   @Override

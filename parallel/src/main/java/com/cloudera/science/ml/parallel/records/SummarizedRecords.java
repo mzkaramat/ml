@@ -17,7 +17,7 @@ package com.cloudera.science.ml.parallel.records;
 import org.apache.crunch.PCollection;
 
 import com.cloudera.science.ml.core.records.Record;
-import com.cloudera.science.ml.parallel.summary.Summary;
+import com.cloudera.science.ml.core.summary.Summary;
 
 public class SummarizedRecords extends Records {
 

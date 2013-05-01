@@ -16,7 +16,7 @@ package com.cloudera.science.ml.parallel.normalize;
 
 import java.io.Serializable;
 
-import com.cloudera.science.ml.parallel.summary.SummaryStats;
+import com.cloudera.science.ml.core.summary.SummaryStats;
 
 public abstract class Transform implements Serializable {
   

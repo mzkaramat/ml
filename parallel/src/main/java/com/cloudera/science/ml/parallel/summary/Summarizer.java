@@ -30,6 +30,8 @@ import org.apache.crunch.types.avro.Avros;
 
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.Spec;
+import com.cloudera.science.ml.core.summary.Summary;
+import com.cloudera.science.ml.core.summary.SummaryStats;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

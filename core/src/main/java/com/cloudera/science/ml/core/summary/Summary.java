@@ -12,20 +12,16 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.parallel.summary;
+package com.cloudera.science.ml.core.summary;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 
 import com.cloudera.science.ml.core.records.DataType;
 import com.cloudera.science.ml.core.records.RecordSpec;
-import com.cloudera.science.ml.core.records.Spec;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class Summary implements Serializable {

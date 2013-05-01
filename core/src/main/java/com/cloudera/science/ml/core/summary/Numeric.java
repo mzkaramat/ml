@@ -12,7 +12,7 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.parallel.summary;
+package com.cloudera.science.ml.core.summary;
 
 import java.io.Serializable;
 
@@ -28,7 +28,7 @@ public class Numeric implements Serializable {
   // For serialization
   private Numeric() { }
   
-  Numeric(double min, double max, double mean, double stdDev, long missing) {
+  public Numeric(double min, double max, double mean, double stdDev, long missing) {
     this(min, max, mean, stdDev);
     if (missing > 0) {
       this.missing = missing;

@@ -14,6 +14,8 @@
  */
 package com.cloudera.science.ml.parallel.summary;
 
+import com.cloudera.science.ml.core.summary.Numeric;
+
 class InternalNumeric {
   private double min = Double.POSITIVE_INFINITY;
   private double max = Double.NEGATIVE_INFINITY;

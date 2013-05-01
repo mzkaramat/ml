@@ -30,9 +30,9 @@ import org.apache.mahout.math.Vector;
 
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.vectors.VectorRecord;
+import com.cloudera.science.ml.core.summary.Summary;
+import com.cloudera.science.ml.core.summary.SummaryStats;
 import com.cloudera.science.ml.core.vectors.Vectors;
-import com.cloudera.science.ml.parallel.summary.Summary;
-import com.cloudera.science.ml.parallel.summary.SummaryStats;
 import com.google.common.collect.Maps;
 
 /**

@@ -33,10 +33,10 @@ import com.cloudera.science.ml.client.params.VectorOutputParameters;
 import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.RecordSpec;
 import com.cloudera.science.ml.core.records.Specs;
+import com.cloudera.science.ml.core.summary.Summary;
 import com.cloudera.science.ml.parallel.normalize.Normalizer;
 import com.cloudera.science.ml.parallel.normalize.Transform;
 import com.cloudera.science.ml.parallel.records.Records;
-import com.cloudera.science.ml.parallel.summary.Summary;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 
 @Parameters(commandDescription = "Prepare input (CSV or Vectors) for ksketch runs")
