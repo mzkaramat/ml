@@ -53,7 +53,6 @@ public class Centers extends AbstractList<Vector> {
    */
   public Centers(Iterable<Vector> points) {
     this.centers = ImmutableList.copyOf(Sets.newLinkedHashSet(points));
-    Preconditions.checkArgument(!this.centers.isEmpty());
   }
   
   /**

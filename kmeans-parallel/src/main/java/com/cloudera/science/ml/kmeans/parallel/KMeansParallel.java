@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.crunch.Aggregator;
 import org.apache.crunch.DoFn;
 import org.apache.crunch.Emitter;
 import org.apache.crunch.PCollection;
@@ -30,6 +31,7 @@ import org.apache.crunch.PObject;
 import org.apache.crunch.PTable;
 import org.apache.crunch.Pair;
 import org.apache.crunch.fn.Aggregators;
+import org.apache.crunch.materialize.pobject.PObjectImpl;
 import org.apache.crunch.types.PTableType;
 import org.apache.crunch.types.PType;
 import org.apache.crunch.types.PTypeFamily;
@@ -46,12 +48,14 @@ import com.cloudera.science.ml.core.vectors.VectorConvert;
 import com.cloudera.science.ml.core.vectors.Weighted;
 import com.cloudera.science.ml.kmeans.parallel.CentersIndex.Distances;
 import com.cloudera.science.ml.parallel.crossfold.Crossfold;
+import com.cloudera.science.ml.parallel.fn.SumVectorsAggregator;
 import com.cloudera.science.ml.parallel.pobject.ListOfListsPObject;
 import com.cloudera.science.ml.parallel.pobject.ListPObject;
 import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.sample.ReservoirSampling;
 import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * <p>An implementation of the k-means|| algorithm, as described in
@@ -103,28 +107,23 @@ public class KMeansParallel {
    * 
    * @param vecs The dataset
    * @param centers The candidate centers
+   * @param approx Whether or not to use approximate assignments to speed up computations
    * @return A reference to the Crunch job that calculates the cost for each centers instance
    */
-  public <V extends Vector> PObject<List<Double>> getCosts(PCollection<V> vecs, List<Centers> centers) {
+  public <V extends Vector> PObject<List<Double>> getCosts(PCollection<V> vecs, List<Centers> centers,
+      boolean approx) {
     Preconditions.checkArgument(!centers.isEmpty(), "No centers specified");
-    return getCosts(vecs, createIndex(centers));
+    return getCosts(vecs, createIndex(centers), approx);
   }
 
   private CentersIndex createIndex(List<Centers> centers) {
     return new CentersIndex(centers, projectionBits, projectionSamples, seed);
   }
   
-  /**
-   * Same as the other {@code getCosts} method, but with a varargs option for the
-   * {@code Centers} params as a convenience.
-   */
-  public <V extends Vector> PObject<List<Double>> getCosts(PCollection<V> vecs, Centers... centers) {
-    return getCosts(vecs, Arrays.asList(centers));
-  }
-  
-  private static <V extends Vector> PObject<List<Double>> getCosts(PCollection<V> vecs, CentersIndex centers) {
+  private static <V extends Vector> PObject<List<Double>> getCosts(PCollection<V> vecs, CentersIndex centers,
+      boolean approx) {
     return new ListPObject<Double>(vecs
-        .parallelDo("center-costs", new CenterCostFn<V>(centers), tableOf(ints(), doubles()))
+        .parallelDo("center-costs", new CenterCostFn<V>(centers, approx), tableOf(ints(), doubles()))
         .groupByKey(1)
         .combineValues(Aggregators.SUM_DOUBLES()));    
   }
@@ -233,6 +232,32 @@ public class KMeansParallel {
     return getWeightedVectors(folds, centers);
   }
   
+  /**
+   * Runs Lloyd's algorithm on the given points for a given number of iterations, returning the final
+   * centers that result.
+   * 
+   * @param points The data points to cluster
+   * @param centers The list of initial centers
+   * @param numIterations The number of iterations to run, with each iteration corresponding to a MapReduce job
+   * @param approx Whether to use random projection for assigning points to centers
+   * @return
+   */
+  public <V extends Vector> List<Centers> lloydsAlgorithm(PCollection<V> points, List<Centers> centers,
+      int numIterations, boolean approx) {
+    PTypeFamily tf = points.getTypeFamily();
+    PTableType<Pair<Integer, Integer>, Pair<V, Long>> ptt = tf.tableOf(tf.pairs(tf.ints(), tf.ints()),
+        tf.pairs(points.getPType(), tf.longs()));
+    Aggregator<Pair<V, Long>> agg = new SumVectorsAggregator<V>();
+    for (int i = 0; i < numIterations; i++) {
+      CentersIndex index = createIndex(centers);
+      LloydsMapFn<V> mapFn = new LloydsMapFn<V>(index, approx);
+      centers = new LloydsCenters<V>(points.parallelDo("lloyds-" + i, mapFn, ptt)
+          .groupByKey()
+          .combineValues(agg), centers.size()).getValue();
+    }
+    return centers;
+  }
+  
   private static <V extends Vector> List<List<Weighted<Vector>>> getWeightedVectors(
       PCollection<Pair<Integer, V>> folds, CentersIndex centers) {
     List<List<Long>> indexWeights = getCountsOfClosest(folds, centers).getValue();
@@ -244,6 +269,50 @@ public class KMeansParallel {
       CentersIndex centers) {
     for (Pair<Integer, V> p : vecs) {
       centers.add(p.second(), p.first());
+    }
+  }
+  
+  private static class LloydsMapFn<V extends Vector> extends DoFn<V, Pair<Pair<Integer, Integer>, Pair<V, Long>>> {
+    private final CentersIndex centers;
+    private final boolean approx;
+    
+    private LloydsMapFn(CentersIndex centers, boolean approx) {
+      this.centers = centers;
+      this.approx = approx;
+    }
+    
+    @Override
+    public void process(V vec, Emitter<Pair<Pair<Integer, Integer>, Pair<V, Long>>> emitFn) {
+      Distances d = centers.getDistances(vec, approx);
+      Pair<V, Long> out = Pair.of(vec, 1L);
+      for (int i = 0; i < d.closestPoints.length; i++) {
+        // TODO: cache
+        emitFn.emit(Pair.of(Pair.of(i, d.closestPoints[i]), out));
+      }
+    }
+  }
+  
+  private static class LloydsCenters<V extends Vector> extends PObjectImpl<Pair<Pair<Integer, Integer>, Pair<V, Long>>, List<Centers>> {
+
+    private final int numCenters;
+    
+    public LloydsCenters(PTable<Pair<Integer, Integer>, Pair<V, Long>> collect, int numCenters) {
+      super(collect);
+      this.numCenters = numCenters;
+    }
+
+    @Override
+    protected List<Centers> process(Iterable<Pair<Pair<Integer, Integer>, Pair<V, Long>>> values) {
+      List<Centers> centers = Lists.newArrayListWithExpectedSize(numCenters);
+      for (int i = 0; i < numCenters; i++) {
+        centers.add(new Centers());
+      }
+      for (Pair<Pair<Integer, Integer>, Pair<V, Long>> p : values) {
+        int centerId = p.first().first();
+        Vector c = p.second().first().divide(p.second().second()); 
+        centers.set(centerId, centers.get(centerId).extendWith(c));
+      }
+      return centers;
     }
   }
   
@@ -313,10 +382,12 @@ public class KMeansParallel {
   private static class CenterCostFn<V extends Vector> extends DoFn<V, Pair<Integer, Double>> {
     private final CentersIndex centers;
     private final double[] currentCosts;
+    private final boolean approx;
     
-    private CenterCostFn(CentersIndex centers) {
+    private CenterCostFn(CentersIndex centers, boolean approx) {
       this.centers = centers;
       this.currentCosts = new double[centers.getNumCenters()];
+      this.approx = approx;
     }
     
     @Override
@@ -326,7 +397,7 @@ public class KMeansParallel {
     
     @Override
     public void process(V vec, Emitter<Pair<Integer, Double>> emitter) {
-      Distances d = centers.getDistances(vec, true);
+      Distances d = centers.getDistances(vec, approx);
       for (int i = 0; i < currentCosts.length; i++) {
         currentCosts[i] += d.clusterDistances[i];
       }

@@ -39,7 +39,7 @@ import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.summary.Summary;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 
-@Parameters(commandDescription = "Prepare input (CSV or Vectors) for k-means runs")
+@Parameters(commandDescription = "Prepare input (CSV or Vectors) for ksketch runs")
 public class NormalizeCommand implements Command {
 
   @Parameter(names = "--id-column",
@@ -76,7 +76,7 @@ public class NormalizeCommand implements Command {
   
   @Override
   public String getDescription() {
-    return "Prepare input (CSV or Vectors) for k-means";
+    return "Prepare input (CSV or Vectors) for ksketch";
   }
   
   @Override

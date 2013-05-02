@@ -76,7 +76,23 @@ public class KMeansParallelTest {
     centers.add(km.compute(allPoints, 1, new Random(17)));
     centers.add(km.compute(allPoints, 2, new Random(17)));
     centers.add(km.compute(allPoints, 3, new Random(17)));
-    List<Double> costs = kmp.getCosts(vecs, centers).getValue();
+    List<Double> costs = kmp.getCosts(vecs, centers, false).getValue();
     assertEquals(ImmutableList.of(67.0, 6.0, 4.0), costs);
+  }
+  
+  @Test
+  public void testLloyds() throws Exception {
+    List<Centers> centers = ImmutableList.of(
+        new Centers(ImmutableList.of(Vectors.of(1.0, 1.0), Vectors.of(5.0, 4.0))));
+    List<Centers> res = kmp.lloydsAlgorithm(vecs, centers, 0, false);
+    assertEquals(centers, res);
+    
+    res = kmp.lloydsAlgorithm(vecs, res, 1, false);
+    List<Centers> expected = ImmutableList.of(
+        new Centers(ImmutableList.of(Vectors.of(1.5, 1.0), Vectors.of(4.5, 3.5))));
+    assertEquals(expected, res);
+    
+    res = kmp.lloydsAlgorithm(vecs, res, 1, false);
+    assertEquals(expected, res);
   }
 }
