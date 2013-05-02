@@ -20,13 +20,13 @@ import java.util.Locale;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Pipeline;
 import org.apache.crunch.PipelineResult;
-import org.apache.crunch.impl.mr.MRPipeline;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.mahout.math.Vector;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
 import com.cloudera.science.ml.client.params.VectorOutputParameters;
@@ -71,6 +71,9 @@ public class NormalizeCommand implements Command {
   @ParametersDelegate
   private SummaryParameters summaryParams = new SummaryParameters();
   
+  @ParametersDelegate
+  private PipelineParameters pipelineParams = new PipelineParameters();
+  
   @Override
   public String getDescription() {
     return "Prepare input (CSV or Vectors) for k-means";
@@ -78,7 +81,7 @@ public class NormalizeCommand implements Command {
   
   @Override
   public int execute(Configuration conf) throws IOException {
-    Pipeline p = new MRPipeline(NormalizeCommand.class, conf);
+    Pipeline p = pipelineParams.create(NormalizeCommand.class, conf);
     
     Summary summary = null;
     RecordSpec spec = null;

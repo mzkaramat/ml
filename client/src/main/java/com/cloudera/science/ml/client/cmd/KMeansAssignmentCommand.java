@@ -20,9 +20,6 @@ import java.util.List;
 
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Pipeline;
-import org.apache.crunch.io.To;
-import org.apache.crunch.types.PType;
-import org.apache.crunch.types.writable.WritableTypeFamily;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.mahout.math.NamedVector;
 
@@ -36,11 +33,9 @@ import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.RecordOutputParameters;
 import com.cloudera.science.ml.client.params.VectorInputParameters;
 import com.cloudera.science.ml.client.util.AvroIO;
-import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.vectors.VectorConvert;
 import com.cloudera.science.ml.kmeans.parallel.KMeansParallel;
 import com.cloudera.science.ml.parallel.records.Records;
-import com.cloudera.science.ml.parallel.types.MLRecords;
 import com.google.common.collect.Lists;
 
 @Parameters(commandDescription =
