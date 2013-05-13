@@ -66,7 +66,7 @@ public class RecordOutputParameters {
   
   @Parameter(names = "--output-table",
       description = "Creates a new external Hive table with the given name for the output")
-  private String hiveTable;
+  private String hiveStr;
   
   public void writeRecords(PCollection<Record> records, String outputPath) throws IOException {
     writeRecords(records, null, outputPath);
@@ -104,14 +104,15 @@ public class RecordOutputParameters {
   }
   
   private void createHiveTable(Spec spec, String outputPath) throws IOException {
-    if (hiveTable != null) {
-      String dbName = "default";
-      if (HCatalog.tableExists(dbName, hiveTable)) {
-        LOG.warn("Hive table named " + hiveTable + " already exists");
+    if (hiveStr != null) {
+      String dbName = HCatalog.getDbName(hiveStr);
+      String tblName = HCatalog.getTableName(hiveStr);
+      if (HCatalog.tableExists(dbName, tblName)) {
+        LOG.warn("Hive table named " + hiveStr + " already exists");
         return;
       }
-      LOG.info("Creating an external Hive table named: " + hiveTable);
-      Table tbl = new Table(dbName, hiveTable);
+      LOG.info("Creating an external Hive table named: " + hiveStr);
+      Table tbl = new Table(dbName, tblName);
       tbl.setTableType(TableType.EXTERNAL_TABLE);
       Path output = FileSystem.get(new Configuration()).makeQualified(new Path(outputPath));
       tbl.setDataLocation(output.toUri());

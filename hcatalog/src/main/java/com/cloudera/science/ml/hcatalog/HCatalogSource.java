@@ -47,15 +47,17 @@ public class HCatalogSource implements Source<Record> {
   private Path location;
   
   public HCatalogSource(String tableName) {
-    this(tableName, null, null);
+    this("default", tableName);
   }
   
-  public HCatalogSource(String tableName, String filter) {
-    this(tableName, filter, null);
+  public HCatalogSource(String dbName, String tableName) {
+    this(dbName, tableName, null);
+  }
+  public HCatalogSource(String dbName, String tableName, String filter) {
+    this(dbName, tableName, filter, null);
   }
   
-  public HCatalogSource(String tableName, String filter, Properties props) {
-    String dbName = "default";
+  public HCatalogSource(String dbName, String tableName, String filter, Properties props) {
     this.info = InputJobInfo.create(dbName, tableName, filter, props);
   }
   

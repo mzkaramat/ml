@@ -134,14 +134,17 @@ public class RecordInputParameters {
         }
       });
     } else if (FORMAT_HIVE.equals(format)) {
+ 
       ret = fromInputs(new Function<String, PCollection<Record>>() {
         @Override
         public PCollection<Record> apply(String table) {
-          return pipeline.read(new HCatalogSource(table));
+          return pipeline.read(new HCatalogSource(HCatalog.getDbName(table),
+              HCatalog.getTableName(table)));
         }
       });
       if (spec == null) {
-        spec = HCatalog.getSpec("default", inputPaths.get(0));
+        spec = HCatalog.getSpec(HCatalog.getDbName(inputPaths.get(0)),
+            HCatalog.getTableName(inputPaths.get(0)));
       }
     } else {
       throw new CommandException("Unknown format: " + format);

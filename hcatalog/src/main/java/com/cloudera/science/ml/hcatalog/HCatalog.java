@@ -22,7 +22,6 @@ import org.apache.crunch.types.PType;
 import org.apache.crunch.types.writable.Writables;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
-import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.ql.metadata.Table;
 import org.apache.hcatalog.common.HCatException;
 import org.apache.hcatalog.common.HCatUtil;
@@ -99,6 +98,22 @@ public final class HCatalog {
     } catch (Exception e) {
       throw new RuntimeException("Hive metastore exception", e);
     }
+  }
+  
+  public static String getDbName(String hiveStr) {
+    int dotIdx = hiveStr.indexOf('.');
+    if (dotIdx < 1) {
+      return "default";
+    }
+    return hiveStr.substring(0, dotIdx);
+  }
+  
+  public static String getTableName(String hiveStr) {
+    int dotIdx = hiveStr.indexOf('.');
+    if (dotIdx < 1) {
+      return hiveStr;
+    }
+    return hiveStr.substring(dotIdx + 1, hiveStr.length());
   }
   
   public static HCatalogSpec getSpec(String dbName, String tableName) {
