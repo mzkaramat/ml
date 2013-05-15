@@ -57,8 +57,9 @@ public final class Pivot {
                               int attributeColumn,
                               List<Integer> valueColumns,
                               Agg agg) {
+    Spec recordSpec = records.getSpec();
     Summary summary = records.getSummary();
-    Spec keySpec = createSpec(records.getSpec(), groupColumns);
+    Spec keySpec = createSpec(recordSpec, groupColumns);
     PTableType<Record, Map<String, Stat>> ptt = Avros.tableOf(
         MLRecords.record(keySpec),
         Avros.maps(Avros.reflects(Stat.class)));
@@ -71,11 +72,11 @@ public final class Pivot {
     
     List<String> levels = attrStats.getLevels();
     for (Integer valueColumn : valueColumns) {
-      SummaryStats valueStats = summary.getStats(valueColumn);
-      if (!valueStats.isNumeric()) {
+      FieldSpec fs = recordSpec.getField(valueColumn);
+      if (!fs.spec().getDataType().isNumeric()) {
         throw new IllegalArgumentException("Non-numeric value column in pivot op");
       }
-      String valueName = summary.getSpec().getField(valueColumn).name();
+      String valueName = fs.name();
       for (String level : levels) {
         b.addDouble(String.format("%s_%s", valueName, level));
       }

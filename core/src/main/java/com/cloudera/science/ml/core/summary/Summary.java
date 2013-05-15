@@ -20,6 +20,7 @@ import java.util.Set;
 
 import com.cloudera.science.ml.core.records.DataType;
 import com.cloudera.science.ml.core.records.RecordSpec;
+import com.cloudera.science.ml.core.records.Spec;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -27,6 +28,7 @@ import com.google.common.collect.Sets;
 public class Summary implements Serializable {
 
   private List<SummaryStats> stats = Lists.newArrayList();
+  private Spec spec;
   private long recordCount;
   private int fieldCount;
   
@@ -36,9 +38,19 @@ public class Summary implements Serializable {
     this.recordCount = recordCount;
     this.fieldCount = fieldCount;
     this.stats = stats;
+    this.spec = createSpec(stats);
   }
   
-  public RecordSpec getSpec() {
+  public Summary(Spec spec, List<SummaryStats> stats) {
+    this.spec = spec;
+    this.stats = stats;
+  }
+  
+  public Spec getSpec() {
+    return spec;
+  }
+  
+  private static Spec createSpec(List<SummaryStats> stats) {
     RecordSpec.Builder rsb = RecordSpec.builder();
     for (int i = 0; i < stats.size(); i++) {
       SummaryStats ss = stats.get(i);
@@ -83,6 +95,13 @@ public class Summary implements Serializable {
       }
     }
     return ignored;
+  }
+  
+  public boolean hasStats(int field) {
+    if (field >= stats.size()) {
+      return false;
+    }
+    return stats.get(field) != null;
   }
   
   public SummaryStats getStats(int field) {

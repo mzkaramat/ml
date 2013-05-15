@@ -88,7 +88,7 @@ public class NormalizeCommand implements Command {
     Header header = null;
     if (summaryFile != null) {
       summary = summaryParams.get(summaryFile);
-      spec = summary.getSpec();
+      spec = (RecordSpec) summary.getSpec();
       header = spec.toHeader();
     }
     

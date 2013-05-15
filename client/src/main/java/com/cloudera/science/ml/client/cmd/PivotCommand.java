@@ -14,6 +14,7 @@
  */
 package com.cloudera.science.ml.client.cmd;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -28,9 +29,11 @@ import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.RecordOutputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
+import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.records.Specs;
 import com.cloudera.science.ml.core.summary.Summary;
+import com.cloudera.science.ml.core.summary.SummaryBuilder;
 import com.cloudera.science.ml.parallel.pivot.Pivot;
 import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.records.SummarizedRecords;
@@ -39,9 +42,18 @@ import com.google.common.collect.Lists;
 @Parameters(commandDescription = "Performs a pivot operation to convert a 'long' table into a 'wide' table")
 public class PivotCommand implements Command {
 
-  @Parameter(names = "--summary-file", required=true,
+  @Parameter(names = "--summary-file",
       description = "The local summary stats created by the summary command")
-  String summaryFile;
+  private String summaryFile;
+  
+  @Parameter(names = "--header-file",
+      description = "The header file (for CSV inputs), used if the --summary-file doesn't exist")
+  private String headerFile;
+  
+  @Parameter(names = "--var-levels",
+      splitter = CommaParameterSplitter.class,
+      description = "The distinct levels of the --var-field argument. Used if the --summary-file doesn't exist")
+  private List<String> varLevels = Lists.newArrayList();
   
   @Parameter(names = "--id-fields", required=true,
       splitter = CommaParameterSplitter.class,
@@ -79,11 +91,20 @@ public class PivotCommand implements Command {
   
   @Override
   public int execute(Configuration conf) throws IOException {
-    Summary summary = summaryParams.get(summaryFile);
     Pipeline p = pipelineParams.create(PivotCommand.class, conf);
-    SummarizedRecords records = inputParams.getSummarizedRecords(p, summary);
+    SummarizedRecords records = null;
+    if (summaryFile != null) {
+      Summary summary = summaryParams.get(summaryFile);
+      records = inputParams.getSummarizedRecords(p, summary);
+    } else {
+      Header header = headerFile == null ? null : Header.fromFile(new File(headerFile));
+      Records r = inputParams.getRecords(p, header);
+      SummaryBuilder sb = new SummaryBuilder(r.getSpec());
+      Summary summary = sb.categorical(varField, varLevels).build();
+      records = new SummarizedRecords(r.get(), summary);
+    }
     
-    Spec spec = summary.getSpec();
+    Spec spec = records.getSpec();
     List<Integer> idColumns = Specs.getFieldIds(spec, idFields);
     Integer timeColumn = Specs.getFieldId(spec, varField);
     List<Integer> valueColumns = Specs.getFieldIds(spec, valueFields);
