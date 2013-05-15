@@ -51,7 +51,17 @@
 
     <dependency>
       <groupId>com.cloudera.science</groupId>
+      <artifactId>classifier</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.cloudera.science</groupId>
       <artifactId>kmeans</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.cloudera.science</groupId>
+      <artifactId>classifier-parallel</artifactId>
     </dependency>
 
     <dependency>

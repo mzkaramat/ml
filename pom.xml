@@ -13,8 +13,10 @@
 
   <modules>
     <module>core</module>
+    <module>classifier</module>
     <module>kmeans</module>
     <module>parallel</module>
+    <module>classifier-parallel</module>
     <module>kmeans-parallel</module>
     <module>mahout</module>
     <module>hcatalog</module>
@@ -144,9 +146,21 @@
         <version>${project.version}</version>
       </dependency>
 
+     <dependency>
+        <groupId>com.cloudera.science</groupId>
+        <artifactId>classifier</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>com.cloudera.science</groupId>
         <artifactId>kmeans</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.cloudera.science</groupId>
+        <artifactId>classifier-parallel</artifactId>
         <version>${project.version}</version>
       </dependency>
 
