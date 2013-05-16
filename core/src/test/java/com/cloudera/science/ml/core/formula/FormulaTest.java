@@ -16,8 +16,6 @@ package com.cloudera.science.ml.core.formula;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Map;
-
 import org.junit.Test;
 
 import com.cloudera.science.ml.core.records.DataType;
@@ -25,13 +23,11 @@ import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.RecordSpec;
 import com.cloudera.science.ml.core.records.SimpleRecord;
 import com.cloudera.science.ml.core.records.Spec;
-import com.cloudera.science.ml.core.summary.Entry;
 import com.cloudera.science.ml.core.summary.Numeric;
 import com.cloudera.science.ml.core.summary.Summary;
-import com.cloudera.science.ml.core.summary.SummaryStats;
+import com.cloudera.science.ml.core.summary.SummaryBuilder;
 import com.cloudera.science.ml.core.vectors.Vectors;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 
 /**
  *
@@ -45,14 +41,11 @@ public class FormulaTest {
   
   @Test
   public void testBasic() {
-    Map<String, Entry> bHistogram = Maps.newTreeMap();
-    bHistogram.put("x", new Entry(1L));
-    bHistogram.put("y", new Entry(1L));
-    bHistogram.put("z", new Entry(1L));
-    Summary summary = new Summary(1, 2, ImmutableList.of(
-        new SummaryStats("a", new Numeric(17.29, 17.29, 17.29, 0.0)),
-        new SummaryStats("b", bHistogram, false)));
-    Formula f = Formula.compile(ImmutableList.of(Term.INTERCEPT, Term.$("a"), Term.$("a", "b")),
+    Summary summary = new SummaryBuilder(abSpec)
+        .categorical("b", ImmutableList.of("x", "y", "z"))
+        .numeric("a", new Numeric(17.29, 17.29, 17.29, 0.0))
+        .build();
+    Formula f = Formula.compile(ImmutableList.of(Term.INTERCEPT, new Term("a"), new Term("a", "b")),
         summary);
     
     Record r = new SimpleRecord(abSpec, 17.29, "z");

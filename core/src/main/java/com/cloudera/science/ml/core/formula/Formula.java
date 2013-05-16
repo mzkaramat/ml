@@ -46,17 +46,17 @@ public class Formula implements Function<Record, Vector>, Serializable {
     List<CompiledTerm> compiled = Lists.newArrayListWithExpectedSize(terms.size());
     int offset = 0;
     boolean hasIntercept = internalTerms.get(0).isIntercept();
-    for (Term t : terms) {
+    for (Term t : internalTerms) {
       List<Integer> numerics = Lists.newArrayList();
       List<Integer> categoricals = Lists.newArrayList();
       List<List<String>> hist = Lists.newArrayList();
       for (String field : t) {
         FieldSpec fs = spec.getField(field);
-        SummaryStats ss = summary.getStats(fs.position());
-        if (ss.isNumeric()) {
+        if (fs.spec().getDataType().isNumeric()) {
           numerics.add(fs.position());
         } else {
           categoricals.add(fs.position());
+          SummaryStats ss = summary.getStats(fs.position());
           hist.add(ss.getLevels());
         }
       }

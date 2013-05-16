@@ -33,12 +33,12 @@ public class Term implements Iterable<String>, Comparable<Term> {
   
   private final Set<String> names;
   
-  public static Term $(String... names) {
-    return new Term(names);
-  }
-  
   public Term(String... names) {
-    this.names = Sets.newTreeSet(Arrays.asList(names));
+    this(Arrays.asList(names));
+  }
+
+  public Term(Iterable<String> names) {
+    this.names = Sets.newTreeSet(names);
     Preconditions.checkArgument(!this.names.isEmpty(), "Terms must have >= 1 named variables");
   }
   

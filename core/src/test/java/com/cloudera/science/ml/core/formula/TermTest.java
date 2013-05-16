@@ -27,13 +27,8 @@ import com.google.common.collect.Lists;
 public class TermTest {
   @Test
   public void testTermSort() {
-    List<Term> terms = Lists.newArrayList(Term.INTERCEPT, Term.$("a", "b"), Term.$("a"), Term.$("b"));
+    List<Term> terms = Lists.newArrayList(Term.INTERCEPT, new Term("a", "b"), new Term("a"), new Term("b"));
     Collections.sort(terms);
-    assertEquals(ImmutableList.of(Term.INTERCEPT, Term.$("a"), Term.$("b"), Term.$("a", "b")), terms);
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testInvalidIntercept() {
-    Term.$();
+    assertEquals(ImmutableList.of(Term.INTERCEPT, new Term("a"), new Term("b"), new Term("a", "b")), terms);
   }
 }

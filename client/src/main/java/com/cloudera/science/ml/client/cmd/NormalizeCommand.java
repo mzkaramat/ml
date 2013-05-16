@@ -45,7 +45,7 @@ public class NormalizeCommand implements Command {
   @Parameter(names = "--id-column",
       description = "For CSV inputs, the name/index of the column of the file that contains the identifier for the record")
   private String idColumn = "-1";
-  
+
   @Parameter(names = "--sparse",
       description = "Write the output in a sparse vector format")
   private Boolean sparse;
