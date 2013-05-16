@@ -16,6 +16,7 @@ package com.cloudera.science.ml.client;
 
 import java.util.Map;
 
+import com.cloudera.science.ml.client.cmd.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
@@ -23,18 +24,6 @@ import org.apache.hadoop.util.ToolRunner;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.cloudera.science.ml.client.cmd.Command;
-import com.cloudera.science.ml.client.cmd.CommandException;
-import com.cloudera.science.ml.client.cmd.GetHeaderCommand;
-import com.cloudera.science.ml.client.cmd.KMeansAssignmentCommand;
-import com.cloudera.science.ml.client.cmd.KMeansCommand;
-import com.cloudera.science.ml.client.cmd.KMeansSketchCommand;
-import com.cloudera.science.ml.client.cmd.LloydsCommand;
-import com.cloudera.science.ml.client.cmd.NormalizeCommand;
-import com.cloudera.science.ml.client.cmd.PivotCommand;
-import com.cloudera.science.ml.client.cmd.SampleCommand;
-import com.cloudera.science.ml.client.cmd.ShowVecCommand;
-import com.cloudera.science.ml.client.cmd.SummaryCommand;
 import com.google.common.collect.ImmutableSortedMap;
 
 public class Main extends Configured implements Tool {
@@ -53,6 +42,7 @@ public class Main extends Configured implements Tool {
       .put("ksketch", new KMeansSketchCommand())
       .put("kmeans", new KMeansCommand())
       .put("pivot", new PivotCommand())
+      .put("discretize", new DiscretizeCommand())
       .build();
   
   public Main() {
