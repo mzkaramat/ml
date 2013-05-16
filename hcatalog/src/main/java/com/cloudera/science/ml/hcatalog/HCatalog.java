@@ -17,6 +17,8 @@ package com.cloudera.science.ml.hcatalog;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.crunch.MapFn;
 import org.apache.crunch.types.PType;
 import org.apache.crunch.types.writable.Writables;
@@ -39,22 +41,26 @@ import com.google.common.collect.Lists;
 
 public final class HCatalog {
 
-  private static HiveMetaStoreClient CLIENT_INSTANCE = null;
+  private static final Log LOG = LogFactory.getLog(HCatalog.class);
   
-  private static synchronized HiveMetaStoreClient getClientInstance() {
-    if (CLIENT_INSTANCE == null) {
+  private static boolean HIVE_CHECKS = false;
+  
+  private static HiveMetaStoreClient getClientInstance() {
+    if (!HIVE_CHECKS) {
       try {
         Class.forName("org.apache.hadoop.hive.conf.HiveConf");
       } catch (ClassNotFoundException e) {
         throw new IllegalStateException("Hive features requested, but Hive libraries not on classpath");
       }
-      try {
-        CLIENT_INSTANCE = HCatUtil.getHiveClient(new HiveConf());
-      } catch (Exception e) {
-        throw new RuntimeException("Could not connect to Hive", e);
-      }
+      HiveConf hc = new HiveConf();
+      LOG.info("Connecting to Hive Server at: " + hc.getVar(HiveConf.ConfVars.METASTOREURIS));
+      HIVE_CHECKS = true;
     }
-    return CLIENT_INSTANCE;
+    try {
+      return HCatUtil.getHiveClient(new HiveConf());
+    } catch (Exception e) {
+      throw new RuntimeException("Could not connect to Hive", e);
+    }
   }
   
   public static Table getTable(String dbName, String tableName) {
@@ -102,7 +108,7 @@ public final class HCatalog {
   
   public static String getDbName(String hiveStr) {
     int dotIdx = hiveStr.indexOf('.');
-    if (dotIdx < 1) {
+    if (dotIdx == -1) {
       return "default";
     }
     return hiveStr.substring(0, dotIdx);
@@ -110,7 +116,7 @@ public final class HCatalog {
   
   public static String getTableName(String hiveStr) {
     int dotIdx = hiveStr.indexOf('.');
-    if (dotIdx < 1) {
+    if (dotIdx == -1) {
       return hiveStr;
     }
     return hiveStr.substring(dotIdx + 1, hiveStr.length());
