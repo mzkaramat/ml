@@ -23,6 +23,8 @@ import org.apache.mahout.math.NamedVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
+import com.cloudera.science.ml.core.vectors.LabeledVector;
+
 /**
  * Factory methods for creating {@code PType} instances for use with the ML Parallel libraries.
  */
@@ -31,6 +33,7 @@ public final class MLWritables {
   static {
     Writables.register(Vector.class, (WritableType<Vector,? extends Writable>) vector());
     Writables.register(NamedVector.class, (WritableType<NamedVector,? extends Writable>) vector(NamedVector.class));
+    //TODO: register LabeledVector
   }
   
   /**
@@ -38,6 +41,11 @@ public final class MLWritables {
    */
   public static PType<Vector> vector() {
     return vector(Vector.class);
+  }
+  
+  public static PType<LabeledVector> labeledVector() {
+    //TODO
+    return null;
   }
   
   public static <V extends Vector> PType<V> vector(Class<V> vectorClass) {

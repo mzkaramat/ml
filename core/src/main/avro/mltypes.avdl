@@ -30,6 +30,11 @@ protocol ML {
     double weight = 1.0;
   }
 
+  record MLLabeledVector {
+    MLVector vec;
+    double label;
+  }
+
   record MLCenters {
     array<MLVector> centers;
   }

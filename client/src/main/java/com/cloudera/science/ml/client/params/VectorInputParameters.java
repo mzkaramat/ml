@@ -27,6 +27,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.CommaParameterSplitter;
 import com.cloudera.science.ml.client.cmd.CommandException;
 import com.cloudera.science.ml.client.util.UnionIO;
+import com.cloudera.science.ml.core.vectors.LabeledVector;
 import com.cloudera.science.ml.mahout.types.MLWritables;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 import com.google.common.base.Function;
@@ -68,6 +69,14 @@ public class VectorInputParameters {
     return (PCollection<V>) getVectors(pipeline, inputPaths);
   }
   
+  public <V extends LabeledVector> PCollection<V> getLabeledVectorsFromPath(Pipeline pipeline, String path) {
+    return (PCollection<V>) getLabeledVectors(pipeline, Collections.singletonList(path));
+  }
+  
+  public <V extends LabeledVector> PCollection<V> getLabeledVectors(Pipeline pipeline) {
+    return (PCollection<V>) getLabeledVectors(pipeline, inputPaths);
+  }
+  
   private PCollection<Vector> getVectors(final Pipeline pipeline, List<String> paths) {
     format = format.toLowerCase(Locale.ENGLISH);
     PCollection<Vector> ret;
@@ -83,6 +92,29 @@ public class VectorInputParameters {
         @Override
         public PCollection<Vector> apply(String input) {
           return pipeline.read(From.avroFile(input, MLAvros.vector()));
+        }
+      });
+    } else {
+      throw new CommandException("Unsupported vector format: " + format);
+    }
+    return ret;
+  }
+  
+  private PCollection<LabeledVector> getLabeledVectors(final Pipeline pipeline, List<String> paths) {
+    format = format.toLowerCase(Locale.ENGLISH);
+    PCollection<LabeledVector> ret;
+    if (FORMAT_SEQ.equals(format)) {
+      ret = UnionIO.from(paths, new Function<String, PCollection<LabeledVector>>() {
+        @Override
+        public PCollection<LabeledVector> apply(String input) {
+          return pipeline.read(From.sequenceFile(input, MLWritables.labeledVector()));
+        }
+      });
+    } else if (FORMAT_AVRO.equals(format)) {
+      ret = UnionIO.from(paths, new Function<String, PCollection<LabeledVector>>() {
+        @Override
+        public PCollection<LabeledVector> apply(String input) {
+          return pipeline.read(From.avroFile(input, MLAvros.labeledVector()));
         }
       });
     } else {

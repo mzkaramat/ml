@@ -25,6 +25,7 @@ import org.apache.mahout.math.Vector;
 import com.cloudera.science.ml.avro.MLCenters;
 import com.cloudera.science.ml.avro.MLVector;
 import com.cloudera.science.ml.avro.MLWeightedVector;
+import com.cloudera.science.ml.avro.MLLabeledVector;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -41,6 +42,14 @@ public final class VectorConvert {
   
   public static MLVector fromVector(Vector input) { 
     return FROM_VECTOR.apply(input);
+  }
+  
+  public static LabeledVector toLabeledVector(MLLabeledVector input) {
+    return TO_LABELED_VEC.apply(input);
+  }
+  
+  public static MLLabeledVector fromLabeledVector(LabeledVector input) {
+    return FROM_LABELED_VEC.apply(input);
   }
   
   public static Weighted<Vector> toWeightedVec(MLWeightedVector input) {
@@ -111,6 +120,22 @@ public final class VectorConvert {
         vb.setId("");
       }
       return vb.build();
+    }
+  };
+  
+  public static final Function<MLLabeledVector, LabeledVector> TO_LABELED_VEC = new Function<MLLabeledVector, LabeledVector>() {
+    @Override
+    public LabeledVector apply(MLLabeledVector input) {
+      return new LabeledVector(TO_VECTOR.apply(input.getVec()), input.getLabel());
+    }
+  };
+  
+  public static final Function<LabeledVector, MLLabeledVector> FROM_LABELED_VEC = new Function<LabeledVector, MLLabeledVector>() {
+    @Override
+    public MLLabeledVector apply(LabeledVector input) {
+      MLLabeledVector.Builder b = MLLabeledVector.newBuilder();
+      b.setVec(FROM_VECTOR.apply(input.getVector())).setLabel(input.getLabel());
+      return b.build();
     }
   };
 

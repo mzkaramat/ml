@@ -24,8 +24,10 @@ import org.apache.mahout.math.NamedVector;
 import org.apache.mahout.math.Vector;
 
 import com.cloudera.science.ml.avro.MLVector;
+import com.cloudera.science.ml.avro.MLLabeledVector;
 import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.avro.AvroRecord;
+import com.cloudera.science.ml.core.vectors.LabeledVector;
 import com.cloudera.science.ml.core.vectors.VectorConvert;
 
 
@@ -43,6 +45,10 @@ public final class MLAvros {
   
   public static AvroType<NamedVector> namedVector() {
     return namedVector;
+  }
+  
+  public static AvroType<LabeledVector> labeledVector() {
+    return labeledVector;
   }
   
   public static AvroType<Record> record(Schema schema) {
@@ -92,9 +98,25 @@ public final class MLAvros {
       },
       Avros.specifics(MLVector.class));
   
+  private static final AvroType<LabeledVector> labeledVector = Avros.derived(LabeledVector.class,
+      new MapFn<MLLabeledVector, LabeledVector>() {
+        @Override
+        public LabeledVector map(MLLabeledVector vec) {
+          return VectorConvert.toLabeledVector(vec);
+        }
+      },
+      new MapFn<LabeledVector, MLLabeledVector>() {
+        @Override
+        public MLLabeledVector map(LabeledVector vec) {
+          return VectorConvert.fromLabeledVector(vec);
+        }
+      },
+      Avros.specifics(MLLabeledVector.class));
+  
   static {
     Avros.register(Vector.class, vector);
     Avros.register(NamedVector.class, namedVector);
+    Avros.register(LabeledVector.class, labeledVector);
   }
 
   private MLAvros() {}
