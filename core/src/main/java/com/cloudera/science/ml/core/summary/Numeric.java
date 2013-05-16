@@ -21,6 +21,7 @@ public class Numeric implements Serializable {
   private double max;
   private double mean;
   private double stdDev;
+  private double remedian;
   
   private Long missing;
   private String transform;
@@ -34,7 +35,14 @@ public class Numeric implements Serializable {
       this.missing = missing;
     }
   }
-  
+  public Numeric(double min, double max, double mean, double stdDev, long missing, double remedian) {
+    this(min, max, mean, stdDev);
+    this.remedian = remedian;
+    if (missing > 0) {
+      this.missing = missing;
+    }
+  }
+
   public Numeric(double min, double max, double mean, double stdDev) {
     this.min = min;
     this.max = max;
@@ -60,6 +68,10 @@ public class Numeric implements Serializable {
   
   public double range() {
     return max - min;
+  }
+
+  public double remedian(){
+    return remedian;
   }
   
   public String getTransform() {
