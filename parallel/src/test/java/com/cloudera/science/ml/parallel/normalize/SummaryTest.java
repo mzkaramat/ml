@@ -21,6 +21,7 @@ import java.util.Arrays;
 
 import org.apache.crunch.MapFn;
 import org.apache.crunch.PCollection;
+import org.apache.crunch.Pair;
 import org.apache.crunch.impl.mem.MemPipeline;
 import org.apache.crunch.types.avro.AvroTypeFamily;
 import org.apache.crunch.types.avro.Avros;
@@ -44,11 +45,104 @@ public class SummaryTest implements Serializable {
       Vectors.of(1.0, 1.0),
       Vectors.of(3.0, 1.0),
       Vectors.of(3.0, 3.0));
-  
+
+  private final PCollection<Vector> vecs2 = MemPipeline.typedCollectionOf(
+     MLAvros.vector(),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+     Vectors.of(2.0),
+
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+
+
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0)
+
+
+     );
+
+
   private final PCollection<String> strings = MemPipeline.typedCollectionOf(
       Avros.strings(),
       "1.0,NA,2.0",
       "1.0,2.0,3.0");
+
+  @Test
+  public void testMedian(){
+    PCollection<Record> elems = vecs2.parallelDo(new MapFn<Vector, Record>() {
+      @Override
+      public Record map(Vector elements) {
+        return new VectorRecord(elements);
+      }
+    }, null);
+    Summarizer sr = new Summarizer();
+    Summary s = sr.build(elems).getValue();
+    assertEquals(s.getStats(0).remedian(), 7, 0.01);
+  }
   
   @Test
   public void testZScores() {
@@ -65,8 +159,8 @@ public class SummaryTest implements Serializable {
         .defaultTransform(Transform.Z)
         .build();
     assertEquals(ImmutableList.of(Vectors.of(-1, 1),
-        Vectors.of(-1, -1), Vectors.of(1, -1),
-        Vectors.of(1, 1)), stand.apply(elems, MLAvros.vector()).materialize());
+       Vectors.of(-1, -1), Vectors.of(1, -1),
+       Vectors.of(1, 1)), stand.apply(elems, MLAvros.vector()).materialize());
   }
   
   @Test

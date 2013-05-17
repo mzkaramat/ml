@@ -29,25 +29,25 @@ public class Numeric implements Serializable {
   // For serialization
   private Numeric() { }
   
-  public Numeric(double min, double max, double mean, double stdDev, long missing) {
-    this(min, max, mean, stdDev);
-    if (missing > 0) {
-      this.missing = missing;
-    }
-  }
-  public Numeric(double min, double max, double mean, double stdDev, long missing, double remedian) {
-    this(min, max, mean, stdDev);
-    this.remedian = remedian;
+//  public Numeric(double min, double max, double mean, double stdDev, long missing) {
+//    this(min, max, mean, stdDev);
+//    if (missing > 0) {
+//      this.missing = missing;
+//    }
+//  }
+  public Numeric(double min, double max, double mean, double stdDev, double remedian, long missing) {
+    this(min, max, mean, stdDev, remedian);
     if (missing > 0) {
       this.missing = missing;
     }
   }
 
-  public Numeric(double min, double max, double mean, double stdDev) {
+  public Numeric(double min, double max, double mean, double stdDev, double remedian) {
     this.min = min;
     this.max = max;
     this.mean = mean;
     this.stdDev = stdDev;
+    this.remedian = remedian;
   }
   
   public double min() {

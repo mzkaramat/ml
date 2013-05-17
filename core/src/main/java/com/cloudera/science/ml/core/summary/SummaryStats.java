@@ -95,6 +95,10 @@ public class SummaryStats implements Serializable {
   public double max() {
     return numeric == null ? Double.NaN : numeric.max();
   }
+
+  public double remedian(){
+    return numeric == null ? Double.NaN : numeric.remedian();
+  }
   
   public long getMissing() {
     return numeric == null ? 0L : numeric.getMissing();

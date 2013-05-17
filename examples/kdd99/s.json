@@ -265,7 +265,7 @@
       "min" : 0.0,
       "max" : 6.9337564E8,
       "mean" : 3025.6102959185946,
-      "stdDev" : 988217.1008716954
+      "stdDev" : 988217.1008716795
     }
   }, {
     "name" : "dst_bytes",
@@ -429,56 +429,56 @@
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.17668665906914896,
-      "stdDev" : 0.3807165710135912
+      "mean" : 0.17668665906914852,
+      "stdDev" : 0.3807165710135919
     }
   }, {
     "name" : "srv_serror_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.1766088081275898,
-      "stdDev" : 0.3810161988443628
+      "mean" : 0.17660880812758986,
+      "stdDev" : 0.3810161988443632
     }
   }, {
     "name" : "rerror_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.05743340870124952,
-      "stdDev" : 0.23162323935561868
+      "mean" : 0.05743340870124959,
+      "stdDev" : 0.23162323935561874
     }
   }, {
     "name" : "srv_rerror_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.05771894312185113,
-      "stdDev" : 0.2321467464200421
+      "mean" : 0.05771894312185114,
+      "stdDev" : 0.23214674642004215
     }
   }, {
     "name" : "same_srv_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.7915473431290742,
-      "stdDev" : 0.3881891001525062
+      "mean" : 0.7915473431296286,
+      "stdDev" : 0.38818910015151165
     }
   }, {
     "name" : "diff_srv_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.02098238738839084,
-      "stdDev" : 0.0822054096971457
+      "mean" : 0.020982387388396636,
+      "stdDev" : 0.08220540969713754
     }
   }, {
     "name" : "srv_diff_host_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.028996803779596965,
-      "stdDev" : 0.14239732289911453
+      "mean" : 0.028996803779597343,
+      "stdDev" : 0.14239732289911172
     }
   }, {
     "name" : "dst_host_count",
@@ -501,64 +501,64 @@
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.7537796976242214,
-      "stdDev" : 0.4107805616742631
+      "mean" : 0.7537796976247786,
+      "stdDev" : 0.4107805616737109
     }
   }, {
     "name" : "dst_host_diff_srv_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.030905730728058568,
-      "stdDev" : 0.10925900163645837
+      "mean" : 0.030905730728006633,
+      "stdDev" : 0.1092590016364854
     }
   }, {
     "name" : "dst_host_same_src_port_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.6019347558099691,
-      "stdDev" : 0.4813087640559638
+      "mean" : 0.6019347558101208,
+      "stdDev" : 0.48130876405579237
     }
   }, {
     "name" : "dst_host_srv_diff_host_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.006683501308647913,
-      "stdDev" : 0.0421328317730394
+      "mean" : 0.006683501308649176,
+      "stdDev" : 0.042132831773040495
     }
   }, {
     "name" : "dst_host_serror_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.17675396390031603,
-      "stdDev" : 0.38059271231325137
+      "mean" : 0.17675396390030904,
+      "stdDev" : 0.38059271231326286
     }
   }, {
     "name" : "dst_host_srv_serror_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.17644262086024323,
-      "stdDev" : 0.38091906252628394
+      "mean" : 0.17644262086023382,
+      "stdDev" : 0.3809190625263017
     }
   }, {
     "name" : "dst_host_rerror_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.05811761038498319,
-      "stdDev" : 0.23058927368706034
+      "mean" : 0.05811761038498338,
+      "stdDev" : 0.2305892736870603
     }
   }, {
     "name" : "dst_host_srv_rerror_rate",
     "numeric" : {
       "min" : 0.0,
       "max" : 1.0,
-      "mean" : 0.057411668734729006,
-      "stdDev" : 0.23014009099636087
+      "mean" : 0.057411668734728985,
+      "stdDev" : 0.23014009099636062
     }
   }, {
     "name" : "category",
@@ -634,6 +634,345 @@
       }
     }
   } ],
+  "spec" : {
+    "fields" : [ {
+      "name" : "duration",
+      "position" : 0,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "protocol_type",
+      "position" : 1,
+      "spec" : {
+        "dataType" : "STRING",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "service",
+      "position" : 2,
+      "spec" : {
+        "dataType" : "STRING",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "flag",
+      "position" : 3,
+      "spec" : {
+        "dataType" : "STRING",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "src_bytes",
+      "position" : 4,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_bytes",
+      "position" : 5,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "land",
+      "position" : 6,
+      "spec" : {
+        "dataType" : "STRING",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "wrong_fragment",
+      "position" : 7,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "urgent",
+      "position" : 8,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "hot",
+      "position" : 9,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "num_failed_logins",
+      "position" : 10,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "logged_in",
+      "position" : 11,
+      "spec" : {
+        "dataType" : "STRING",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "num_compromised",
+      "position" : 12,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "root_shell",
+      "position" : 13,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "su_attempted",
+      "position" : 14,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "num_root",
+      "position" : 15,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "num_file_creations",
+      "position" : 16,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "num_shells",
+      "position" : 17,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "num_access_files",
+      "position" : 18,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "num_outbound_cmds",
+      "position" : 19,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "is_host_login",
+      "position" : 20,
+      "spec" : {
+        "dataType" : "STRING",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "is_guest_login",
+      "position" : 21,
+      "spec" : {
+        "dataType" : "STRING",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "count",
+      "position" : 22,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "srv_count",
+      "position" : 23,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "serror_rate",
+      "position" : 24,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "srv_serror_rate",
+      "position" : 25,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "rerror_rate",
+      "position" : 26,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "srv_rerror_rate",
+      "position" : 27,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "same_srv_rate",
+      "position" : 28,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "diff_srv_rate",
+      "position" : 29,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "srv_diff_host_rate",
+      "position" : 30,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_host_count",
+      "position" : 31,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_host_srv_count",
+      "position" : 32,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_host_same_srv_rate",
+      "position" : 33,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_host_diff_srv_rate",
+      "position" : 34,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_host_same_src_port_rate",
+      "position" : 35,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_host_srv_diff_host_rate",
+      "position" : 36,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_host_serror_rate",
+      "position" : 37,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_host_srv_serror_rate",
+      "position" : 38,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_host_rerror_rate",
+      "position" : 39,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "dst_host_srv_rerror_rate",
+      "position" : 40,
+      "spec" : {
+        "dataType" : "DOUBLE",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    }, {
+      "name" : "category",
+      "position" : 41,
+      "spec" : {
+        "dataType" : "STRING",
+        "size" : 0,
+        "fieldNames" : [ ]
+      }
+    } ]
+  },
   "recordCount" : 494021,
   "fieldCount" : 42
 }

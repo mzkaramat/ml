@@ -24,16 +24,13 @@ class InternalNumeric {
   private double sum;
   private double sumSq;
   private long missing;
-  private double median;
 
   private int b;
   private double[][] medianArray;
-  private int dataCursor = 0;
-  private int medianK = 1;
-  private int medianCursor = 0;
+  private int dataCursor;
+  private int medianK;
+  private int medianCursor;
 
-  InternalNumeric() {
-  }
 
   InternalNumeric(int b, int k) {
     if (b % 2 == 0) {
@@ -41,6 +38,9 @@ class InternalNumeric {
     }
     this.b = b;
     medianArray = new double[k - 1][b];
+    medianCursor = 0;
+    medianK = 1;
+    dataCursor = 0;
 
   }
 
@@ -51,7 +51,7 @@ class InternalNumeric {
     long n = recordCount - missing;
     double mean = sum / n;
     double stdDev = Math.sqrt((sumSq / n) - mean * mean);
-    return new Numeric(min, max, mean, stdDev, missing, median);
+    return new Numeric(min, max, mean, stdDev, currentMedian(), missing);
   }
 
   public void update(double d) {
@@ -69,6 +69,7 @@ class InternalNumeric {
       medianArray[0][dataCursor++] = (long) Math.floor(d);
       if (dataCursor == b) {
         dataCursor = 0;
+        medianArray[1][medianCursor] = computeFullArrayMedian(medianArray[0]);
         medianArray[medianK][medianCursor++] = computeFullArrayMedian(medianArray[medianK - 1]);
         if (medianCursor == b) {
           medianK++;
@@ -76,20 +77,21 @@ class InternalNumeric {
           medianCursor = 1;
         }
       }
-      median = currentMedian();
     }
   }
 
   private double computeFullArrayMedian(double[] values) {
     double[] cloned = values.clone();
     Arrays.sort(cloned);
-    return cloned[cloned.length / 2 + 1];
+    int index = cloned.length%2==0?cloned.length/2 - 1:cloned.length/2;
+    return cloned[index];
   }
 
   private double computePartialArrayMedian(double[] values, int size) {
     double[] cloned = Arrays.copyOf(values, size).clone();
     Arrays.sort(cloned);
-    return cloned[cloned.length / 2 + 1];
+    int index = cloned.length%2==0?cloned.length/2 - 1:cloned.length/2;
+    return cloned[index];
   }
 
   private double currentMedian() {
@@ -110,5 +112,9 @@ class InternalNumeric {
     if (other.max > max) {
       max = other.max;
     }
+    medianArray = other.medianArray;
+    medianK = other.medianK;
+    dataCursor = other.dataCursor;
+    medianCursor = other.medianCursor;
   }
 }

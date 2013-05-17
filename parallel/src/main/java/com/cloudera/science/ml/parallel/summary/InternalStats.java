@@ -69,7 +69,7 @@ class InternalStats {
   
   private InternalNumeric internalNumeric() {
     if (internalNumeric == null) {
-      internalNumeric = new InternalNumeric();
+      internalNumeric = new InternalNumeric(4, 5);
     }
     return internalNumeric;
   }
