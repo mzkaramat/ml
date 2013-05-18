@@ -23,10 +23,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
-import com.cloudera.science.ml.classifiers.ClassifierParams;
-import com.cloudera.science.ml.classifiers.EtaType;
-import com.cloudera.science.ml.classifiers.LearnerType;
-import com.cloudera.science.ml.classifiers.LoopType;
 import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.VectorInputParameters;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
@@ -74,11 +70,6 @@ public class FitCommand implements Command {
   @Override
   public int execute(Configuration conf) throws IOException {
     Pipeline p = pipelineParams.create(FitCommand.class, conf);
-    ClassifierParams params = new ClassifierParams(
-        LearnerType.valueOf(learnerType),
-        LoopType.valueOf(loopType),
-        EtaType.valueOf(etaType),
-        lambda, c, numIters, numFeatures);
 
     PCollection<LabeledVector> labeledVectors = inputParams.getLabeledVectors(p);
     

@@ -12,16 +12,13 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
+package com.cloudera.science.ml.classifier.core;
 
-package com.cloudera.science.ml.classifiers;
+import java.io.Serializable;
 
-public enum LearnerType {
-  PEGASOS,
-  MARGIN_PERCEPTRON,
-  PASSIVE_AGGRESSIVE,
-  LOGREG_PEGASOS,
-  LOGREG,
-  LMS_REGRESSION,
-  SGD_SVM,
-  ROMMA
+import org.apache.mahout.math.Vector;
+
+import com.google.common.base.Function;
+
+public interface Classifier extends Function<Vector, Double>, Serializable {
 }

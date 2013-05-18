@@ -13,14 +13,8 @@
  * License.
  */
 
-package com.cloudera.science.ml.classifiers;
+package com.cloudera.science.ml.classifier;
 
-/**
- * In stochastic gradient descent, the eta parameter determines how far to move
- * at each iteration.
- */
-public enum EtaType {
-  BASIC_ETA,
-  PEGASOS_ETA,
-  CONSTANT
+public enum LoopType {
+  STOCHASTIC, BALANCED_STOCHASTIC, STOCHASTIC_CLASSIFICATION_AND_ROC
 }

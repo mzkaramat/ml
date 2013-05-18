@@ -12,9 +12,11 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
+package com.cloudera.science.ml.classifiers.parallel;
 
-package com.cloudera.science.ml.classifiers;
+/**
+ *
+ */
+public class ParallelLearner {
 
-public enum LoopType {
-  STOCHASTIC, BALANCED_STOCHASTIC, STOCHASTIC_CLASSIFICATION_AND_ROC
 }
