@@ -47,6 +47,9 @@ public class Summary implements Serializable {
   }
   
   public Spec getSpec() {
+    if (spec == null) {
+      spec = createSpec(stats);
+    }
     return spec;
   }
   
