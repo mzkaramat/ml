@@ -16,7 +16,7 @@
 # that certain fields in the dataset should be ignored by the summarizer by marking their type as "ignored" or "id".
 #
 # The summary command runs a single MapReduce job every time it is called.
-client/bin/ml summary --input-paths kddcup.data_10_percent_corrected --format text --header-file examples/kdd99/header.csv \
+client/bin/ml summary --input-paths kddcup.data_10_percent --format text --header-file examples/kdd99/header.csv \
   --summary-file examples/kdd99/s.json
 
 # Use the summary information that we just created to "normalize" the kdd99 data, which in this context, means converting it
@@ -31,7 +31,7 @@ client/bin/ml summary --input-paths kddcup.data_10_percent_corrected --format te
 # persist it for later analysis of the data. This is almost always a good idea.
 #
 # The normalize command runs a single map-only job every time it is called.
-client/bin/ml normalize --input-paths kddcup.data_10_percent_corrected --format text --summary-file examples/kdd99/s.json \
+client/bin/ml normalize --input-paths kddcup.data_10_percent --format text --summary-file examples/kdd99/s.json \
   --transform Z --output-path kdd99 --output-type avro --id-column category
 
 # Processes the normalized vectors and runs a series of MapReduce jobs over the data that are designed to construct a good
