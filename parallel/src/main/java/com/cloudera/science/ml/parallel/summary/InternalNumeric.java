@@ -15,8 +15,13 @@
 package com.cloudera.science.ml.parallel.summary;
 
 import com.cloudera.science.ml.core.summary.Numeric;
+import org.apache.crunch.Pair;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 class InternalNumeric {
   private double min = Double.POSITIVE_INFINITY;
@@ -27,20 +32,17 @@ class InternalNumeric {
 
   private int b;
   private double[][] medianArray;
-  private int dataCursor;
+  private int[] cursor;
   private int medianK;
-  private int medianCursor;
 
-
-  InternalNumeric(int b, int k) {
-    if (b % 2 == 0) {
-      b += 1;
-    }
+  InternalNumeric(){
+    this(11, 10);
+  }
+  private InternalNumeric(int b, int k) {
     this.b = b;
-    medianArray = new double[k - 1][b];
-    medianCursor = 0;
+    medianArray = new double[k][b];
+    cursor = new int[k];
     medianK = 1;
-    dataCursor = 0;
 
   }
 
@@ -66,16 +68,18 @@ class InternalNumeric {
       if (d > max) {
         max = d;
       }
-      medianArray[0][dataCursor++] = (long) Math.floor(d);
-      if (dataCursor == b) {
-        dataCursor = 0;
-        medianArray[1][medianCursor] = computeFullArrayMedian(medianArray[0]);
-        medianArray[medianK][medianCursor++] = computeFullArrayMedian(medianArray[medianK - 1]);
-        if (medianCursor == b) {
-          medianK++;
-          medianArray[medianK][0] = computeFullArrayMedian(medianArray[medianK - 1]);
-          medianCursor = 1;
-        }
+      medianArray[0][cursor[0]++] = d;
+      int i = 1;
+      while (i < medianArray.length - 1) {
+        if (cursor[i - 1] == b) {
+          medianArray[i][cursor[i]] = computeFullArrayMedian(medianArray[i - 1]);
+          cursor[i - 1] = 0;
+          cursor[i]++;
+          if (medianK < i) {
+            medianK = i;
+          }
+        } else break;
+        i++;
       }
     }
   }
@@ -83,22 +87,51 @@ class InternalNumeric {
   private double computeFullArrayMedian(double[] values) {
     double[] cloned = values.clone();
     Arrays.sort(cloned);
-    int index = cloned.length%2==0?cloned.length/2 - 1:cloned.length/2;
+    int index = cloned.length % 2 == 0 ? cloned.length / 2 - 1 : cloned.length / 2;
     return cloned[index];
   }
 
-  private double computePartialArrayMedian(double[] values, int size) {
-    double[] cloned = Arrays.copyOf(values, size).clone();
-    Arrays.sort(cloned);
-    int index = cloned.length%2==0?cloned.length/2 - 1:cloned.length/2;
-    return cloned[index];
+  private double weightedMedian() {
+    List<Pair<Double, Double>> valueList = new ArrayList<Pair<Double, Double>>();
+
+    for (int i = 0; i <= medianK; i++) {
+      double weight = Math.pow(b, i);
+      for (int j = 0; j < cursor[i]; j++) {
+        valueList.add(new Pair<Double, Double>(medianArray[i][j], weight));
+      }
+    }
+    Collections.sort(valueList, new Comparator<Pair<Double, Double>>() {
+      @Override
+      public int compare(Pair<Double, Double> doubleDoublePair, Pair<Double, Double> doubleDoublePair2) {
+        return doubleDoublePair.first().compareTo(doubleDoublePair2.first());
+      }
+    });
+
+    double sumWeights = sumOfSeconds(valueList);
+    double s = sumWeights;
+    int j = 0;
+    while (s > sumWeights / 2) {
+      s -= valueList.get(j++).second();
+    }
+    return valueList.get(j - 1).first();
+
+  }
+
+  private double sumOfSeconds(List<Pair<Double, Double>> list) {
+    double sum = 0;
+    for (Pair<Double, Double> pair : list) {
+      sum += pair.second();
+    }
+    return sum;
   }
 
   private double currentMedian() {
-    if (medianCursor == 1) {
-      return medianArray[medianK][0];
+    if (cursor[medianK] == 0) {
+      return computeFullArrayMedian(medianArray[medianK - 1]);
+    } else if (cursor[medianK] == b - 1) {
+      return computeFullArrayMedian(medianArray[medianK]);
     } else {
-      return computePartialArrayMedian(medianArray[medianK], medianK);
+      return weightedMedian();
     }
   }
 
@@ -114,7 +147,6 @@ class InternalNumeric {
     }
     medianArray = other.medianArray;
     medianK = other.medianK;
-    dataCursor = other.dataCursor;
-    medianCursor = other.medianCursor;
+    cursor = other.cursor;
   }
 }

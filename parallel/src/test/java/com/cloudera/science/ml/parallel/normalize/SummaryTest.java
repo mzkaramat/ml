@@ -54,36 +54,29 @@ public class SummaryTest implements Serializable {
      Vectors.of(2.0),
      Vectors.of(2.0),
 
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
+     Vectors.of(3.0),
+     Vectors.of(3.0),
+     Vectors.of(3.0),
+     Vectors.of(3.0),
+     Vectors.of(3.0),
 
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
+     Vectors.of(4.0),
+     Vectors.of(4.0),
+     Vectors.of(4.0),
+     Vectors.of(4.0),
+     Vectors.of(4.0),
 
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
+     Vectors.of(5.0),
+     Vectors.of(5.0),
+     Vectors.of(5.0),
+     Vectors.of(5.0),
+     Vectors.of(5.0),
 
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-
+     Vectors.of(6.0),
+     Vectors.of(6.0),
+     Vectors.of(6.0),
+     Vectors.of(6.0),
+     Vectors.of(6.0),
 
      Vectors.of(7.0),
      Vectors.of(7.0),
@@ -97,11 +90,50 @@ public class SummaryTest implements Serializable {
      Vectors.of(7.0),
      Vectors.of(7.0),
 
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
+
+
+     Vectors.of(8.0),
+     Vectors.of(8.0),
+     Vectors.of(8.0),
+     Vectors.of(8.0),
+     Vectors.of(8.0),
+
+     Vectors.of(9.0),
+     Vectors.of(9.0),
+     Vectors.of(9.0),
+     Vectors.of(9.0),
+     Vectors.of(9.0),
+
+     Vectors.of(1.0),
+     Vectors.of(1.0),
+     Vectors.of(1.0),
+     Vectors.of(1.0),
+     Vectors.of(1.0),
+
+     Vectors.of(12),
+     Vectors.of(12),
+     Vectors.of(12),
+     Vectors.of(12),
+     Vectors.of(12),
+
+     Vectors.of(13),
+     Vectors.of(13),
+     Vectors.of(13),
+     Vectors.of(13),
+     Vectors.of(13),
+
+
+     Vectors.of(10.0),
+     Vectors.of(10.0),
+     Vectors.of(10.0),
+     Vectors.of(10.0),
+     Vectors.of(10.0),
+
+     Vectors.of(11.0),
+     Vectors.of(11.0),
+     Vectors.of(11.0),
+     Vectors.of(11.0),
+     Vectors.of(11.0),
 
      Vectors.of(7.0),
      Vectors.of(7.0),
@@ -116,13 +148,16 @@ public class SummaryTest implements Serializable {
      Vectors.of(7.0),
 
      Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+
      Vectors.of(7.0),
      Vectors.of(7.0),
      Vectors.of(7.0),
      Vectors.of(7.0),
      Vectors.of(7.0)
-
-
      );
 
 
@@ -141,7 +176,7 @@ public class SummaryTest implements Serializable {
     }, null);
     Summarizer sr = new Summarizer();
     Summary s = sr.build(elems).getValue();
-    assertEquals(s.getStats(0).remedian(), 7, 0.01);
+    assertEquals(7, s.getStats(0).remedian(), 2);
   }
   
   @Test
