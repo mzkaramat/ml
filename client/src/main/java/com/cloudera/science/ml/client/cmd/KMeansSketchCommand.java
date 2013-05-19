@@ -53,7 +53,7 @@ public class KMeansSketchCommand implements Command {
   private int numIterations = 5;
   
   @Parameter(names = "--points-per-iteration", required=true,
-      description = "The The number of sample points to select on each iteration")
+      description = "The number of sample points to select on each iteration")
   private int samplesPerIteration;
 
   @Parameter(names = "--output-file", required=true,
