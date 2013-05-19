@@ -32,7 +32,7 @@ client/bin/ml summary --input-paths kddcup.data_10_percent --format text --heade
 #
 # The normalize command runs a single map-only job every time it is called.
 client/bin/ml normalize --input-paths kddcup.data_10_percent --format text --summary-file examples/kdd99/s.json \
-  --transform Z --output-path kdd99 --output-type avro --id-column category
+  --transform Z --output-path kdd99 --output-type avro --id-column category --compress
 
 # Processes the normalized vectors and runs a series of MapReduce jobs over the data that are designed to construct a good
 # set of sample points to use as the input to a locally run k-means clustering algorithm. The implementation of this algorithm
@@ -58,7 +58,8 @@ client/bin/ml ksketch --input-paths kdd99 --format avro --points-per-iteration 5
 # This command does not run on Hadoop at all, all of the computations take place on the client machine. The goal is to
 # allow a data scientist to experiment with multiple values of K and multiple clusterings without requiring them to run
 # additional MapReduce jobs. That said, performing these calculations can be very compute-intensive, so you may want to
-# run this command on a more powerful machine.
+# run this command on a more powerful machine. Note that we use the --num-threads option to parallelize the computations
+# across multiple cores on the client machine in order to improve the runtime.
 #
 # If you used multiple folds in the ksketch command, the kmeans command will use them to create both 'test' and 'train'
 # clusterings over the different folds and evaluate the stability of the resulting cluster assignments and print out
@@ -76,11 +77,11 @@ client/bin/ml ksketch --input-paths kdd99 --format avro --points-per-iteration 5
 # Finally, you can use the --best-of parameter to perform multiple iterations of k-means++ with different starting points for
 # each of your values of K in the --clusters argument.
 #
-# In my runs, I found that K = 20 had the best balance of cost and stability, which makes sense, given that there are 23 different
-# kinds of intrusion events in my sample dataset. Values of K > 20 tend to have lower cost but are less stable (points from the
-# same cluster in the test data are in different clusters in the training data), whereas K < 20 has higher costs and only marginally
-# more stability than the K = 20 clustering.
-client/bin/ml kmeans --input-file wc.avro --centers-file centers.avro --seed 19 --clusters 1,10,20,30,40,50 --best-of 2
+# In my runs, I found that K = 25 had the best balance of cost and stability, which makes sense, given that there are 23 different
+# kinds of intrusion events in my sample dataset. Values of K > 25 tend to have lower cost but are less stable (points from the
+# same cluster in the test data are in different clusters in the training data), whereas K < 25 has higher costs and only marginally
+# more stability than the K = 25 clustering.
+client/bin/ml kmeans --input-file wc.avro --centers-file centers.avro --seed 19 --clusters 1,10,25,35,45 --best-of 2 --num-threads 4
 
 # Take the output centers created by the kmeans command and apply them to input data in order to analyze how points were
 # assigned to different clusters. The output of this command is a CSV file with four fields:
