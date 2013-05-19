@@ -56,7 +56,7 @@ public class Crossfold implements Serializable {
   public <T> PCollection<Pair<Integer, T>> apply(PCollection<T> pcollect) {
     PTypeFamily ptf = pcollect.getTypeFamily();
     PType<Pair<Integer, T>> pt = ptf.pairs(ptf.ints(), pcollect.getPType());
-    return pcollect.parallelDo("apply", new MapFn<T, Pair<Integer, T>>() {
+    return pcollect.parallelDo("crossfold", new MapFn<T, Pair<Integer, T>>() {
       private transient Random rand;
       
       @Override

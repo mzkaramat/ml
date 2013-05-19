@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.crunch.Aggregator;
 import org.apache.crunch.DoFn;
 import org.apache.crunch.Emitter;
@@ -69,6 +71,8 @@ import com.google.common.collect.Lists;
  */
 public class KMeansParallel {
 
+  private static final Log LOG = LogFactory.getLog(KMeansParallel.class);
+  
   public static final Spec ASSIGNMENT_SPEC = RecordSpec.builder()
       .addString("vector_id")
       .addInt("cluster_id")
@@ -223,8 +227,9 @@ public class KMeansParallel {
         ptf.ints(), ptf.pairs(ptype, ptf.doubles()));
     PCollection<Pair<Integer, V>> folds = crossfold.apply(vecs);
     for (int i = 0; i < numIterations; i++) {
+      LOG.info(String.format("Running iteration %d of k-means|| initialization procedure", i + 1));
       ScoringFn<V> scoringFn = new ScoringFn<V>(centers);
-      PTable<Integer, Pair<V, Double>> scores = folds.parallelDo(scoringFn, ptt);
+      PTable<Integer, Pair<V, Double>> scores = folds.parallelDo("computeDistances", scoringFn, ptt);
       PTable<Integer, V> sample = ReservoirSampling.groupedWeightedSample(
           scores, samplesPerIteration, random);
       updateCenters(sample.materialize(), centers);
@@ -260,6 +265,7 @@ public class KMeansParallel {
   
   private static <V extends Vector> List<List<Weighted<Vector>>> getWeightedVectors(
       PCollection<Pair<Integer, V>> folds, CentersIndex centers) {
+    LOG.info("Computing the weight of each candidate center");
     List<List<Long>> indexWeights = getCountsOfClosest(folds, centers).getValue();
     return centers.getWeightedVectors(indexWeights); 
   }
