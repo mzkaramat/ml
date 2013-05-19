@@ -28,10 +28,11 @@ import com.google.common.collect.Sets;
 public class Summary implements Serializable {
 
   private List<SummaryStats> stats = Lists.newArrayList();
-  private Spec spec;
   private long recordCount;
   private int fieldCount;
-  
+
+  private transient Spec spec;
+
   public Summary() {}
   
   public Summary(long recordCount, int fieldCount, List<SummaryStats> stats) {
