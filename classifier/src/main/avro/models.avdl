@@ -1,0 +1,46 @@
+/**
+ * Copyright (c) 2013, Cloudera, Inc. All Rights Reserved.
+ *
+ * Cloudera, Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"). You may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * This software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for
+ * the specific language governing permissions and limitations under the
+ * License.
+ */
+@namespace("com.cloudera.science.ml.classifier.avro")
+protocol MLClassifiers {
+  import idl "../../../../core/src/main/avro/mltypes.avdl";
+
+  enum MLClassifierLink { LINEAR, LOGISTIC }
+
+  record MLClassifier {
+    MLClassifierLink link;
+    com.cloudera.science.ml.avro.MLVector weights;
+  }
+
+  record MLLearnerParams {
+    double lambda;
+    string etaUpdate; // cls.getName() of the EtaUpdate strategy used for this run
+    boolean pegasos;
+    double l1Radius;
+    int l1Iterations;
+  }
+
+  record MLClassifierRun {
+    int fold;
+    int partition;
+    MLLearnerParams params;
+    MLClassifier classifier;
+  }
+ 
+  record MLClassifierRuns {
+    long crossfoldSeed;
+    array<MLClassifierRun> runs;
+    // TODO: partition strategy, record -> labeledvector conversion info
+  }
+}
