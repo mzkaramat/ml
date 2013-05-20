@@ -15,6 +15,7 @@
 package com.cloudera.science.ml.client;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -35,12 +36,15 @@ import com.cloudera.science.ml.client.cmd.PivotCommand;
 import com.cloudera.science.ml.client.cmd.SampleCommand;
 import com.cloudera.science.ml.client.cmd.ShowVecCommand;
 import com.cloudera.science.ml.client.cmd.SummaryCommand;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 
 public class Main extends Configured implements Tool {
   
   private JCommander jc;
   private Help help = new Help();
+  
+  private static Set<String> HELP_ARGS = ImmutableSet.of("-h", "-help", "--help", "help");
   
   private static final Map<String, Command> COMMANDS = ImmutableSortedMap.<String, Command>naturalOrder()
       .put("header", new GetHeaderCommand())
@@ -57,7 +61,8 @@ public class Main extends Configured implements Tool {
   
   public Main() {
     jc = new JCommander(this);
-    jc.addCommand("help", help, "-help", "--help");
+    jc.setProgramName("ml");
+    jc.addCommand("help", help, "-h", "-help", "--help");
     for (Map.Entry<String, Command> e : COMMANDS.entrySet()) {
       jc.addCommand(e.getKey(), e.getValue());
     }
@@ -65,10 +70,37 @@ public class Main extends Configured implements Tool {
   
   @Override
   public int run(String[] args) throws Exception {
+    if (args.length == 0) {
+      help.usage(jc, COMMANDS);
+      return 1;
+    }
+    
     try {
       jc.parse(args);
     } catch (ParameterException pe) {
-      System.err.println(pe.getMessage());
+      boolean helped = false;
+      String cmd = jc.getParsedCommand();
+      if (COMMANDS.containsKey(cmd)) {
+        if (args.length == 1) { // i.e., just the command
+          jc.usage(cmd);
+          helped = true;
+        } else {
+          for (String arg : args) {
+            if (HELP_ARGS.contains(arg)) {
+              jc.usage(cmd);
+              helped = true;
+              break;
+            }
+          }
+        }
+        if (!helped) {
+          System.err.println(pe.getMessage());
+        }
+      } else {
+        System.err.println(
+            String.format("Did not recognize command '%s'. Type 'help' to get a list of all commands.",
+                cmd));
+      }
       return 1;
     }
     
