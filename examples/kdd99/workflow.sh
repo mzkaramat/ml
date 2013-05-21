@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Summarize (the 10% subset of) the kdd99 data set. This should be the first step in any analysis you do using ML: the
-# summary file contains information on the distribution of all of the numerical and categorical variables in your dataset,
-# and this summary information is required to configure the MapReduce jobs run by the other tools.
+# Summarize (the 10% subset of) the kdd99 data set, available from http://kdd.ics.uci.edu/databases/kddcup99/kddcup99.html.
+# This should be the first step in any analysis you do using ML: the summary file contains information on the distribution
+# of all of the numerical and categorical variables in your dataset, and this summary information is required to configure
+# the MapReduce jobs run by the other tools.
 #
 # ML is designed to work with CSV-style data as well as Vectors (stored either as Mahout's VectorWritables in SequenceFiles
 # or using our own MLVector Avro format). By convention, commandline arguments that end in "path" or "paths" refer to data
