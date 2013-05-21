@@ -67,7 +67,8 @@ client/bin/ml ksketch --input-paths kdd99 --format avro --points-per-iteration 5
 # modified version of the prediction strength calculation described in "Cluster Validation by Prediction Strength" by
 # Tibshirani et al. (2005); 'StableClusters', which is the fraction of the K clusters that were deemed stable by the
 # prediction strength algorithm; and 'StablePoints', which is the fraction of the total points in the test set that belonged
-# to a stable cluster.
+# to a stable cluster. These statistics will also be written to the local file specified with the --eval-stats-file argument,
+# or to the file 'kmeans_stats.csv' by default.
 #
 # For small values of K on well-clustered data, you should aim to use the largest value of K whose prediction strength exceeds
 # 0.8. For larger values of K on data that is not well-clustered, you will have more small clusters that tend to be less stable,
@@ -81,7 +82,8 @@ client/bin/ml ksketch --input-paths kdd99 --format avro --points-per-iteration 5
 # kinds of intrusion events in my sample dataset. Values of K > 25 tend to have lower cost but are less stable (points from the
 # same cluster in the test data are in different clusters in the training data), whereas K < 25 has higher costs and only marginally
 # more stability than the K = 25 clustering.
-client/bin/ml kmeans --input-file wc.avro --centers-file centers.avro --seed 19 --clusters 1,10,25,35,45 --best-of 2 --num-threads 4
+client/bin/ml kmeans --input-file wc.avro --centers-file centers.avro --seed 19 --clusters 1,10,25,35,45 --best-of 2 \
+  --num-threads 4 --eval-stats-file kmeans_stats.csv
 
 # Take the output centers created by the kmeans command and apply them to input data in order to analyze how points were
 # assigned to different clusters. The output of this command is a CSV file with four fields:
