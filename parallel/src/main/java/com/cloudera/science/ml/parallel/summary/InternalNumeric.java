@@ -17,11 +17,7 @@ package com.cloudera.science.ml.parallel.summary;
 import com.cloudera.science.ml.core.summary.Numeric;
 import org.apache.crunch.Pair;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 class InternalNumeric {
   private double min = Double.POSITIVE_INFINITY;
@@ -35,9 +31,10 @@ class InternalNumeric {
   private int[] cursor;
   private int medianK;
 
-  InternalNumeric(){
+  InternalNumeric() {
     this(11, 10);
   }
+
   private InternalNumeric(int b, int k) {
     this.b = b;
     medianArray = new double[k][b];
@@ -68,19 +65,23 @@ class InternalNumeric {
       if (d > max) {
         max = d;
       }
-      medianArray[0][cursor[0]++] = d;
-      int i = 1;
-      while (i < medianArray.length - 1) {
-        if (cursor[i - 1] == b) {
-          medianArray[i][cursor[i]] = computeFullArrayMedian(medianArray[i - 1]);
-          cursor[i - 1] = 0;
-          cursor[i]++;
-          if (medianK < i) {
-            medianK = i;
-          }
-        } else break;
-        i++;
-      }
+      updateMedian(d);
+    }
+  }
+
+  private void updateMedian(double d) {
+    medianArray[0][cursor[0]++] = d;
+    int i = 1;
+    while (i < medianArray.length - 1) {
+      if (cursor[i - 1] == b) {
+        medianArray[i][cursor[i]] = computeFullArrayMedian(medianArray[i - 1]);
+        cursor[i - 1] = 0;
+        cursor[i]++;
+        if (medianK < i) {
+          medianK = i;
+        }
+      } else break;
+      i++;
     }
   }
 
@@ -92,6 +93,20 @@ class InternalNumeric {
   }
 
   private double weightedMedian() {
+    List<Pair<Double, Double>> valueList = weightedList();
+
+
+    double sumWeights = sumOfSeconds(valueList);
+    double s = sumWeights;
+    int j = 0;
+    while (s > sumWeights / 2) {
+      s -= valueList.get(j++).second();
+    }
+    return valueList.get(j - 1).first();
+
+  }
+
+  private List<Pair<Double, Double>> weightedList() {
     List<Pair<Double, Double>> valueList = new ArrayList<Pair<Double, Double>>();
 
     for (int i = 0; i <= medianK; i++) {
@@ -106,15 +121,7 @@ class InternalNumeric {
         return doubleDoublePair.first().compareTo(doubleDoublePair2.first());
       }
     });
-
-    double sumWeights = sumOfSeconds(valueList);
-    double s = sumWeights;
-    int j = 0;
-    while (s > sumWeights / 2) {
-      s -= valueList.get(j++).second();
-    }
-    return valueList.get(j - 1).first();
-
+    return valueList;
   }
 
   private double sumOfSeconds(List<Pair<Double, Double>> list) {
@@ -124,6 +131,7 @@ class InternalNumeric {
     }
     return sum;
   }
+
 
   private double currentMedian() {
     if (cursor[medianK] == 0) {
@@ -145,8 +153,13 @@ class InternalNumeric {
     if (other.max > max) {
       max = other.max;
     }
-    medianArray = other.medianArray;
-    medianK = other.medianK;
-    cursor = other.cursor;
+    List<Pair<Double, Double>> valueList = other.weightedList();
+    for (Pair<Double, Double> weightedValue : valueList) {
+      double value = weightedValue.first();
+      double weight = weightedValue.second();
+      for (int i = 0; i < weight; i++) {
+        this.updateMedian(value);
+      }
+    }
   }
 }

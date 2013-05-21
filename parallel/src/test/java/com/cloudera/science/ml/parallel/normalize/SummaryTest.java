@@ -90,6 +90,23 @@ public class SummaryTest implements Serializable {
      Vectors.of(7.0),
      Vectors.of(7.0),
 
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
+     Vectors.of(7.0),
 
 
      Vectors.of(8.0),
@@ -133,31 +150,9 @@ public class SummaryTest implements Serializable {
      Vectors.of(11.0),
      Vectors.of(11.0),
      Vectors.of(11.0),
-     Vectors.of(11.0),
+     Vectors.of(11.0)
 
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
 
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0)
      );
 
 
@@ -176,7 +171,10 @@ public class SummaryTest implements Serializable {
     }, null);
     Summarizer sr = new Summarizer();
     Summary s = sr.build(elems).getValue();
-    assertEquals(7, s.getStats(0).remedian(), 2);
+    double remedian = s.getStats(0).remedian();
+    System.out.println(remedian);
+    assertEquals(7, remedian, 2);
+
   }
   
   @Test
