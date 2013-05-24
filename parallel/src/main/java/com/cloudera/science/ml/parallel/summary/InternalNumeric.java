@@ -98,16 +98,15 @@ class InternalNumeric {
 
   private double weightedMedian() {
     List<Pair<Double, Double>> valueList = weightedList();
-
-
     double sumWeights = sumOfSeconds(valueList);
     double s = sumWeights;
     int j = 0;
+    System.out.println(valueList);
+
     while (s > sumWeights / 2) {
       s -= valueList.get(j++).second();
     }
-    return valueList.get(j - 1).first();
-
+    return valueList.get(j-1).first();
   }
 
   private List<Pair<Double, Double>> weightedList() {
@@ -119,10 +118,15 @@ class InternalNumeric {
         valueList.add(new Pair<Double, Double>(medianArray[i][j], weight));
       }
     }
+
     Collections.sort(valueList, new Comparator<Pair<Double, Double>>() {
       @Override
       public int compare(Pair<Double, Double> doubleDoublePair, Pair<Double, Double> doubleDoublePair2) {
-        return doubleDoublePair.first().compareTo(doubleDoublePair2.first());
+        int c = doubleDoublePair.first().compareTo(doubleDoublePair2.first());
+        if (c == 0) {
+          return doubleDoublePair.second().compareTo(doubleDoublePair2.second());
+        }
+        return c;
       }
     });
     return valueList;
