@@ -39,7 +39,7 @@ public class GetHeaderCommand implements Command {
   
   @Override
   public int execute(Configuration conf) throws IOException {
-    HCatalogSpec spec = HCatalog.getSpec("default", table);
+    HCatalogSpec spec = HCatalog.getSpec(HCatalog.getDbName(table), HCatalog.getTableName(table));
     Files.write(spec.toHeader().toString(), new File(headerFile), Charsets.UTF_8);
     return 0;
   }

@@ -99,10 +99,10 @@ public final class ReservoirSampling {
     PType<T> ttype = (PType<T>) input.getPTableType().getValueType().getSubTypes().get(0);
     PTableType<K, Pair<Double, T>> ptt = ptf.tableOf(keyType, ptf.pairs(ptf.doubles(), ttype));
     
-    return input.parallelDo(new SampleFn<K, T, N>(sampleSize, random, ttype), ptt)
+    return input.parallelDo("mapSample", new SampleFn<K, T, N>(sampleSize, random, ttype), ptt)
         .groupByKey()
         .combineValues(new WRSCombineFn<K, T>(sampleSize, ttype))
-        .parallelDo(new MapFn<Pair<K, Pair<Double, T>>, Pair<K, T>>() {
+        .parallelDo("reduceSample", new MapFn<Pair<K, Pair<Double, T>>, Pair<K, T>>() {
           @Override
           public Pair<K, T> map(Pair<K, Pair<Double, T>> p) {
             return Pair.of(p.first(), p.second().second());

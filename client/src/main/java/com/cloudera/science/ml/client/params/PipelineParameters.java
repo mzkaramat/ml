@@ -55,12 +55,14 @@ public class PipelineParameters {
       return MemPipeline.getInstance();
     }
     if (compress) {
-      if (NativeCodeLoader.buildSupportsSnappy()) {
-        conf.setBoolean("mapred.output.compress", true);
-        conf.set("mapred.output.compression.type", "BLOCK");
-        conf.setClass("mapred.output.compression.codec", SnappyCodec.class, CompressionCodec.class);
-      } else {
-        LOG.warn("Snappy compression disabled in this environment, no compression enabled");
+      conf.setBoolean("mapred.output.compress", true);
+      conf.set("mapred.output.compression.type", "BLOCK");
+      try {
+        if (NativeCodeLoader.buildSupportsSnappy()) {
+          conf.setClass("mapred.output.compression.codec", SnappyCodec.class, CompressionCodec.class);
+        }
+      } catch (UnsatisfiedLinkError e) {
+        LOG.warn("Snappy compression disabled in this environment, using default codec");
       }
     }
     return new MRPipeline(jarClass, conf);
