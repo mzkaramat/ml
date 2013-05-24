@@ -17,7 +17,11 @@ package com.cloudera.science.ml.parallel.summary;
 import com.cloudera.science.ml.core.summary.Numeric;
 import org.apache.crunch.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 class InternalNumeric {
   private double min = Double.POSITIVE_INFINITY;

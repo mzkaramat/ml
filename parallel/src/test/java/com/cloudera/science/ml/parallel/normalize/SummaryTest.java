@@ -171,9 +171,7 @@ public class SummaryTest implements Serializable {
     }, null);
     Summarizer sr = new Summarizer();
     Summary s = sr.build(elems).getValue();
-    double remedian = s.getStats(0).remedian();
-    System.out.println(remedian);
-    assertEquals(7, remedian, 2);
+    assertEquals(7, s.getStats(0).remedian(), 2);
 
   }
   
