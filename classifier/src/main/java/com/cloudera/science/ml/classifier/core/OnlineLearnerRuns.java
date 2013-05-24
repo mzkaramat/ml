@@ -12,32 +12,31 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
+
 package com.cloudera.science.ml.classifier.core;
 
-import org.apache.mahout.math.Vector;
+import java.util.Collection;
 
-
-
-public class LogRegClassifier implements Classifier {
-  private WeightVector weights;
+public class OnlineLearnerRuns {
+  private Collection<OnlineLearnerRun> runs;
+  private long seed;
+  private int numFolds;
   
-  public LogRegClassifier(WeightVector weights) {
-    this.weights = weights;
+  public OnlineLearnerRuns(Collection<OnlineLearnerRun> runs, long seed, int numFolds) {
+    this.runs = runs;
+    this.seed = seed;
+    this.numFolds = numFolds;
   }
   
-  @Override
-  public Double apply(Vector features) {
-    double expOdds = Math.exp(weights.innerProduct(features));
-    return expOdds / (1.0 + expOdds);
+  public long getSeed() {
+    return seed;
   }
   
-  @Override
-  public WeightVector getWeights() {
-    return weights;
+  public int getNumFolds() {
+    return numFolds;
   }
   
-  @Override
-  public String toString() {
-    return "LogRegClassifier(" + weights.toString() + ")";
+  public Collection<OnlineLearnerRun> getRuns() {
+    return runs;
   }
 }

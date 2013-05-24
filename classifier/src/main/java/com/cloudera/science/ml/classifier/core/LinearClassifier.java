@@ -31,6 +31,11 @@ public class LinearClassifier implements Classifier {
   }
   
   @Override
+  public WeightVector getWeights() {
+    return weights;
+  }
+  
+  @Override
   public String toString() {
     return "LinearClassifier(" + weights.toString() + ")";
   }

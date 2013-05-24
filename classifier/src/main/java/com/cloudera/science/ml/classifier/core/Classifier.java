@@ -21,4 +21,5 @@ import org.apache.mahout.math.Vector;
 import com.google.common.base.Function;
 
 public interface Classifier extends Function<Vector, Double>, Serializable {
+  public WeightVector getWeights();
 }

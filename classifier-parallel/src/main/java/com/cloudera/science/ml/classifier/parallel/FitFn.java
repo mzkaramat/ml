@@ -12,17 +12,15 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.classifier.core;
 
-import java.io.Serializable;
+package com.cloudera.science.ml.classifier.parallel;
 
+import org.apache.crunch.DoFn;
+import org.apache.crunch.Pair;
 
+import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
+import com.cloudera.science.ml.core.vectors.LabeledVector;
 
-/**
- *
- */
-public interface OnlineLearner extends Serializable {
-  
-  public Classifier getClassifier();
-  public OnlineLearnerParams getParams();
+public abstract class FitFn extends DoFn<Pair<Pair<Integer, Integer>, Iterable<Pair<Integer, LabeledVector>>>, OnlineLearnerRun> {
+
 }

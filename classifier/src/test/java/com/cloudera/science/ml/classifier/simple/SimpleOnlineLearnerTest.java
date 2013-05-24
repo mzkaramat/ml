@@ -18,7 +18,7 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.cloudera.science.ml.classifier.core.OnlineLearner;
+import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
 import com.cloudera.science.ml.core.vectors.Vectors;
 
@@ -27,7 +27,7 @@ import com.cloudera.science.ml.core.vectors.Vectors;
  */
 public class SimpleOnlineLearnerTest {
 
-  private OnlineLearner.Params baseParams = OnlineLearner.Params.builder(4).build();
+  private OnlineLearnerParams baseParams = OnlineLearnerParams.builder().build();
   private Random r = new Random(1729L);
   
   @Test

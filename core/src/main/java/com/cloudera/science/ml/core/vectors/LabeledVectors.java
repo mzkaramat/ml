@@ -12,11 +12,11 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.classifiers.parallel;
 
-/**
- *
- */
-public class ParallelLearner {
+package com.cloudera.science.ml.core.vectors;
 
+public class LabeledVectors {
+  public static LabeledVector of(double label, double... values) {
+    return new LabeledVector(Vectors.of(values), label);
+  }
 }

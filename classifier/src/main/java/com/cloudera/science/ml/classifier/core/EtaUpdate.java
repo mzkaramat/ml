@@ -22,24 +22,30 @@ import java.io.Serializable;
 public interface EtaUpdate extends Serializable {
   public double compute(double lambda, int numObservations);
   
-  public static final EtaUpdate CONSTANT = new EtaUpdate() {
+  public static class ConstantEtaUpdate implements EtaUpdate {
     @Override
     public double compute(double lambda, int numObservations) {
       return 0.02;
     }
   };
   
-  public static final EtaUpdate BASIC_ETA = new EtaUpdate() {
+  public static final EtaUpdate CONSTANT = new ConstantEtaUpdate();
+  
+  public static class BasicEtaUpdate implements EtaUpdate {
     @Override
     public double compute(double lambda, int numObservations) {
       return  10.0 / (numObservations + 10.0);
     }
   };
   
-  public static final EtaUpdate PEGASOS_ETA = new EtaUpdate() {
+  public static final EtaUpdate BASIC_ETA = new BasicEtaUpdate();
+  
+  public static class PegasosEtaUpdate implements EtaUpdate {
     @Override
     public double compute(double lambda, int numObservations) {
       return  1.0 / (lambda * numObservations);
     }
   };
+  
+  public static final EtaUpdate PEGASOS_ETA = new PegasosEtaUpdate();
 }

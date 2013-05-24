@@ -15,8 +15,8 @@
 package com.cloudera.science.ml.classifier.rank;
 
 import com.cloudera.science.ml.classifier.core.Classifier;
-import com.cloudera.science.ml.classifier.core.OnlineLearner;
 import com.cloudera.science.ml.classifier.core.LogRegClassifier;
+import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.classifier.core.WeightVector;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
 
@@ -25,13 +25,12 @@ import com.cloudera.science.ml.core.vectors.LabeledVector;
  */
 public class LogRegRankOnlineLearner implements RankOnlineLearner {
 
-  private final WeightVector weights;
+  private WeightVector weights;
   private final LogRegClassifier classifer;
-  private final OnlineLearner.Params params;
+  private final OnlineLearnerParams params;
   private int iteration;
   
-  public LogRegRankOnlineLearner(OnlineLearner.Params params) {
-    this.weights = params.createWeights();
+  public LogRegRankOnlineLearner(OnlineLearnerParams params) {
     this.classifer = new LogRegClassifier(weights);
     this.params = params;
     this.iteration = 0;
@@ -41,9 +40,17 @@ public class LogRegRankOnlineLearner implements RankOnlineLearner {
   public Classifier getClassifier() {
     return classifer;
   }
+  
+  @Override
+  public OnlineLearnerParams getParams() {
+    return params;
+  }
 
   @Override
   public boolean update(LabeledVector a, LabeledVector b) {
+    if (weights == null) {
+      weights = new WeightVector(a.size());
+    }
     iteration++;
     double eta = params.eta(iteration);
     double y = (a.getLabel() > b.getLabel()) ? 1.0 :

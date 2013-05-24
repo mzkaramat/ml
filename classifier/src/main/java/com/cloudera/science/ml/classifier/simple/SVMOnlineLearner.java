@@ -15,8 +15,8 @@
 package com.cloudera.science.ml.classifier.simple;
 
 import com.cloudera.science.ml.classifier.core.Classifier;
-import com.cloudera.science.ml.classifier.core.OnlineLearner;
 import com.cloudera.science.ml.classifier.core.LinearClassifier;
+import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.classifier.core.WeightVector;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
 
@@ -24,14 +24,12 @@ import com.cloudera.science.ml.core.vectors.LabeledVector;
  *
  */
 public class SVMOnlineLearner implements SimpleOnlineLearner {
-  private final WeightVector weights;
-  private final LinearClassifier classifier;
-  private final OnlineLearner.Params params;
+  private WeightVector weights;
+  private LinearClassifier classifier;
+  private final OnlineLearnerParams params;
   private int iteration;
   
-  public SVMOnlineLearner(OnlineLearner.Params params) {
-    this.weights = params.createWeights();
-    this.classifier = new LinearClassifier(weights);
+  public SVMOnlineLearner(OnlineLearnerParams params) {
     this.params = params;
     this.iteration = 0;
   }
@@ -40,9 +38,18 @@ public class SVMOnlineLearner implements SimpleOnlineLearner {
   public Classifier getClassifier() {
     return classifier;
   }
+  
+  @Override
+  public OnlineLearnerParams getParams() {
+    return params;
+  }
 
   @Override
   public boolean update(LabeledVector x) {
+    if (weights == null) {
+      weights = new WeightVector(x.size());
+      classifier = new LinearClassifier(weights);
+    }
     iteration++;
     double eta = params.eta(iteration);
     double p = x.getLabel() * weights.innerProduct(x);    

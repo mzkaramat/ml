@@ -15,8 +15,8 @@
 package com.cloudera.science.ml.classifier.simple;
 
 import com.cloudera.science.ml.classifier.core.Classifier;
-import com.cloudera.science.ml.classifier.core.OnlineLearner;
 import com.cloudera.science.ml.classifier.core.LogRegClassifier;
+import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.classifier.core.WeightVector;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
 
@@ -25,14 +25,12 @@ import com.cloudera.science.ml.core.vectors.LabeledVector;
  */
 public class LogRegOnlineLearner implements SimpleOnlineLearner {
 
-  private final WeightVector weights;
-  private final LogRegClassifier classifier;
-  private final OnlineLearner.Params params;
+  private WeightVector weights;
+  private LogRegClassifier classifier;
+  private final OnlineLearnerParams params;
   private int iteration;
   
-  public LogRegOnlineLearner(OnlineLearner.Params params) {
-    this.weights = params.createWeights();
-    this.classifier = new LogRegClassifier(weights);
+  public LogRegOnlineLearner(OnlineLearnerParams params) {
     this.params = params;
     this.iteration = 0;
   }
@@ -41,9 +39,18 @@ public class LogRegOnlineLearner implements SimpleOnlineLearner {
   public Classifier getClassifier() {
     return classifier;
   }
+  
+  @Override
+  public OnlineLearnerParams getParams() {
+    return params;
+  }
 
   @Override
   public boolean update(LabeledVector x) {
+    if (weights == null) {
+      weights = new WeightVector(x.size());
+      classifier = new LogRegClassifier(weights);
+    }
     iteration++;
     double eta = params.eta(iteration);
     double loss = x.getLabel() / (1 + Math.exp(x.getLabel() * weights.innerProduct(x)));

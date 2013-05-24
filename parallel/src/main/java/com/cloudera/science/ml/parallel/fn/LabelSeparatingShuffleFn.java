@@ -12,17 +12,19 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.classifier.core;
 
-import java.io.Serializable;
+package com.cloudera.science.ml.parallel.fn;
 
-
+import com.cloudera.science.ml.core.vectors.LabeledVector;
 
 /**
- *
+ * A function that both shuffles inputs and groups them by binary label.
  */
-public interface OnlineLearner extends Serializable {
-  
-  public Classifier getClassifier();
-  public OnlineLearnerParams getParams();
+public class LabelSeparatingShuffleFn extends ShuffleFn<LabeledVector> {
+
+  public LabelSeparatingShuffleFn(Long seed) {
+    super(seed);
+    // TODO Auto-generated constructor stub
+  }
+
 }

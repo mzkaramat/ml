@@ -16,14 +16,12 @@
 protocol MLClassifiers {
   import idl "../../../../core/src/main/avro/mltypes.avdl";
 
-  enum MLClassifierLink { LINEAR, LOGISTIC }
-
   record MLClassifier {
-    MLClassifierLink link;
+    string className;
     com.cloudera.science.ml.avro.MLVector weights;
   }
 
-  record MLLearnerParams {
+  record MLOnlineLearnerParams {
     double lambda;
     string etaUpdate; // cls.getName() of the EtaUpdate strategy used for this run
     boolean pegasos;
@@ -31,16 +29,17 @@ protocol MLClassifiers {
     int l1Iterations;
   }
 
-  record MLClassifierRun {
+  record MLOnlineLearnerRun {
     int fold;
     int partition;
-    MLLearnerParams params;
+    MLOnlineLearnerParams params;
     MLClassifier classifier;
   }
  
-  record MLClassifierRuns {
+  record MLOnlineLearnerRuns {
+    int numFolds;
     long crossfoldSeed;
-    array<MLClassifierRun> runs;
+    array<MLOnlineLearnerRun> runs;
     // TODO: partition strategy, record -> labeledvector conversion info
   }
 }

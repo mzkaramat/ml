@@ -12,41 +12,43 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.classifiers.parallel;
+package com.cloudera.science.ml.classifier.parallel;
 
 import java.util.List;
 
-import org.apache.crunch.DoFn;
 import org.apache.crunch.Emitter;
 import org.apache.crunch.Pair;
 
-import com.cloudera.science.ml.classifier.core.Classifier;
-import com.cloudera.science.ml.classifier.core.OnlineLearner;
+import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
 import com.cloudera.science.ml.classifier.simple.SimpleOnlineLearner;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
 import com.cloudera.science.ml.parallel.base.Pairs;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 
 /**
  *
  */
-public class SimpleFitFn<K, SK> extends DoFn<Pair<K, Iterable<Pair<SK, LabeledVector>>>, Pair<K, List<Classifier>>> {
+public class SimpleFitFn extends FitFn {
+  
+  private List<SimpleOnlineLearner> learners;
+  
+  public SimpleFitFn(List<SimpleOnlineLearner> learners) {
+    this.learners = learners;
+  }
+  
   @Override
-  public void process(Pair<K, Iterable<Pair<SK, LabeledVector>>> in,
-      Emitter<Pair<K, List<Classifier>>> emitter) {
-    List<SimpleOnlineLearner> learners = Lists.newArrayList(); // TODO
+  public void process(Pair<Pair<Integer, Integer>, Iterable<Pair<Integer, LabeledVector>>> in,
+      Emitter<OnlineLearnerRun> emitter) {
     for (LabeledVector obs : Pairs.second(in.second())) {
       for (SimpleOnlineLearner learner : learners) {
         learner.update(obs);
       }
     }
-    emitter.emit(Pair.of(in.first(), Lists.transform(learners, new Function<OnlineLearner, Classifier>() {
-      @Override
-      public Classifier apply(OnlineLearner learner) {
-        return learner.getClassifier();
-      }
-    })));
+    for (SimpleOnlineLearner learner : learners) {
+      int fold = in.first().first();
+      int partition = in.first().second();
+      emitter.emit(new OnlineLearnerRun(learner.getClassifier(), learner.getParams(),
+          fold, partition));
+    }
   } 
 
 }

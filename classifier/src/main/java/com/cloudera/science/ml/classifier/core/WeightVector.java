@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.mahout.math.DenseVector;
 import org.apache.mahout.math.Vector;
 
 import com.cloudera.science.ml.core.vectors.Vectors;
@@ -50,6 +51,11 @@ public class WeightVector implements Serializable {
   public WeightVector(double... weights) {
     this(weights.length);
     this.addVector(Vectors.of(weights), 1.0);
+  }
+  
+  public WeightVector(Vector vec) {
+    this(vec.size());
+    this.addVector(vec, 1.0);
   }
   
   public WeightVector(WeightVector other) {
@@ -220,6 +226,14 @@ public class WeightVector implements Serializable {
       weights[i] *= scale;
     }
     scale = 1.0;
+  }
+  
+  public Vector toVector() {
+    double[] doubleWeights = new double[weights.length];
+    for (int i = 0; i < weights.length; i++) {
+      doubleWeights[i] = weights[i];
+    }
+    return new DenseVector(doubleWeights);
   }
   
   public double getSquaredNorm() { return squaredNorm; }

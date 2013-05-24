@@ -12,17 +12,13 @@
  * the specific language governing permissions and limitations under the
  * License.
  */
-package com.cloudera.science.ml.classifier.core;
+package com.cloudera.science.ml.parallel.distribute;
 
-import java.io.Serializable;
-
-
+import org.apache.crunch.DoFn;
+import org.apache.crunch.Pair;
 
 /**
- *
+ * Takes a dataset and apportions it into possibly overlapping subsets.
  */
-public interface OnlineLearner extends Serializable {
-  
-  public Classifier getClassifier();
-  public OnlineLearnerParams getParams();
+public abstract class DistributeFn<K, V> extends DoFn<Pair<K, V>, Pair<Pair<K, Integer>, V>> {
 }

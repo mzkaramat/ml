@@ -14,6 +14,7 @@
  */
 package com.cloudera.science.ml.classifier.simple;
 
+import com.cloudera.science.ml.classifier.core.Classifier;
 import com.cloudera.science.ml.classifier.core.OnlineLearner;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
 
@@ -21,5 +22,6 @@ import com.cloudera.science.ml.core.vectors.LabeledVector;
  *
  */
 public interface SimpleOnlineLearner extends OnlineLearner {
+  public Classifier getClassifier();
   public boolean update(LabeledVector obs);
 }
