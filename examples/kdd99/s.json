@@ -1,977 +1,791 @@
 {
-  "stats" : [ {
-    "name" : "duration",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 58329.0,
-      "mean" : 47.97930249928647,
-      "stdDev" : 707.7457559928791
+  "stats" : {
+    "0" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 58329.0,
+        "sum" : 2.3702783E7,
+        "sumSq" : 2.48594365213E11
+      },
+      "name" : "duration"
+    },
+    "1" : {
+      "histogram" : {
+        "icmp" : {
+          "id" : 0,
+          "count" : 283602
+        },
+        "tcp" : {
+          "id" : 1,
+          "count" : 190065
+        },
+        "udp" : {
+          "id" : 2,
+          "count" : 20354
+        }
+      },
+      "name" : "protocol_type"
+    },
+    "2" : {
+      "histogram" : {
+        "vmnet" : {
+          "id" : 64,
+          "count" : 106
+        },
+        "ntp_u" : {
+          "id" : 39,
+          "count" : 380
+        },
+        "shell" : {
+          "id" : 49,
+          "count" : 112
+        },
+        "smtp" : {
+          "id" : 50,
+          "count" : 9723
+        },
+        "kshell" : {
+          "id" : 27,
+          "count" : 98
+        },
+        "imap4" : {
+          "id" : 24,
+          "count" : 117
+        },
+        "netbios_ssn" : {
+          "id" : 35,
+          "count" : 107
+        },
+        "urh_i" : {
+          "id" : 60,
+          "count" : 14
+        },
+        "mtp" : {
+          "id" : 31,
+          "count" : 107
+        },
+        "tftp_u" : {
+          "id" : 57,
+          "count" : 1
+        },
+        "uucp" : {
+          "id" : 62,
+          "count" : 106
+        },
+        "nnsp" : {
+          "id" : 37,
+          "count" : 105
+        },
+        "echo" : {
+          "id" : 12,
+          "count" : 112
+        },
+        "ssh" : {
+          "id" : 52,
+          "count" : 105
+        },
+        "tim_i" : {
+          "id" : 58,
+          "count" : 7
+        },
+        "iso_tsap" : {
+          "id" : 25,
+          "count" : 115
+        },
+        "time" : {
+          "id" : 59,
+          "count" : 157
+        },
+        "netbios_ns" : {
+          "id" : 34,
+          "count" : 102
+        },
+        "systat" : {
+          "id" : 55,
+          "count" : 115
+        },
+        "login" : {
+          "id" : 30,
+          "count" : 104
+        },
+        "hostnames" : {
+          "id" : 21,
+          "count" : 104
+        },
+        "efs" : {
+          "id" : 15,
+          "count" : 103
+        },
+        "supdup" : {
+          "id" : 54,
+          "count" : 105
+        },
+        "courier" : {
+          "id" : 5,
+          "count" : 108
+        },
+        "ctf" : {
+          "id" : 7,
+          "count" : 97
+        },
+        "nntp" : {
+          "id" : 38,
+          "count" : 108
+        },
+        "finger" : {
+          "id" : 17,
+          "count" : 670
+        },
+        "ftp_data" : {
+          "id" : 19,
+          "count" : 4721
+        },
+        "red_i" : {
+          "id" : 46,
+          "count" : 1
+        },
+        "ldap" : {
+          "id" : 28,
+          "count" : 101
+        },
+        "http" : {
+          "id" : 22,
+          "count" : 64293
+        },
+        "pm_dump" : {
+          "id" : 41,
+          "count" : 1
+        },
+        "ftp" : {
+          "id" : 18,
+          "count" : 798
+        },
+        "exec" : {
+          "id" : 16,
+          "count" : 99
+        },
+        "klogin" : {
+          "id" : 26,
+          "count" : 106
+        },
+        "netbios_dgm" : {
+          "id" : 33,
+          "count" : 99
+        },
+        "auth" : {
+          "id" : 3,
+          "count" : 328
+        },
+        "other" : {
+          "id" : 40,
+          "count" : 7237
+        },
+        "link" : {
+          "id" : 29,
+          "count" : 102
+        },
+        "X11" : {
+          "id" : 1,
+          "count" : 11
+        },
+        "discard" : {
+          "id" : 9,
+          "count" : 116
+        },
+        "remote_job" : {
+          "id" : 47,
+          "count" : 120
+        },
+        "private" : {
+          "id" : 45,
+          "count" : 110893
+        },
+        "IRC" : {
+          "id" : 0,
+          "count" : 43
+        },
+        "pop_3" : {
+          "id" : 43,
+          "count" : 202
+        },
+        "daytime" : {
+          "id" : 8,
+          "count" : 103
+        },
+        "pop_2" : {
+          "id" : 42,
+          "count" : 101
+        },
+        "gopher" : {
+          "id" : 20,
+          "count" : 117
+        },
+        "sunrpc" : {
+          "id" : 53,
+          "count" : 107
+        },
+        "rje" : {
+          "id" : 48,
+          "count" : 111
+        },
+        "name" : {
+          "id" : 32,
+          "count" : 98
+        },
+        "domain" : {
+          "id" : 10,
+          "count" : 116
+        },
+        "uucp_path" : {
+          "id" : 63,
+          "count" : 106
+        },
+        "Z39_50" : {
+          "id" : 2,
+          "count" : 92
+        },
+        "domain_u" : {
+          "id" : 11,
+          "count" : 5863
+        },
+        "csnet_ns" : {
+          "id" : 6,
+          "count" : 126
+        },
+        "eco_i" : {
+          "id" : 13,
+          "count" : 1642
+        },
+        "whois" : {
+          "id" : 65,
+          "count" : 110
+        },
+        "bgp" : {
+          "id" : 4,
+          "count" : 106
+        },
+        "sql_net" : {
+          "id" : 51,
+          "count" : 110
+        },
+        "printer" : {
+          "id" : 44,
+          "count" : 109
+        },
+        "ecr_i" : {
+          "id" : 14,
+          "count" : 281400
+        },
+        "telnet" : {
+          "id" : 56,
+          "count" : 513
+        },
+        "urp_i" : {
+          "id" : 61,
+          "count" : 538
+        },
+        "netstat" : {
+          "id" : 36,
+          "count" : 95
+        },
+        "http_443" : {
+          "id" : 23,
+          "count" : 99
+        }
+      },
+      "name" : "service"
+    },
+    "3" : {
+      "histogram" : {
+        "RSTR" : {
+          "id" : 4,
+          "count" : 903
+        },
+        "S3" : {
+          "id" : 8,
+          "count" : 10
+        },
+        "SF" : {
+          "id" : 9,
+          "count" : 378440
+        },
+        "RSTO" : {
+          "id" : 2,
+          "count" : 579
+        },
+        "SH" : {
+          "id" : 10,
+          "count" : 107
+        },
+        "OTH" : {
+          "id" : 0,
+          "count" : 8
+        },
+        "S2" : {
+          "id" : 7,
+          "count" : 24
+        },
+        "RSTOS0" : {
+          "id" : 3,
+          "count" : 11
+        },
+        "S1" : {
+          "id" : 6,
+          "count" : 57
+        },
+        "REJ" : {
+          "id" : 1,
+          "count" : 26875
+        },
+        "S0" : {
+          "id" : 5,
+          "count" : 87007
+        }
+      },
+      "name" : "flag"
+    },
+    "4" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 6.9337564E8,
+        "sum" : 1.494715024E9,
+        "sumSq" : 4.8245211145583987E17
+      },
+      "name" : "src_bytes"
+    },
+    "5" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 5155468.0,
+        "sum" : 4.29073257E8,
+        "sumSq" : 5.39665488142985E14
+      },
+      "name" : "dst_bytes"
+    },
+    "6" : {
+      "histogram" : {
+        "1" : {
+          "id" : 1,
+          "count" : 22
+        },
+        "0" : {
+          "id" : 0,
+          "count" : 493999
+        }
+      },
+      "name" : "land"
+    },
+    "7" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 3.0,
+        "sum" : 3178.0,
+        "sumSq" : 8998.0
+      },
+      "name" : "wrong_fragment"
+    },
+    "8" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 3.0,
+        "sum" : 7.0,
+        "sumSq" : 15.0
+      },
+      "name" : "urgent"
+    },
+    "9" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 30.0,
+        "sum" : 17053.0,
+        "sumSq" : 302773.0
+      },
+      "name" : "hot"
+    },
+    "10" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 5.0,
+        "sum" : 75.0,
+        "sumSq" : 119.0
+      },
+      "name" : "num_failed_logins"
+    },
+    "11" : {
+      "histogram" : {
+        "1" : {
+          "id" : 1,
+          "count" : 73237
+        },
+        "0" : {
+          "id" : 0,
+          "count" : 420784
+        }
+      },
+      "name" : "logged_in"
+    },
+    "12" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 884.0,
+        "sum" : 5045.0,
+        "sumSq" : 1597701.0
+      },
+      "name" : "num_compromised"
+    },
+    "13" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 55.0,
+        "sumSq" : 55.0
+      },
+      "name" : "root_shell"
+    },
+    "14" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 2.0,
+        "sum" : 18.0,
+        "sumSq" : 30.0
+      },
+      "name" : "su_attempted"
+    },
+    "15" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 993.0,
+        "sum" : 5608.0,
+        "sumSq" : 2001356.0
+      },
+      "name" : "num_root"
+    },
+    "16" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 28.0,
+        "sum" : 535.0,
+        "sumSq" : 4593.0
+      },
+      "name" : "num_file_creations"
+    },
+    "17" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 2.0,
+        "sum" : 54.0,
+        "sumSq" : 60.0
+      },
+      "name" : "num_shells"
+    },
+    "18" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 8.0,
+        "sum" : 498.0,
+        "sumSq" : 658.0
+      },
+      "name" : "num_access_files"
+    },
+    "19" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 0.0,
+        "sum" : 0.0,
+        "sumSq" : 0.0
+      },
+      "name" : "num_outbound_cmds"
+    },
+    "20" : {
+      "histogram" : {
+        "0" : {
+          "id" : 0,
+          "count" : 494021
+        }
+      },
+      "name" : "is_host_login"
+    },
+    "21" : {
+      "histogram" : {
+        "1" : {
+          "id" : 1,
+          "count" : 685
+        },
+        "0" : {
+          "id" : 0,
+          "count" : 493336
+        }
+      },
+      "name" : "is_guest_login"
+    },
+    "22" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 511.0,
+        "sum" : 1.64156109E8,
+        "sumSq" : 7.6990953363E10
+      },
+      "name" : "count"
+    },
+    "23" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 511.0,
+        "sum" : 1.4470199E8,
+        "sumSq" : 7.2358790728E10
+      },
+      "name" : "srv_count"
+    },
+    "24" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 87286.91999999977,
+        "sumSq" : 87028.36119999978
+      },
+      "name" : "serror_rate"
+    },
+    "25" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 87248.46000000002,
+        "sumSq" : 87127.52699999978
+      },
+      "name" : "srv_serror_rate"
+    },
+    "26" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 28373.31000000001,
+        "sumSq" : 28133.46910000002
+      },
+      "name" : "rerror_rate"
+    },
+    "27" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 28514.370000000017,
+        "sumSq" : 28269.654299999962
+      },
+      "name" : "srv_rerror_rate"
+    },
+    "28" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 391041.0100001738,
+        "sumSq" : 383971.88110008155
+      },
+      "name" : "same_srv_rate"
+    },
+    "29" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 10365.740000010559,
+        "sumSq" : 3555.958200001467
+      },
+      "name" : "diff_srv_rate"
+    },
+    "30" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 14325.030000000314,
+        "sumSq" : 10432.642700000073
+      },
+      "name" : "srv_diff_host_rate"
+    },
+    "31" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 255.0,
+        "sum" : 1.14845446E8,
+        "sumSq" : 2.8769124324E10
+      },
+      "name" : "dst_host_count"
+    },
+    "32" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 255.0,
+        "sum" : 9.3204803E7,
+        "sumSq" : 2.3139591209E10
+      },
+      "name" : "dst_host_srv_count"
+    },
+    "33" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 372383.0000002185,
+        "sumSq" : 364056.179600199
+      },
+      "name" : "dst_host_same_srv_rate"
+    },
+    "34" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 15268.0799999865,
+        "sumSq" : 6369.261399999237
+      },
+      "name" : "dst_host_diff_srv_rate"
+    },
+    "35" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 297368.41000001435,
+        "sumSq" : 293440.3604999908
+      },
+      "name" : "dst_host_same_src_port_rate"
+    },
+    "36" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 3301.7899999996503,
+        "sumSq" : 899.0414999999939
+      },
+      "name" : "dst_host_srv_diff_host_rate"
+    },
+    "37" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 87320.16999999768,
+        "sumSq" : 86993.52949999724
+      },
+      "name" : "dst_host_serror_rate"
+    },
+    "38" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 87166.35999999852,
+        "sumSq" : 87061.97819999873
+      },
+      "name" : "dst_host_srv_serror_rate"
+    },
+    "39" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 28711.31999999984,
+        "sumSq" : 27936.42800000038
+      },
+      "name" : "dst_host_rerror_rate"
+    },
+    "40" : {
+      "numeric" : {
+        "min" : 0.0,
+        "max" : 1.0,
+        "sum" : 28362.569999999538,
+        "sumSq" : 27793.89870000045
+      },
+      "name" : "dst_host_srv_rerror_rate"
+    },
+    "41" : {
+      "histogram" : {
+        "back." : {
+          "id" : 0,
+          "count" : 2203
+        },
+        "teardrop." : {
+          "id" : 20,
+          "count" : 979
+        },
+        "loadmodule." : {
+          "id" : 7,
+          "count" : 9
+        },
+        "neptune." : {
+          "id" : 9,
+          "count" : 107201
+        },
+        "phf." : {
+          "id" : 13,
+          "count" : 4
+        },
+        "rootkit." : {
+          "id" : 16,
+          "count" : 10
+        },
+        "satan." : {
+          "id" : 17,
+          "count" : 1589
+        },
+        "ftp_write." : {
+          "id" : 2,
+          "count" : 8
+        },
+        "buffer_overflow." : {
+          "id" : 1,
+          "count" : 30
+        },
+        "land." : {
+          "id" : 6,
+          "count" : 21
+        },
+        "spy." : {
+          "id" : 19,
+          "count" : 2
+        },
+        "ipsweep." : {
+          "id" : 5,
+          "count" : 1247
+        },
+        "multihop." : {
+          "id" : 8,
+          "count" : 7
+        },
+        "smurf." : {
+          "id" : 18,
+          "count" : 280790
+        },
+        "pod." : {
+          "id" : 14,
+          "count" : 264
+        },
+        "perl." : {
+          "id" : 12,
+          "count" : 3
+        },
+        "nmap." : {
+          "id" : 10,
+          "count" : 231
+        },
+        "imap." : {
+          "id" : 4,
+          "count" : 12
+        },
+        "warezclient." : {
+          "id" : 21,
+          "count" : 1020
+        },
+        "warezmaster." : {
+          "id" : 22,
+          "count" : 20
+        },
+        "portsweep." : {
+          "id" : 15,
+          "count" : 1040
+        },
+        "normal." : {
+          "id" : 11,
+          "count" : 97278
+        },
+        "guess_passwd." : {
+          "id" : 3,
+          "count" : 53
+        }
+      },
+      "name" : "category"
     }
-  }, {
-    "name" : "protocol_type",
-    "histogram" : {
-      "icmp" : {
-        "count" : 283602
-      },
-      "tcp" : {
-        "count" : 190065
-      },
-      "udp" : {
-        "count" : 20354
-      }
-    }
-  }, {
-    "name" : "service",
-    "histogram" : {
-      "IRC" : {
-        "count" : 43
-      },
-      "X11" : {
-        "count" : 11
-      },
-      "Z39_50" : {
-        "count" : 92
-      },
-      "auth" : {
-        "count" : 328
-      },
-      "bgp" : {
-        "count" : 106
-      },
-      "courier" : {
-        "count" : 108
-      },
-      "csnet_ns" : {
-        "count" : 126
-      },
-      "ctf" : {
-        "count" : 97
-      },
-      "daytime" : {
-        "count" : 103
-      },
-      "discard" : {
-        "count" : 116
-      },
-      "domain" : {
-        "count" : 116
-      },
-      "domain_u" : {
-        "count" : 5863
-      },
-      "echo" : {
-        "count" : 112
-      },
-      "eco_i" : {
-        "count" : 1642
-      },
-      "ecr_i" : {
-        "count" : 281400
-      },
-      "efs" : {
-        "count" : 103
-      },
-      "exec" : {
-        "count" : 99
-      },
-      "finger" : {
-        "count" : 670
-      },
-      "ftp" : {
-        "count" : 798
-      },
-      "ftp_data" : {
-        "count" : 4721
-      },
-      "gopher" : {
-        "count" : 117
-      },
-      "hostnames" : {
-        "count" : 104
-      },
-      "http" : {
-        "count" : 64293
-      },
-      "http_443" : {
-        "count" : 99
-      },
-      "imap4" : {
-        "count" : 117
-      },
-      "iso_tsap" : {
-        "count" : 115
-      },
-      "klogin" : {
-        "count" : 106
-      },
-      "kshell" : {
-        "count" : 98
-      },
-      "ldap" : {
-        "count" : 101
-      },
-      "link" : {
-        "count" : 102
-      },
-      "login" : {
-        "count" : 104
-      },
-      "mtp" : {
-        "count" : 107
-      },
-      "name" : {
-        "count" : 98
-      },
-      "netbios_dgm" : {
-        "count" : 99
-      },
-      "netbios_ns" : {
-        "count" : 102
-      },
-      "netbios_ssn" : {
-        "count" : 107
-      },
-      "netstat" : {
-        "count" : 95
-      },
-      "nnsp" : {
-        "count" : 105
-      },
-      "nntp" : {
-        "count" : 108
-      },
-      "ntp_u" : {
-        "count" : 380
-      },
-      "other" : {
-        "count" : 7237
-      },
-      "pm_dump" : {
-        "count" : 1
-      },
-      "pop_2" : {
-        "count" : 101
-      },
-      "pop_3" : {
-        "count" : 202
-      },
-      "printer" : {
-        "count" : 109
-      },
-      "private" : {
-        "count" : 110893
-      },
-      "red_i" : {
-        "count" : 1
-      },
-      "remote_job" : {
-        "count" : 120
-      },
-      "rje" : {
-        "count" : 111
-      },
-      "shell" : {
-        "count" : 112
-      },
-      "smtp" : {
-        "count" : 9723
-      },
-      "sql_net" : {
-        "count" : 110
-      },
-      "ssh" : {
-        "count" : 105
-      },
-      "sunrpc" : {
-        "count" : 107
-      },
-      "supdup" : {
-        "count" : 105
-      },
-      "systat" : {
-        "count" : 115
-      },
-      "telnet" : {
-        "count" : 513
-      },
-      "tftp_u" : {
-        "count" : 1
-      },
-      "tim_i" : {
-        "count" : 7
-      },
-      "time" : {
-        "count" : 157
-      },
-      "urh_i" : {
-        "count" : 14
-      },
-      "urp_i" : {
-        "count" : 538
-      },
-      "uucp" : {
-        "count" : 106
-      },
-      "uucp_path" : {
-        "count" : 106
-      },
-      "vmnet" : {
-        "count" : 106
-      },
-      "whois" : {
-        "count" : 110
-      }
-    }
-  }, {
-    "name" : "flag",
-    "histogram" : {
-      "OTH" : {
-        "count" : 8
-      },
-      "REJ" : {
-        "count" : 26875
-      },
-      "RSTO" : {
-        "count" : 579
-      },
-      "RSTOS0" : {
-        "count" : 11
-      },
-      "RSTR" : {
-        "count" : 903
-      },
-      "S0" : {
-        "count" : 87007
-      },
-      "S1" : {
-        "count" : 57
-      },
-      "S2" : {
-        "count" : 24
-      },
-      "S3" : {
-        "count" : 10
-      },
-      "SF" : {
-        "count" : 378440
-      },
-      "SH" : {
-        "count" : 107
-      }
-    }
-  }, {
-    "name" : "src_bytes",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 6.9337564E8,
-      "mean" : 3025.6102959185946,
-      "stdDev" : 988217.1008716795
-    }
-  }, {
-    "name" : "dst_bytes",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 5155468.0,
-      "mean" : 868.5324247349809,
-      "stdDev" : 33039.96781221046
-    }
-  }, {
-    "name" : "land",
-    "histogram" : {
-      "0" : {
-        "count" : 493999
-      },
-      "1" : {
-        "count" : 22
-      }
-    }
-  }, {
-    "name" : "wrong_fragment",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 3.0,
-      "mean" : 0.0064329249161472896,
-      "stdDev" : 0.13480511156826264
-    }
-  }, {
-    "name" : "urgent",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 3.0,
-      "mean" : 1.4169438141293589E-5,
-      "stdDev" : 0.005510252349789995
-    }
-  }, {
-    "name" : "hot",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 30.0,
-      "mean" : 0.03451877551763994,
-      "stdDev" : 0.7821017903527852
-    }
-  }, {
-    "name" : "num_failed_logins",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 5.0,
-      "mean" : 1.5181540865671702E-4,
-      "stdDev" : 0.015519581195498974
-    }
-  }, {
-    "name" : "logged_in",
-    "histogram" : {
-      "0" : {
-        "count" : 420784
-      },
-      "1" : {
-        "count" : 73237
-      }
-    }
-  }, {
-    "name" : "num_compromised",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 884.0,
-      "mean" : 0.010212116488975164,
-      "stdDev" : 1.7983244374584049
-    }
-  }, {
-    "name" : "root_shell",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 1.1133129968159248E-4,
-      "stdDev" : 0.010550777460609416
-    }
-  }, {
-    "name" : "su_attempted",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 2.0,
-      "mean" : 3.6435698077612086E-5,
-      "stdDev" : 0.0077926141892559015
-    }
-  }, {
-    "name" : "num_root",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 993.0,
-      "mean" : 0.01135174415662492,
-      "stdDev" : 2.012716288503069
-    }
-  }, {
-    "name" : "num_file_creations",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 28.0,
-      "mean" : 0.0010829499150845814,
-      "stdDev" : 0.09641578110257039
-    }
-  }, {
-    "name" : "num_shells",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 2.0,
-      "mean" : 1.0930709423283626E-4,
-      "stdDev" : 0.011019999041947507
-    }
-  }, {
-    "name" : "num_access_files",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 8.0,
-      "mean" : 0.001008054313480601,
-      "stdDev" : 0.03648165308456664
-    }
-  }, {
-    "name" : "num_outbound_cmds",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 0.0,
-      "mean" : 0.0,
-      "stdDev" : 0.0
-    }
-  }, {
-    "name" : "is_host_login",
-    "histogram" : {
-      "0" : {
-        "count" : 494021
-      }
-    }
-  }, {
-    "name" : "is_guest_login",
-    "histogram" : {
-      "0" : {
-        "count" : 493336
-      },
-      "1" : {
-        "count" : 685
-      }
-    }
-  }, {
-    "name" : "count",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 511.0,
-      "mean" : 332.2856902844211,
-      "stdDev" : 213.1471964031592
-    }
-  }, {
-    "name" : "srv_count",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 511.0,
-      "mean" : 292.9065566038691,
-      "stdDev" : 246.32256810023233
-    }
-  }, {
-    "name" : "serror_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.17668665906914852,
-      "stdDev" : 0.3807165710135919
-    }
-  }, {
-    "name" : "srv_serror_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.17660880812758986,
-      "stdDev" : 0.3810161988443632
-    }
-  }, {
-    "name" : "rerror_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.05743340870124959,
-      "stdDev" : 0.23162323935561874
-    }
-  }, {
-    "name" : "srv_rerror_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.05771894312185114,
-      "stdDev" : 0.23214674642004215
-    }
-  }, {
-    "name" : "same_srv_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.7915473431296286,
-      "stdDev" : 0.38818910015151165
-    }
-  }, {
-    "name" : "diff_srv_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.020982387388396636,
-      "stdDev" : 0.08220540969713754
-    }
-  }, {
-    "name" : "srv_diff_host_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.028996803779597343,
-      "stdDev" : 0.14239732289911172
-    }
-  }, {
-    "name" : "dst_host_count",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 255.0,
-      "mean" : 232.47077755803903,
-      "stdDev" : 64.74531484321346
-    }
-  }, {
-    "name" : "dst_host_srv_count",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 255.0,
-      "mean" : 188.66567008285074,
-      "stdDev" : 106.04032977805382
-    }
-  }, {
-    "name" : "dst_host_same_srv_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.7537796976247786,
-      "stdDev" : 0.4107805616737109
-    }
-  }, {
-    "name" : "dst_host_diff_srv_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.030905730728006633,
-      "stdDev" : 0.1092590016364854
-    }
-  }, {
-    "name" : "dst_host_same_src_port_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.6019347558101208,
-      "stdDev" : 0.48130876405579237
-    }
-  }, {
-    "name" : "dst_host_srv_diff_host_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.006683501308649176,
-      "stdDev" : 0.042132831773040495
-    }
-  }, {
-    "name" : "dst_host_serror_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.17675396390030904,
-      "stdDev" : 0.38059271231326286
-    }
-  }, {
-    "name" : "dst_host_srv_serror_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.17644262086023382,
-      "stdDev" : 0.3809190625263017
-    }
-  }, {
-    "name" : "dst_host_rerror_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.05811761038498338,
-      "stdDev" : 0.2305892736870603
-    }
-  }, {
-    "name" : "dst_host_srv_rerror_rate",
-    "numeric" : {
-      "min" : 0.0,
-      "max" : 1.0,
-      "mean" : 0.057411668734728985,
-      "stdDev" : 0.23014009099636062
-    }
-  }, {
-    "name" : "category",
-    "histogram" : {
-      "back." : {
-        "count" : 2203
-      },
-      "buffer_overflow." : {
-        "count" : 30
-      },
-      "ftp_write." : {
-        "count" : 8
-      },
-      "guess_passwd." : {
-        "count" : 53
-      },
-      "imap." : {
-        "count" : 12
-      },
-      "ipsweep." : {
-        "count" : 1247
-      },
-      "land." : {
-        "count" : 21
-      },
-      "loadmodule." : {
-        "count" : 9
-      },
-      "multihop." : {
-        "count" : 7
-      },
-      "neptune." : {
-        "count" : 107201
-      },
-      "nmap." : {
-        "count" : 231
-      },
-      "normal." : {
-        "count" : 97278
-      },
-      "perl." : {
-        "count" : 3
-      },
-      "phf." : {
-        "count" : 4
-      },
-      "pod." : {
-        "count" : 264
-      },
-      "portsweep." : {
-        "count" : 1040
-      },
-      "rootkit." : {
-        "count" : 10
-      },
-      "satan." : {
-        "count" : 1589
-      },
-      "smurf." : {
-        "count" : 280790
-      },
-      "spy." : {
-        "count" : 2
-      },
-      "teardrop." : {
-        "count" : 979
-      },
-      "warezclient." : {
-        "count" : 1020
-      },
-      "warezmaster." : {
-        "count" : 20
-      }
-    }
-  } ],
-  "spec" : {
-    "fields" : [ {
-      "name" : "duration",
-      "position" : 0,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "protocol_type",
-      "position" : 1,
-      "spec" : {
-        "dataType" : "STRING",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "service",
-      "position" : 2,
-      "spec" : {
-        "dataType" : "STRING",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "flag",
-      "position" : 3,
-      "spec" : {
-        "dataType" : "STRING",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "src_bytes",
-      "position" : 4,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_bytes",
-      "position" : 5,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "land",
-      "position" : 6,
-      "spec" : {
-        "dataType" : "STRING",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "wrong_fragment",
-      "position" : 7,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "urgent",
-      "position" : 8,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "hot",
-      "position" : 9,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "num_failed_logins",
-      "position" : 10,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "logged_in",
-      "position" : 11,
-      "spec" : {
-        "dataType" : "STRING",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "num_compromised",
-      "position" : 12,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "root_shell",
-      "position" : 13,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "su_attempted",
-      "position" : 14,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "num_root",
-      "position" : 15,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "num_file_creations",
-      "position" : 16,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "num_shells",
-      "position" : 17,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "num_access_files",
-      "position" : 18,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "num_outbound_cmds",
-      "position" : 19,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "is_host_login",
-      "position" : 20,
-      "spec" : {
-        "dataType" : "STRING",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "is_guest_login",
-      "position" : 21,
-      "spec" : {
-        "dataType" : "STRING",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "count",
-      "position" : 22,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "srv_count",
-      "position" : 23,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "serror_rate",
-      "position" : 24,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "srv_serror_rate",
-      "position" : 25,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "rerror_rate",
-      "position" : 26,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "srv_rerror_rate",
-      "position" : 27,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "same_srv_rate",
-      "position" : 28,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "diff_srv_rate",
-      "position" : 29,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "srv_diff_host_rate",
-      "position" : 30,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_host_count",
-      "position" : 31,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_host_srv_count",
-      "position" : 32,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_host_same_srv_rate",
-      "position" : 33,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_host_diff_srv_rate",
-      "position" : 34,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_host_same_src_port_rate",
-      "position" : 35,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_host_srv_diff_host_rate",
-      "position" : 36,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_host_serror_rate",
-      "position" : 37,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_host_srv_serror_rate",
-      "position" : 38,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_host_rerror_rate",
-      "position" : 39,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "dst_host_srv_rerror_rate",
-      "position" : 40,
-      "spec" : {
-        "dataType" : "DOUBLE",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    }, {
-      "name" : "category",
-      "position" : 41,
-      "spec" : {
-        "dataType" : "STRING",
-        "size" : 0,
-        "fieldNames" : [ ]
-      }
-    } ]
   },
   "recordCount" : 494021,
   "fieldCount" : 42
