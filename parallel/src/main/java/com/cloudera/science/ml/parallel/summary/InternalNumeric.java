@@ -96,17 +96,22 @@ class InternalNumeric {
     return cloned[index];
   }
 
-  private double weightedMedian() {
+  private double weightedMedian(int i) {
+    double div = (double)4/i;
     List<Pair<Double, Double>> valueList = weightedList();
     double sumWeights = sumOfSeconds(valueList);
     double s = sumWeights;
     int j = 0;
     System.out.println(valueList);
 
-    while (s > sumWeights / 2) {
+    while (s > sumWeights / div) {
       s -= valueList.get(j++).second();
     }
     return valueList.get(j-1).first();
+  }
+
+  private double weightedMedian() {
+    return weightedMedian(2);
   }
 
   private List<Pair<Double, Double>> weightedList() {
@@ -140,7 +145,10 @@ class InternalNumeric {
     return sum;
   }
 
+  private double quartile(int i){
+    return weightedMedian(i);
 
+  }
   private double currentMedian() {
     if (cursor[medianK] == 0) {
       return computeFullArrayMedian(medianArray[medianK - 1]);
