@@ -50,7 +50,7 @@ public class FormulaTest {
     bHistogram.put("y", new Entry(1L));
     bHistogram.put("z", new Entry(1L));
     Summary summary = new Summary(1, 2, ImmutableList.of(
-        new SummaryStats("a", new Numeric(17.29, 17.29, 17.29, 0.0, 12)),
+        new SummaryStats("a", new Numeric(17.29, 17.29, 17.29, 0.0, 0.0, 0.0, 12)),
         new SummaryStats("b", bHistogram, false)));
     Formula f = Formula.compile(ImmutableList.of(Term.INTERCEPT, Term.$("a"), Term.$("a", "b")),
         summary);

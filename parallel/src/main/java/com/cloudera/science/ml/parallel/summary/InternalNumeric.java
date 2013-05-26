@@ -49,12 +49,12 @@ class InternalNumeric {
 
   public Numeric toNumeric(long recordCount) {
     if (missing == recordCount) {
-      return new Numeric(0.0, 0.0, 0.0, 0.0, missing);
+      return new Numeric(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, missing);
     }
     long n = recordCount - missing;
     double mean = sum / n;
     double stdDev = Math.sqrt((sumSq / n) - mean * mean);
-    return new Numeric(min, max, mean, stdDev, currentMedian(), missing);
+    return new Numeric(min, max, mean, stdDev, currentMedian(), weightedQuartile(1), weightedQuartile(3), missing);
   }
 
   public void update(double d) {
@@ -96,13 +96,12 @@ class InternalNumeric {
     return cloned[index];
   }
 
-  private double weightedMedian(int i) {
-    double div = (double)4/i;
+  private double weightedQuartile(int i) {
+    double div = (double)4/(4 - i);
     List<Pair<Double, Double>> valueList = weightedList();
     double sumWeights = sumOfSeconds(valueList);
     double s = sumWeights;
     int j = 0;
-    System.out.println(valueList);
 
     while (s > sumWeights / div) {
       s -= valueList.get(j++).second();
@@ -111,7 +110,7 @@ class InternalNumeric {
   }
 
   private double weightedMedian() {
-    return weightedMedian(2);
+    return weightedQuartile(2);
   }
 
   private List<Pair<Double, Double>> weightedList() {
@@ -146,7 +145,7 @@ class InternalNumeric {
   }
 
   private double quartile(int i){
-    return weightedMedian(i);
+    return weightedQuartile(i);
 
   }
   private double currentMedian() {
