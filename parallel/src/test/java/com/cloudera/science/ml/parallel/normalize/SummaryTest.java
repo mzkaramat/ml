@@ -40,129 +40,129 @@ import com.google.common.collect.ImmutableList;
 
 public class SummaryTest implements Serializable {
   private final PCollection<Vector> vecs = MemPipeline.typedCollectionOf(
-      MLAvros.vector(),
-      Vectors.of(1.0, 3.0),
-      Vectors.of(1.0, 1.0),
-      Vectors.of(3.0, 1.0),
-      Vectors.of(3.0, 3.0));
+    MLAvros.vector(),
+    Vectors.of(1.0, 3.0),
+    Vectors.of(1.0, 1.0),
+    Vectors.of(3.0, 1.0),
+    Vectors.of(3.0, 3.0));
 
   private final PCollection<Vector> vecs2 = MemPipeline.typedCollectionOf(
-     MLAvros.vector(),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
-     Vectors.of(2.0),
+    MLAvros.vector(),
+    Vectors.of(2.0),
+    Vectors.of(2.0),
+    Vectors.of(2.0),
+    Vectors.of(2.0),
+    Vectors.of(2.0),
 
-     Vectors.of(3.0),
-     Vectors.of(3.0),
-     Vectors.of(3.0),
-     Vectors.of(3.0),
-     Vectors.of(3.0),
+    Vectors.of(3.0),
+    Vectors.of(3.0),
+    Vectors.of(3.0),
+    Vectors.of(3.0),
+    Vectors.of(3.0),
 
-     Vectors.of(4.0),
-     Vectors.of(4.0),
-     Vectors.of(4.0),
-     Vectors.of(4.0),
-     Vectors.of(4.0),
+    Vectors.of(4.0),
+    Vectors.of(4.0),
+    Vectors.of(4.0),
+    Vectors.of(4.0),
+    Vectors.of(4.0),
 
-     Vectors.of(5.0),
-     Vectors.of(5.0),
-     Vectors.of(5.0),
-     Vectors.of(5.0),
-     Vectors.of(5.0),
+    Vectors.of(5.0),
+    Vectors.of(5.0),
+    Vectors.of(5.0),
+    Vectors.of(5.0),
+    Vectors.of(5.0),
 
-     Vectors.of(6.0),
-     Vectors.of(6.0),
-     Vectors.of(6.0),
-     Vectors.of(6.0),
-     Vectors.of(6.0),
+    Vectors.of(6.0),
+    Vectors.of(6.0),
+    Vectors.of(6.0),
+    Vectors.of(6.0),
+    Vectors.of(6.0),
 
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
 
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
 
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
 
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
 
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-     Vectors.of(7.0),
-
-
-     Vectors.of(8.0),
-     Vectors.of(8.0),
-     Vectors.of(8.0),
-     Vectors.of(8.0),
-     Vectors.of(8.0),
-
-     Vectors.of(9.0),
-     Vectors.of(9.0),
-     Vectors.of(9.0),
-     Vectors.of(9.0),
-     Vectors.of(9.0),
-
-     Vectors.of(1.0),
-     Vectors.of(1.0),
-     Vectors.of(1.0),
-     Vectors.of(1.0),
-     Vectors.of(1.0),
-
-     Vectors.of(12),
-     Vectors.of(12),
-     Vectors.of(12),
-     Vectors.of(12),
-     Vectors.of(12),
-
-     Vectors.of(13),
-     Vectors.of(13),
-     Vectors.of(13),
-     Vectors.of(13),
-     Vectors.of(13),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
+    Vectors.of(7.0),
 
 
-     Vectors.of(10.0),
-     Vectors.of(10.0),
-     Vectors.of(10.0),
-     Vectors.of(10.0),
-     Vectors.of(10.0),
+    Vectors.of(8.0),
+    Vectors.of(8.0),
+    Vectors.of(8.0),
+    Vectors.of(8.0),
+    Vectors.of(8.0),
 
-     Vectors.of(11.0),
-     Vectors.of(11.0),
-     Vectors.of(11.0),
-     Vectors.of(11.0),
-     Vectors.of(11.0)
+    Vectors.of(9.0),
+    Vectors.of(9.0),
+    Vectors.of(9.0),
+    Vectors.of(9.0),
+    Vectors.of(9.0),
+
+    Vectors.of(1.0),
+    Vectors.of(1.0),
+    Vectors.of(1.0),
+    Vectors.of(1.0),
+    Vectors.of(1.0),
+
+    Vectors.of(12),
+    Vectors.of(12),
+    Vectors.of(12),
+    Vectors.of(12),
+    Vectors.of(12),
+
+    Vectors.of(13),
+    Vectors.of(13),
+    Vectors.of(13),
+    Vectors.of(13),
+    Vectors.of(13),
 
 
-     );
+    Vectors.of(10.0),
+    Vectors.of(10.0),
+    Vectors.of(10.0),
+    Vectors.of(10.0),
+    Vectors.of(10.0),
+
+    Vectors.of(11.0),
+    Vectors.of(11.0),
+    Vectors.of(11.0),
+    Vectors.of(11.0),
+    Vectors.of(11.0)
+
+
+  );
 
 
   private final PCollection<String> strings = MemPipeline.typedCollectionOf(
-      Avros.strings(),
-      "1.0,NA,2.0",
-      "1.0,2.0,3.0");
+    Avros.strings(),
+    "1.0,NA,2.0",
+    "1.0,2.0,3.0");
 
   @Test
-  public void testMedian(){
+  public void testMedian() {
     PCollection<Record> elems = vecs2.parallelDo(new MapFn<Vector, Record>() {
       @Override
       public Record map(Vector elements) {
@@ -174,7 +174,7 @@ public class SummaryTest implements Serializable {
     assertEquals(7, s.getStats(0).remedian(), 2);
 
   }
-  
+
   @Test
   public void testZScores() {
     PCollection<Record> elems = vecs.parallelDo(new MapFn<Vector, Record>() {
@@ -186,14 +186,14 @@ public class SummaryTest implements Serializable {
     Summarizer sr = new Summarizer();
     Summary s = sr.build(elems).getValue();
     Normalizer stand = Normalizer.builder()
-        .summary(s)
-        .defaultTransform(Transform.Z)
-        .build();
+      .summary(s)
+      .defaultTransform(Transform.Z)
+      .build();
     assertEquals(ImmutableList.of(Vectors.of(-1, 1),
-       Vectors.of(-1, -1), Vectors.of(1, -1),
-       Vectors.of(1, 1)), stand.apply(elems, MLAvros.vector()).materialize());
+      Vectors.of(-1, -1), Vectors.of(1, -1),
+      Vectors.of(1, 1)), stand.apply(elems, MLAvros.vector()).materialize());
   }
-  
+
   @Test
   public void testMissing() throws Exception {
     PCollection<Record> elems = strings.parallelDo(new MapFn<String, Record>() {
