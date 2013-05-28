@@ -32,22 +32,23 @@ public class SummaryStats implements Serializable {
   private SortedMap<String, Entry> histogram;
   private Boolean trimmed;
   private Double scale;
-  
+
   // For Jackson serialization
-  private SummaryStats() { }
-  
+  private SummaryStats() {
+  }
+
   public SummaryStats(String name) {
     this.name = name;
     this.numeric = null;
     this.histogram = null;
   }
-  
+
   public SummaryStats(String name, Numeric numeric) {
     this.name = name;
     this.numeric = Preconditions.checkNotNull(numeric);
     this.histogram = null;
   }
-  
+
   public SummaryStats(String name, Map<String, Entry> histogram, boolean trimmed) {
     this.name = name;
     this.numeric = null;
@@ -59,15 +60,15 @@ public class SummaryStats implements Serializable {
       this.trimmed = Boolean.TRUE;
     }
   }
-  
+
   public boolean isEmpty() {
     return numeric == null && histogram == null;
   }
-  
+
   public boolean isNumeric() {
     return numeric != null;
   }
-  
+
   public String getName() {
     return name;
   }
@@ -75,39 +76,51 @@ public class SummaryStats implements Serializable {
   public double getScale() {
     return scale == null ? 1.0 : scale;
   }
-  
+
   public double mean() {
     return numeric == null ? Double.NaN : numeric.mean();
   }
-  
+
   public double stdDev() {
     return numeric == null ? Double.NaN : numeric.stdDev();
   }
-  
+
   public double range() {
     return numeric == null ? Double.NaN : numeric.range();
   }
-  
+
   public double min() {
     return numeric == null ? Double.NaN : numeric.min();
   }
-  
+
   public double max() {
     return numeric == null ? Double.NaN : numeric.max();
   }
-  
+
+  public double remedian() {
+    return numeric == null ? Double.NaN : numeric.remedian();
+  }
+
+  public double firstQuartile() {
+    return numeric == null ? Double.NaN : numeric.firstQuartile();
+  }
+
+  public double thirdQuartile() {
+    return numeric == null ? Double.NaN : numeric.thirdQuartile();
+  }
+
   public long getMissing() {
     return numeric == null ? 0L : numeric.getMissing();
   }
-  
+
   public String getTransform() {
     return numeric == null ? null : numeric.getTransform();
   }
-  
+
   public boolean isTrimmed() {
     return trimmed != null ? trimmed.booleanValue() : false;
   }
-  
+
   public List<String> getLevels() {
     if (histogram == null) {
       return ImmutableList.of();
@@ -116,11 +129,11 @@ public class SummaryStats implements Serializable {
     Collections.sort(levels);
     return levels;
   }
-  
+
   public int numLevels() {
     return histogram == null ? 1 : histogram.size();
   }
-  
+
   public int index(String value) {
     if (histogram == null) {
       return -1;
@@ -131,5 +144,5 @@ public class SummaryStats implements Serializable {
     } else {
       return histogram.headMap(value).size();
     }
-  }  
+  }
 }
