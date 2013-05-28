@@ -57,7 +57,7 @@ public class ModelScore {
   
   public double getAccuracy() {
     return (double) (truePositives + trueNegatives) /
-        (truePositives + trueNegatives + falseNegatives + falseNegatives);
+        (truePositives + trueNegatives + falseNegatives + falsePositives);
   }
 
   public void merge(ModelScore other) {

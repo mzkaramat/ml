@@ -12,7 +12,7 @@ public class OnlineLearnerParams implements Serializable {
   private final double l1Radius;
   private final int l1Iterations;
 
-  private OnlineLearnerParams(double lambda, EtaUpdate etaUpdate,
+  public OnlineLearnerParams(double lambda, EtaUpdate etaUpdate,
       boolean pegasos, double l1Radius, int l1Iterations) {
     this.lambda = lambda;
     this.etaUpdate = etaUpdate;
@@ -89,8 +89,6 @@ public class OnlineLearnerParams implements Serializable {
     }
 
     public OnlineLearnerParams.Builder L1(double radius, int iterations) {
-      Preconditions.checkArgument(iterations > 0, "L1 iterations must be > 0");
-      Preconditions.checkArgument(radius > 0.0, "L1 radius must be > 0");
       this.l1Radius = radius;
       this.l1Iterations = iterations;
       return this;

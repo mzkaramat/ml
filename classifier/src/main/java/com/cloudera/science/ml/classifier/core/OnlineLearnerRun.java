@@ -15,11 +15,13 @@
 
 package com.cloudera.science.ml.classifier.core;
 
+import java.io.Serializable;
+
 /**
  * A classification model along with the parameters and data that were used to
  * train it.
  */
-public class OnlineLearnerRun {
+public class OnlineLearnerRun implements Serializable {
   private Classifier classifier;
   private OnlineLearnerParams params;
   private int fold;

@@ -196,7 +196,7 @@ public class ClassifierAvros {
         .build();
   }
   
-  private static OnlineLearnerRuns toOnlineLearnerRuns(MLOnlineLearnerRuns mlRuns) {
+  public static OnlineLearnerRuns toOnlineLearnerRuns(MLOnlineLearnerRuns mlRuns) {
     List<MLOnlineLearnerRun> avroRuns = mlRuns.getRuns();
     List<OnlineLearnerRun> runs = new ArrayList<OnlineLearnerRun>(avroRuns.size());
     for (MLOnlineLearnerRun avroRun : avroRuns) {
