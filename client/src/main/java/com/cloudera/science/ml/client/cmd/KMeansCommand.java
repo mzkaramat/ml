@@ -38,7 +38,9 @@ import com.cloudera.science.ml.core.vectors.Weighted;
 import com.cloudera.science.ml.kmeans.core.KMeans;
 import com.cloudera.science.ml.kmeans.core.KMeansInitStrategy;
 import com.cloudera.science.ml.kmeans.core.KMeansEvaluation;
-import com.cloudera.science.ml.kmeans.core.StoppingCriteria;
+import com.cloudera.science.ml.kmeans.core.KMeansUpdateStrategy;
+import com.cloudera.science.ml.kmeans.core.LloydsUpdateStrategy;
+import com.cloudera.science.ml.kmeans.core.MiniBatchUpdateStrategy;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -67,13 +69,13 @@ public class KMeansCommand implements Command {
   private String initStrategyName = KMeansInitStrategy.PLUS_PLUS.name();
 
   @Parameter(names = "--max-iterations",
-      description = "The maximum number of Lloyd's iterations to run")
-  private int maxLloydsIterations = 100;  
+      description = "The maximum number of k-means iterations to run (either Lloyd's or mini-batch)")
+  private int maxIterations = 100;  
 
-  @Parameter(names = "--stopping-threshold",
-      description = "Stop the Lloyd's iterations if the delta between centers falls below this")
-  private double stoppingThreshold = 1.0e-4;  
-
+  @Parameter(names = "--mini-batch-size",
+      description = "The number of points to include in each mini-batch update (enables mini-batch k-means)")
+  private int miniBatchSize = 0;
+  
   @Parameter(names = "--centers-file", required=true,
       description = "A local file to store the centers that were created into")
   private String centersOutputFile;
@@ -101,7 +103,7 @@ public class KMeansCommand implements Command {
   @Override
   public int execute(Configuration conf) throws IOException {
     KMeansInitStrategy initStrategy = KMeansInitStrategy.valueOf(initStrategyName);
-    KMeans kmeans = new KMeans(initStrategy, getStoppingCriteria());
+    KMeans kmeans = new KMeans(initStrategy, getUpdateStrategy());
     
     ListeningExecutorService exec;
     if (numThreads <= 1) {
@@ -164,9 +166,12 @@ public class KMeansCommand implements Command {
     return base;
   }
   
-  private StoppingCriteria getStoppingCriteria() {
-    return StoppingCriteria.or(StoppingCriteria.threshold(stoppingThreshold),
-        StoppingCriteria.maxIterations(maxLloydsIterations));
+  private KMeansUpdateStrategy getUpdateStrategy() {
+    if (miniBatchSize > 0) {
+      return new MiniBatchUpdateStrategy(maxIterations, miniBatchSize, randomParams.getRandom());
+    } else {
+      return new LloydsUpdateStrategy(maxIterations);
+    }
   }
   
   private static class Clustering implements Callable<Centers> {

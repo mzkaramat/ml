@@ -16,11 +16,14 @@ package com.cloudera.science.ml.core.vectors;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
+import java.util.SortedMap;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 /**
@@ -55,6 +58,33 @@ public class Weighted<T> {
    */
   public static <T> List<Weighted<T>> create(List<T> things) {
     return Lists.transform(things, new WeightFunction<T>());
+  }
+  
+  /**
+   * Sample items from a {@code List<Weighted<T>>} where items with higher weights
+   * have a higher probability of being included in the sample.
+   * 
+   * @param things The iterable to sample from
+   * @param size The number of items to sample
+   * @return A list containing the sampled items
+   */
+  public static <T> List<Weighted<T>> sample(Iterable<Weighted<T>> things, int size, Random random) {
+    if (random == null) {
+      random = new Random();
+    }
+    SortedMap<Double, Weighted<T>> sampled = Maps.newTreeMap();
+    for (Weighted<T> thing : things) {
+      if (thing.weight() > 0) {
+        double score = Math.log(random.nextDouble()) / thing.weight();
+        if (sampled.size() < size || score > sampled.firstKey()) {
+          sampled.put(score, thing);
+        }
+        if (sampled.size() > size) {
+          sampled.remove(sampled.firstKey());
+        }
+      }
+    }
+    return Lists.newArrayList(sampled.values());
   }
   
   /**

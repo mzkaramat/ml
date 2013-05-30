@@ -35,12 +35,12 @@ public class KMeansTest {
   private final Weighted<Vector> c = wpoint(4.0, 3.0);
   private final Weighted<Vector> d = wpoint(2.0, 1.0);
   private final List<Weighted<Vector>> points = ImmutableList.of(a, b, c, d);
-  private final KMeans kmeans = new KMeans();
+  private final LloydsUpdateStrategy lloyds = new LloydsUpdateStrategy(10);
   private Random rand;
   
   @Before
   public void setUp() {
-    rand = new Random(1729L);
+    rand = new Random(1733L);
   }
   
   public static Vector vec(double... values) {
@@ -53,22 +53,22 @@ public class KMeansTest {
   
   @Test
   public void testCentroids() throws Exception {
-    assertEquals(vec(3.0, 2.5), kmeans.centroid(ImmutableList.of(a, b)));
-    assertEquals(vec(3.0, 2.0), kmeans.centroid(ImmutableList.of(c, d))); 
-    assertEquals(vec(1.0, 1.0), kmeans.centroid(ImmutableList.of(a)));
+    assertEquals(vec(3.0, 2.5), lloyds.centroid(ImmutableList.of(a, b)));
+    assertEquals(vec(3.0, 2.0), lloyds.centroid(ImmutableList.of(c, d))); 
+    assertEquals(vec(1.0, 1.0), lloyds.centroid(ImmutableList.of(a)));
   }
   
   @Test
   public void testUpdate() throws Exception {
     Centers centers = new Centers(a.thing(), b.thing());
     Centers expected = new Centers(vec(1.5, 1.0), vec(4.5, 3.5));
-    assertEquals(expected, kmeans.updateCenters(points, centers));
+    assertEquals(expected, lloyds.update(points, centers));
   }
   
   @Test
   public void testConvergence() throws Exception {
     Centers centers = new Centers(a.thing(), b.thing());
-    Centers converged = kmeans.lloydsAlgorithm(points, centers);
+    Centers converged = lloyds.update(points, centers);
     Centers expected = new Centers(vec(1.5, 1.0), vec(4.5, 3.5));
     assertEquals(expected, converged);
   }
@@ -78,17 +78,24 @@ public class KMeansTest {
     Centers expected = new Centers(vec(4.0, 3.0), vec(2.0, 1.0));
     assertEquals(expected, KMeansInitStrategy.RANDOM.apply(points, 2, rand));
     
-    Centers done = kmeans.lloydsAlgorithm(points, expected);
+    Centers done = lloyds.update(points, expected);
     assertEquals(new Centers(vec(4.5, 3.5), vec(1.5, 1.0)), done);
   }
   
   @Test
   public void testPlusPlusInit() throws Exception {
-    Centers expected = new Centers(vec(2.0, 1.0), vec(4.0, 3.0));
+    Centers expected = new Centers(vec(2.0, 1.0), vec(5.0, 4.0));
     assertEquals(expected, KMeansInitStrategy.PLUS_PLUS.apply(points, 2, rand));
     
-    Centers done = kmeans.lloydsAlgorithm(points, expected);
+    Centers done = lloyds.update(points, expected);
     assertEquals(new Centers(vec(1.5, 1.0), vec(4.5, 3.5)), done);
   }
   
+  @Test
+  public void testMiniBatch() throws Exception {
+    Centers centers = new Centers(vec(2.0, 1.0), vec(5.0, 4.0));
+    MiniBatchUpdateStrategy miniBatch = new MiniBatchUpdateStrategy(100, 2, rand);
+    Centers done = miniBatch.update(points, centers);
+    System.out.println(done);
+  }
 }

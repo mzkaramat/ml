@@ -17,13 +17,13 @@ package com.cloudera.science.ml.kmeans.core;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import org.apache.mahout.math.Vector;
 
 import com.cloudera.science.ml.core.vectors.Centers;
 import com.cloudera.science.ml.core.vectors.Weighted;
-import com.google.common.collect.Sets;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 /**
  * The strategies used to choose the initial {@link Centers} used for a k-means algorithm
@@ -39,27 +39,14 @@ public enum KMeansInitStrategy {
   RANDOM {
     @Override
     public <V extends Vector> Centers apply(List<Weighted<V>> points, int numClusters, Random random) {
-      if (random == null) {
-        random = new Random();
-      }
-      Set<Vector> candidates = Sets.newHashSet();
-      double[] cumulativeSum = cumulativeSum(points);
-      double max = cumulativeSum[cumulativeSum.length - 1];
-      while (candidates.size() < numClusters) {
-        double offset = max * random.nextDouble();
-        int next = Arrays.binarySearch(cumulativeSum, offset);
-        Weighted<V> wv = (next >= 0) ? points.get(next - 1) : points.get(-2 - next);
-        candidates.add(wv.thing());
-      }
-      return new Centers(candidates);
-    }
-    
-    private <V extends Vector> double[] cumulativeSum(List<Weighted<V>> points) {
-      double[] sums = new double[points.size() + 1];
-      for (int i = 0; i < sums.length - 1; i++) {
-        sums[i + 1] = sums[i] + points.get(i).weight();
-      }
-      return sums;
+      return new Centers(Lists.transform(
+          Weighted.sample(points, numClusters, random),
+          new Function<Weighted<V>, Vector>() {
+            @Override
+            public Vector apply(Weighted<V> wt) {
+              return wt.thing();
+            }
+          }));
     }
   },
   
