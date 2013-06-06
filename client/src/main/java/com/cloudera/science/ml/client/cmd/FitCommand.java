@@ -58,21 +58,13 @@ public class FitCommand implements Command {
   private static final int LAMBDA_POWER_RANGE_BOTTOM = -6;
   private static final int LAMBDA_POWER_RANGE_TOP = 6;
   
-  @Parameter(names = "--training-vectors-path",
-      description = "A path that contains the vector(s) used to train the classifiers")
-  private String vectorsPath;
-  
-  @Parameter(names = "--loop-type",
-      description = "The loop strategy for training the classifier")
-  private String loopType;
-  
   @Parameter(names = "--learner-type",
-      description = "The kind of classifier to train")
+      description = "The kind of classifier to train, such as linreg or logreg")
   private String learnerType;
   
   @Parameter(names = "--eta-type",
       description = "The eta update to use in the SGD, either CONSTANT, BASIC, or PEGASOS")
-  private String etaType;
+  private String etaType = "CONSTANT";
 
   @Parameter(names = "--num-lambdas",
       description = "The regularization parameter")
@@ -84,7 +76,11 @@ public class FitCommand implements Command {
   
   @Parameter(names = "--num-partitions",
     description = "The number of partitions to split each training fold into")
-  private int numPartitions;
+  private int numPartitions = 1;
+  
+  @Parameter(names = "--regularization-type",
+    description = "The type of regularization to perform, either L1 or L2")
+  private String regularizationType = "L2";
 
   @Parameter(names = "--seed",
       description = "Seed for the random number generators")
@@ -106,19 +102,16 @@ public class FitCommand implements Command {
 
     PCollection<LabeledVector> labeledVectors = inputParams.getLabeledVectors(p);
     
-    float[] lambdas = lambdas(numLambdas);
+    // Generate learners with an array of regularization parameters
     OnlineLearnerParams.Builder paramsBuilder = OnlineLearnerParams.builder()
         .etaUpdate(parseEtaUpdate(etaType));
+
+    float[] lambdas = lambdas(numLambdas);
     List<SimpleOnlineLearner> learners = new ArrayList<SimpleOnlineLearner>();
     for (float lambda : lambdas) {
+      // TODO: regularization type
       OnlineLearnerParams params = paramsBuilder.L2(lambda).build();
-      if (learnerType.equalsIgnoreCase("logreg")) {
-        learners.add(new LogRegOnlineLearner(params));
-      } else if (learnerType.equalsIgnoreCase("linreg")) {
-        learners.add(new LinRegOnlineLearner(params));
-      } else {
-        throw new IllegalArgumentException("Invalid learner type: " + learnerType);
-      }
+      learners.add(makeLearner(params));
     }
     FitFn fitFn = new SimpleFitFn(learners);
     
@@ -141,12 +134,22 @@ public class FitCommand implements Command {
         new CollectionPObject<OnlineLearnerRun>(pruns).getValue();
     
     // Write them out to local file, along with metadata
-    OnlineLearnerRuns runsAndMetadata = new OnlineLearnerRuns(runs, seed);
+    OnlineLearnerRuns runsAndMetadata = new OnlineLearnerRuns(runs, seed, numCrossfolds);
     AvroIO.write(Lists.newArrayList(
         ClassifierAvros.fromOnlineLearnerRuns(runsAndMetadata)), new File(outputFile));
     p.done();
     
     return 0;
+  }
+  
+  private SimpleOnlineLearner makeLearner(OnlineLearnerParams params) {
+    if (learnerType.equalsIgnoreCase("logreg")) {
+      return new LogRegOnlineLearner(params);
+    } else if (learnerType.equalsIgnoreCase("linreg")) {
+      return new LinRegOnlineLearner(params);
+    } else {
+      throw new IllegalArgumentException("Invalid learner type: " + learnerType);
+    }
   }
   
   private EtaUpdate parseEtaUpdate(String etaUpdate) {
