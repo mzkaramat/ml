@@ -32,6 +32,7 @@ import com.cloudera.science.ml.core.records.Record;
 import com.cloudera.science.ml.core.records.vectors.VectorRecord;
 import com.cloudera.science.ml.core.summary.Summary;
 import com.cloudera.science.ml.core.summary.SummaryStats;
+import com.cloudera.science.ml.core.vectors.LabeledVector;
 import com.cloudera.science.ml.core.vectors.Vectors;
 import com.google.common.collect.Maps;
 
@@ -50,6 +51,8 @@ public class Normalizer implements Serializable {
   private final Map<Integer, Transform> transforms;
   private final int expansion;
   private final boolean sparse;
+  private final boolean labeled;
+  private final int labelColumn;
   
   public static Builder builder() { 
     return new Builder();
@@ -58,7 +61,9 @@ public class Normalizer implements Serializable {
   public static class Builder {
     private Summary s = new Summary();
     private Boolean sparse = null;
+    private boolean labeled = false;
     private int idColumn = -1;
+    private int labelColumn = -1;
     private Transform defaultTransform = Transform.NONE;
     private final Map<Integer, Transform> transforms = Maps.newHashMap();
     
@@ -81,8 +86,18 @@ public class Normalizer implements Serializable {
       return this;
     }
     
+    public Builder labeled(boolean labeled) {
+      this.labeled = labeled;
+      return this;
+    }
+    
     public Builder idColumn(int idColumn) {
       this.idColumn = idColumn;
+      return this;
+    }
+    
+    public Builder labelColumn(int labelColumn) {
+      this.labelColumn = labelColumn;
       return this;
     }
     
@@ -92,14 +107,18 @@ public class Normalizer implements Serializable {
     }
     
     public Normalizer build() {
-      return new Normalizer(s, sparse, idColumn, defaultTransform, transforms);
+      return new Normalizer(s, sparse, labeled, idColumn, labelColumn,
+          defaultTransform, transforms);
     }
   }
   
-  private Normalizer(Summary summary, Boolean sparse, int idColumn,
-      Transform defaultTransform, Map<Integer, Transform> transforms) {
+  private Normalizer(Summary summary, Boolean sparse, boolean labeled,
+      int idColumn, int labelColumn, Transform defaultTransform,
+      Map<Integer, Transform> transforms) {
     this.summary = summary;
+    this.labeled = labeled;
     this.idColumn = idColumn;
+    this.labelColumn = labelColumn;
     this.ignoredColumns = summary.getIgnoredColumns();
     this.defaultTransform = defaultTransform;
     this.transforms = transforms;
@@ -128,12 +147,17 @@ public class Normalizer implements Serializable {
       } else {
         v = Vectors.dense(len);
       }
+      if (labeled) {
+        v = new LabeledVector(v, Double.NaN);
+      }
 
       int offset = 0;
       for (int i = 0; i < record.getSpec().size(); i++) {
         if (idColumn != i && !ignoredColumns.contains(i)) {
           SummaryStats ss = summary.getStats(i);
-          if (ss == null || ss.isEmpty()) {
+          if (i == labelColumn) {
+            ((LabeledVector) v).setLabel(record.getAsDouble(i));
+          } else if (ss == null || ss.isEmpty()) {
             v.setQuick(offset, record.getAsDouble(i));
             offset++;
           } else if (ss.isNumeric()) {

@@ -65,18 +65,17 @@ public class VectorOutputParameters {
       description = "For 'seq' outputs, the type of the id of each vector, one of 'int', 'long', or 'text'")
   private String keyType;
   
-  public <V extends Vector> void writeVectors(PCollection<V> vectors, String output) {
+  public <V extends Vector> void writeVectors(PCollection<V> vectors, String output, AvroType<V> atype) {
     outputType = outputType.toLowerCase(Locale.ENGLISH);
     if (FORMAT_AVRO.equals(outputType)) {
-      AvroType<Vector> atype = MLAvros.vector();
       if (AvroTypeFamily.getInstance() != vectors.getTypeFamily()) {
-        vectors = vectors.parallelDo(IdentityFn.<V>getInstance(), (PType<V>) MLAvros.vector());
+        vectors = vectors.parallelDo(IdentityFn.<V>getInstance(), atype);
       }
       vectors.write(At.avroFile(output, atype), WriteMode.OVERWRITE);
     } else if (FORMAT_SEQ.equals(outputType)) {
       PTypeFamily ptf = WritableTypeFamily.getInstance();
       if (ptf != vectors.getTypeFamily()) {
-        vectors = vectors.parallelDo(IdentityFn.<V>getInstance(), (PType<V>) MLWritables.vector());
+        vectors = vectors.parallelDo(IdentityFn.<V>getInstance(), atype);
       }
       Target t = To.sequenceFile(output);
       if (keyType != null) {

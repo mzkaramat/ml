@@ -34,6 +34,7 @@ import com.cloudera.science.ml.core.formula.Term;
 import com.cloudera.science.ml.core.summary.Summary;
 import com.cloudera.science.ml.parallel.formula.Formulator;
 import com.cloudera.science.ml.parallel.records.SummarizedRecords;
+import com.cloudera.science.ml.parallel.types.MLAvros;
 import com.google.common.collect.Lists;
 
 @Parameters(commandDescription = "Converts records into a distributed matrix using an R-style formula string")
@@ -73,7 +74,7 @@ public class FormulateCommand implements Command {
     Pipeline p = pipelineParams.create(Formulator.class, conf);
     SummarizedRecords records = inputParams.getSummarizedRecords(p, summary);
     PCollection<Vector> out = formulator.apply(records.get());
-    outputParams.writeVectors(out, outputPath);
+    outputParams.writeVectors(out, outputPath, MLAvros.vector());
     p.done();
     return 0;
   }

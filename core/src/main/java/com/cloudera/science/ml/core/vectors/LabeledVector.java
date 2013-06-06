@@ -39,6 +39,10 @@ public class LabeledVector implements Vector {
     return label;
   }
   
+  public void setLabel(double label) {
+    this.label = label;
+  }
+  
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();

@@ -15,17 +15,21 @@
 package com.cloudera.science.ml.client.cmd;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Locale;
 
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Pipeline;
 import org.apache.crunch.PipelineResult;
+import org.apache.crunch.materialize.pobject.CollectionPObject;
+import org.apache.crunch.types.avro.AvroType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.mahout.math.Vector;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
 import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
@@ -34,18 +38,23 @@ import com.cloudera.science.ml.core.records.Header;
 import com.cloudera.science.ml.core.records.RecordSpec;
 import com.cloudera.science.ml.core.records.Specs;
 import com.cloudera.science.ml.core.summary.Summary;
+import com.cloudera.science.ml.core.vectors.LabeledVector;
 import com.cloudera.science.ml.parallel.normalize.Normalizer;
 import com.cloudera.science.ml.parallel.normalize.Transform;
 import com.cloudera.science.ml.parallel.records.Records;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 
-@Parameters(commandDescription = "Prepare input (CSV or Vectors) for ksketch runs")
+@Parameters(commandDescription = "Prepare input (CSV or Vectors) for learning runs")
 public class NormalizeCommand implements Command {
 
   @Parameter(names = "--id-column",
       description = "For CSV inputs, the name/index of the column of the file that contains the identifier for the record")
   private String idColumn = "-1";
 
+  @Parameter(names = "--label-column",
+      description = "For CSV inputs, the name/index of the column of the file that contains the label for the record")
+  private String labelColumn = "-1";
+  
   @Parameter(names = "--sparse",
       description = "Write the output in a sparse vector format")
   private Boolean sparse;
@@ -61,7 +70,7 @@ public class NormalizeCommand implements Command {
   @Parameter(names = "--transform",
       description = "A transform to apply to the continuous columns: either NONE, Z, LOG, or LINEAR")
   private String transform = "NONE";
-
+  
   @ParametersDelegate
   private RecordInputParameters inputParams = new RecordInputParameters();
 
@@ -76,7 +85,7 @@ public class NormalizeCommand implements Command {
   
   @Override
   public String getDescription() {
-    return "Prepare input (CSV or Vectors) for ksketch";
+    return "Prepare input (CSV or Vectors) for learning";
   }
   
   @Override
@@ -93,16 +102,24 @@ public class NormalizeCommand implements Command {
     }
     
     Records records = inputParams.getRecords(p, header);
-
+    boolean labeled = !labelColumn.equalsIgnoreCase("-1");
+    
     Normalizer normalizer = Normalizer.builder()
         .summary(summary)
         .sparse(sparse)
         .defaultTransform(getDefaultTransform())
         .idColumn(Specs.getFieldId(spec, idColumn))
+        .labeled(labeled)
+        .labelColumn(Specs.getFieldId(spec, labelColumn))
         .build();
     
-    PCollection<Vector> vecs = normalizer.apply(records.get(), MLAvros.vector());
-    outputParams.writeVectors(vecs, outputFile);
+    if (labeled) {
+      PCollection<LabeledVector> vecs = normalizer.apply(records.get(), MLAvros.labeledVector());
+      outputParams.writeVectors(vecs, outputFile, MLAvros.labeledVector());
+    } else {
+      PCollection<Vector> vecs = normalizer.apply(records.get(), MLAvros.vector());
+      outputParams.writeVectors(vecs, outputFile, MLAvros.vector());
+    }
     
     PipelineResult pr = p.done();
     return pr.succeeded() ? 0 : 1;
