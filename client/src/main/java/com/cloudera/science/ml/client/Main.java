@@ -25,6 +25,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.cloudera.science.ml.client.cmd.Command;
 import com.cloudera.science.ml.client.cmd.CommandException;
+import com.cloudera.science.ml.client.cmd.FitCommand;
 import com.cloudera.science.ml.client.cmd.GetHeaderCommand;
 import com.cloudera.science.ml.client.cmd.KMeansAssignmentCommand;
 import com.cloudera.science.ml.client.cmd.KMeansCommand;
@@ -53,6 +54,7 @@ public class Main extends Configured implements Tool {
       .put("ksketch", new KMeansSketchCommand())
       .put("kmeans", new KMeansCommand())
       .put("pivot", new PivotCommand())
+      .put("fit", new FitCommand())
       .build();
   
   public Main() {
