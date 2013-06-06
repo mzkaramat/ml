@@ -34,7 +34,7 @@ public class OnlineLearnerParams implements Serializable {
   }
 
   public EtaUpdate etaUpdate() {
-    return etaUpdate();
+    return etaUpdate;
   }
   
   public double l1Radius() {
