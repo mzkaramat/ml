@@ -35,6 +35,10 @@ public class ShowVecCommand implements Command {
       description = "The maximum number of vectors to print")
   private int count = 20;
   
+  @Parameter(names = "--labeled",
+      description = "Whether to vectors to show are labeled")
+  private boolean labeled = false;
+  
   @ParametersDelegate
   private PipelineParameters pipelineParams = new PipelineParameters();
   
@@ -45,9 +49,10 @@ public class ShowVecCommand implements Command {
   public int execute(Configuration conf) throws IOException {
     Pipeline p = pipelineParams.create(ShowVecCommand.class, conf);
     // Use a default header so we can read text files w/o a header
-    PCollection<Vector> vectors = inputParams.getVectors(p);
+    PCollection<? extends Vector> vectors = (labeled) ? inputParams.getLabeledVectors(p) :
+      inputParams.getVectors(p);
     
-    Iterator<Vector> iter = vectors.materialize().iterator();
+    Iterator<? extends Vector> iter = vectors.materialize().iterator();
     for (int i = 0; i < count && iter.hasNext(); i++) {
       System.out.println(iter.next());
     }
