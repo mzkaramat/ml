@@ -156,7 +156,13 @@ public class Normalizer implements Serializable {
         if (idColumn != i && !ignoredColumns.contains(i)) {
           SummaryStats ss = summary.getStats(i);
           if (i == labelColumn) {
-            ((LabeledVector) v).setLabel(record.getAsDouble(i));
+            double label = record.getAsDouble(i);
+            if (Double.isNaN(label)) {
+              LOG.warn(String.format("Missing/non-numeric value encountered for label field '%s', skipping...",
+                  record.getAsString(i)));
+              return;
+            }
+            ((LabeledVector) v).setLabel(label);
           } else if (ss == null || ss.isEmpty()) {
             v.setQuick(offset, record.getAsDouble(i));
             offset++;
@@ -187,6 +193,10 @@ public class Normalizer implements Serializable {
         }
       }
       
+      if (labeled && Double.isNaN(((LabeledVector)v).getLabel())) {
+        LOG.warn("labeled=true, but no label column, skipping...");
+        return;
+      }
       if (idColumn >= 0) {
         v = new NamedVector(v, record.getAsString(idColumn));
       }
