@@ -27,7 +27,7 @@ public class LogRegClassifier implements Classifier {
   
   @Override
   public Double apply(Vector features) {
-    double expOdds = Math.exp(weights.innerProduct(features));
+    double expOdds = Math.exp(-weights.innerProduct(features));
     return expOdds / (1.0 + expOdds);
   }
   
