@@ -160,6 +160,7 @@ public class Normalizer implements Serializable {
             if (Double.isNaN(label)) {
               LOG.warn(String.format("Missing/non-numeric value encountered for label field '%s', skipping...",
                   record.getAsString(i)));
+              getCounter("ML Counters", "Bad label fields").increment(1);
               return;
             }
             ((LabeledVector) v).setLabel(label);
@@ -175,6 +176,7 @@ public class Normalizer implements Serializable {
             if (Double.isNaN(raw)) {
               LOG.warn(String.format("Missing/non-numeric value encountered for field %d: '%s', skipping...",
                   i, record.getAsString(i)));
+              getCounter("ML Counters", "Bad numeric fields").increment(1);
               return;
             }
             double n = t.apply(raw, ss) * ss.getScale();
@@ -185,6 +187,7 @@ public class Normalizer implements Serializable {
             if (index < 0) {
               LOG.warn(String.format("Unknown categorical value encountered for field %d: '%s', skipping...",
                   i, record.getAsString(i)));
+              getCounter("ML Counters", "Unknown categorial values").increment(1);
               return;
             }
             v.setQuick(offset + index, ss.getScale());
@@ -195,6 +198,7 @@ public class Normalizer implements Serializable {
       
       if (labeled && Double.isNaN(((LabeledVector)v).getLabel())) {
         LOG.warn("labeled=true, but no label column, skipping...");
+        getCounter("ML Counters", "Missing label columns").increment(1);
         return;
       }
       if (idColumn >= 0) {
