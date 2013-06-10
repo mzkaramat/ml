@@ -24,12 +24,14 @@ import org.apache.crunch.types.avro.AvroType;
 import org.apache.crunch.types.avro.Avros;
 
 import com.cloudera.science.ml.classifier.core.Classifier;
+import com.cloudera.science.ml.classifier.core.ModelScore;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
 import com.cloudera.science.ml.classifier.core.EtaUpdate;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRuns;
 import com.cloudera.science.ml.classifier.core.WeightVector;
 import com.cloudera.science.ml.classifier.avro.MLClassifier;
+import com.cloudera.science.ml.classifier.avro.MLModelScore;
 import com.cloudera.science.ml.classifier.avro.MLOnlineLearnerRun;
 import com.cloudera.science.ml.classifier.avro.MLOnlineLearnerRuns;
 import com.cloudera.science.ml.classifier.avro.MLOnlineLearnerParams;
@@ -54,6 +56,10 @@ public class ClassifierAvros {
   
   public static AvroType<OnlineLearnerRuns> onlineLearnerRuns() {
     return onlineLearnerRuns;
+  }
+  
+  public static AvroType<ModelScore> modelScore() {
+    return modelScore;
   }
   
   private static final AvroType<OnlineLearnerParams> params = Avros.derived(OnlineLearnerParams.class,
@@ -115,6 +121,21 @@ public class ClassifierAvros {
         }
       },
       Avros.specifics(MLOnlineLearnerRuns.class));
+  
+  private static final AvroType<ModelScore> modelScore = Avros.derived(ModelScore.class,
+      new MapFn<MLModelScore, ModelScore>() {
+        @Override
+        public ModelScore map(MLModelScore mlModelScore) {
+          return toModelScore(mlModelScore);
+        }
+      },
+      new MapFn<ModelScore, MLModelScore>() {
+        @Override
+        public MLModelScore map(ModelScore ModelScore) {
+          return fromModelScore(ModelScore);
+        }
+      },
+      Avros.specifics(MLModelScore.class));
   
   private static OnlineLearnerParams toParams(MLOnlineLearnerParams mlParams) {
     String etaUpdateClass = mlParams.getEtaUpdate().toString();
@@ -193,5 +214,20 @@ public class ClassifierAvros {
 
     return MLOnlineLearnerRuns.newBuilder().setCrossfoldSeed(runs.getSeed())
         .setNumFolds(runs.getNumFolds()).setRuns(avroRuns).build();
+  }
+  
+  public static ModelScore toModelScore(MLModelScore mlModelScore) {
+    return new ModelScore(mlModelScore.getTrueNegatives(),
+        mlModelScore.getFalseNegatives(),
+        mlModelScore.getTruePositives(),
+        mlModelScore.getFalsePositives());
+  }
+  
+  public static MLModelScore fromModelScore(ModelScore modelScore) {
+    return MLModelScore.newBuilder().setTrueNegatives(modelScore.getTrueNegatives())
+        .setFalseNegatives(modelScore.getFalseNegatives())
+        .setTruePositives(modelScore.getTruePositives())
+        .setFalsePositives(modelScore.getFalsePositives())
+        .build();
   }
 }

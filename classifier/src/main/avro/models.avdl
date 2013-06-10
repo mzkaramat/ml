@@ -42,4 +42,11 @@ protocol MLClassifiers {
     array<MLOnlineLearnerRun> runs;
     // TODO: partition strategy, record -> labeledvector conversion info
   }
+
+  record MLModelScore {
+    int trueNegatives;
+    int truePositives;
+    int falsePositives;
+    int falseNegatives;
+  }
 }
