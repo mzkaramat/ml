@@ -51,14 +51,18 @@ public class SVMOnlineLearner implements SimpleOnlineLearner {
       classifier = new LinearClassifier(weights);
     }
     iteration++;
+    double label = x.getLabel();
+    if (label == 0.0) {
+      label = -1.0;
+    }
     double eta = params.eta(iteration);
-    double p = x.getLabel() * weights.innerProduct(x);    
+    double p = label * weights.innerProduct(x);    
     weights.regularizeL2(eta, params.lambda());    
     // If x has non-zero loss, perform gradient step in direction of x.
-    if (p < 1.0 && x.getLabel() != 0.0) {
-      weights.addVector(x, (eta * x.getLabel())); 
+    if (p < 1.0 && label != 0.0) {
+      weights.addVector(x, (eta * label)); 
     }
     params.updateWeights(weights, iteration);
-    return (p < 1.0 && x.getLabel() != 0.0);
+    return (p < 1.0);
   }
 }

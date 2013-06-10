@@ -52,8 +52,12 @@ public class LogRegOnlineLearner implements SimpleOnlineLearner {
       classifier = new LogRegClassifier(weights);
     }
     iteration++;
+    double label = x.getLabel();
+    if (label == 0.0) {
+      label = -1.0;
+    }
     double eta = params.eta(iteration);
-    double loss = x.getLabel() / (1 + Math.exp(x.getLabel() * weights.innerProduct(x)));
+    double loss = label / (1 + Math.exp(label * weights.innerProduct(x)));
     weights.regularizeL2(eta, params.lambda());    
     weights.addVector(x, (eta * loss));
     params.updateWeights(weights, iteration);

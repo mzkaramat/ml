@@ -156,14 +156,25 @@ public class Normalizer implements Serializable {
         if (idColumn != i && !ignoredColumns.contains(i)) {
           SummaryStats ss = summary.getStats(i);
           if (i == labelColumn) {
-            double label = record.getAsDouble(i);
-            if (Double.isNaN(label)) {
-              LOG.warn(String.format("Missing/non-numeric value encountered for label field '%s', skipping...",
-                  record.getAsString(i)));
-              getCounter("ML Counters", "Bad label fields").increment(1);
-              return;
+            if (ss.isNumeric()) {
+              double label = record.getAsDouble(i);
+              if (Double.isNaN(label)) {
+                LOG.warn(String.format("Missing/non-numeric value encountered for label field '%s', skipping...",
+                    record.getAsString(i)));
+                getCounter("ML Counters", "Bad label fields").increment(1);
+                return;
+              }
+              ((LabeledVector) v).setLabel(label);
+            } else {
+              int index = ss.index(record.getAsString(i));
+              if (index < 0) {
+                LOG.warn(String.format("Unknown categorical value encountered for label field %d: '%s', skipping...",
+                    i, record.getAsString(i)));
+                getCounter("ML Counters", "Bad label fields").increment(1);
+                return;
+              }
+              ((LabeledVector) v).setLabel(index);
             }
-            ((LabeledVector) v).setLabel(label);
           } else if (ss == null || ss.isEmpty()) {
             v.setQuick(offset, record.getAsDouble(i));
             offset++;
