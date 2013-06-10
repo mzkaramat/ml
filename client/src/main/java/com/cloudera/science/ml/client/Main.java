@@ -35,6 +35,7 @@ import com.cloudera.science.ml.client.cmd.LloydsCommand;
 import com.cloudera.science.ml.client.cmd.NormalizeCommand;
 import com.cloudera.science.ml.client.cmd.PivotCommand;
 import com.cloudera.science.ml.client.cmd.SampleCommand;
+import com.cloudera.science.ml.client.cmd.ShowRunsCommand;
 import com.cloudera.science.ml.client.cmd.ShowVecCommand;
 import com.cloudera.science.ml.client.cmd.SummaryCommand;
 import com.google.common.collect.ImmutableSortedMap;
@@ -56,6 +57,7 @@ public class Main extends Configured implements Tool {
       .put("kmeans", new KMeansCommand())
       .put("pivot", new PivotCommand())
       .put("fit", new FitCommand())
+      .put("showruns", new ShowRunsCommand())
       .put("evaluate", new EvaluateCommand())
       .build();
   
