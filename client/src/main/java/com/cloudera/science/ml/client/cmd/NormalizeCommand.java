@@ -15,21 +15,17 @@
 package com.cloudera.science.ml.client.cmd;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Locale;
 
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Pipeline;
 import org.apache.crunch.PipelineResult;
-import org.apache.crunch.materialize.pobject.CollectionPObject;
-import org.apache.crunch.types.avro.AvroType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.mahout.math.Vector;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
-import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
 import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.RecordInputParameters;
 import com.cloudera.science.ml.client.params.SummaryParameters;
