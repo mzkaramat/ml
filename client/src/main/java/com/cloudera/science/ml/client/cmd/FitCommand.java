@@ -67,7 +67,7 @@ public class FitCommand implements Command {
   private String etaType = "CONSTANT";
 
   @Parameter(names = "--num-lambdas",
-      description = "The regularization parameter")
+      description = "The number of different regularization parameters to try")
   private int numLambdas;
   
   @Parameter(names = "--num-crossfolds",
