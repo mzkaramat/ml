@@ -43,11 +43,12 @@ public class SimpleFitFn extends FitFn {
         learner.update(obs);
       }
     }
-    for (SimpleOnlineLearner learner : learners) {
+    for (int i = 0; i < learners.size(); i++) {
+      SimpleOnlineLearner learner = learners.get(i);
       int fold = in.first().first();
       int partition = in.first().second();
       emitter.emit(new OnlineLearnerRun(learner.getClassifier(), learner.getParams(),
-          fold, partition));
+          fold, partition, i));
     }
   } 
 

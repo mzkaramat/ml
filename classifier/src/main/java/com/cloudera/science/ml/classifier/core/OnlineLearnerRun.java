@@ -26,11 +26,13 @@ public class OnlineLearnerRun implements Serializable {
   private OnlineLearnerParams params;
   private int fold;
   private int partition;
+  private int paramsVersion;
   
   public OnlineLearnerRun(Classifier classifier, OnlineLearnerParams params,
-      int fold, int partition) {
+      int fold, int partition, int paramsVersion) {
     this.classifier = classifier;
     this.params = params;
+    this.paramsVersion = paramsVersion;
     this.fold = fold;
     this.partition = partition;
   }
@@ -41,6 +43,14 @@ public class OnlineLearnerRun implements Serializable {
   
   public int getPartition() {
     return partition;
+  }
+  
+  /**
+   * When different parameters are tried in different runs, an identifier for
+   * the set of parameters used for this run.
+   */
+  public int getParamsVersion() {
+    return paramsVersion;
   }
   
   public Classifier getClassifier() {

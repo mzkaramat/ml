@@ -96,18 +96,18 @@ public class TestParallelLearner {
     
     assertEquals(2 * 3 * 2, runs.size());
     List<OnlineLearnerRun> expected = Arrays.asList(
-        new OnlineLearnerRun(null, params1, 0, 0),
-        new OnlineLearnerRun(null, params1, 0, 1),
-        new OnlineLearnerRun(null, params1, 1, 0),
-        new OnlineLearnerRun(null, params1, 1, 1),
-        new OnlineLearnerRun(null, params1, 2, 0),
-        new OnlineLearnerRun(null, params1, 2, 1),
-        new OnlineLearnerRun(null, params2, 0, 0),
-        new OnlineLearnerRun(null, params2, 0, 1),
-        new OnlineLearnerRun(null, params2, 1, 0),
-        new OnlineLearnerRun(null, params2, 1, 1),
-        new OnlineLearnerRun(null, params2, 2, 0),
-        new OnlineLearnerRun(null, params2, 2, 1));
+        new OnlineLearnerRun(null, params1, 0, 0, 0),
+        new OnlineLearnerRun(null, params1, 0, 1, 0),
+        new OnlineLearnerRun(null, params1, 1, 0, 0),
+        new OnlineLearnerRun(null, params1, 1, 1, 0),
+        new OnlineLearnerRun(null, params1, 2, 0, 0),
+        new OnlineLearnerRun(null, params1, 2, 1, 0),
+        new OnlineLearnerRun(null, params2, 0, 0, 1),
+        new OnlineLearnerRun(null, params2, 0, 1, 1),
+        new OnlineLearnerRun(null, params2, 1, 0, 1),
+        new OnlineLearnerRun(null, params2, 1, 1, 1),
+        new OnlineLearnerRun(null, params2, 2, 0, 1),
+        new OnlineLearnerRun(null, params2, 2, 1, 1));
     
     compareRuns(expected, runs);
   }

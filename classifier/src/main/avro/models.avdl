@@ -32,6 +32,7 @@ protocol MLClassifiers {
   record MLOnlineLearnerRun {
     int fold;
     int partition;
+    int paramsVersion;
     MLOnlineLearnerParams params;
     MLClassifier classifier;
   }

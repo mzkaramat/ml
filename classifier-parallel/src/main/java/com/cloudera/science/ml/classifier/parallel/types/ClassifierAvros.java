@@ -184,7 +184,8 @@ public class ClassifierAvros {
   
   private static OnlineLearnerRun toOnlineLearnerRun(MLOnlineLearnerRun mlRun) {
     return new OnlineLearnerRun(toClassifier(mlRun.getClassifier()),
-        toParams(mlRun.getParams()), mlRun.getFold(), mlRun.getPartition());
+        toParams(mlRun.getParams()), mlRun.getFold(), mlRun.getPartition(),
+        mlRun.getParamsVersion());
   }
   
   private static MLOnlineLearnerRun fromOnlineLearnerRun(OnlineLearnerRun run) {
@@ -193,6 +194,7 @@ public class ClassifierAvros {
         .setParams(fromParams(run.getParams()))
         .setFold(run.getFold())
         .setPartition(run.getPartition())
+        .setParamsVersion(run.getParamsVersion())
         .build();
   }
   
