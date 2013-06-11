@@ -16,7 +16,6 @@ package com.cloudera.science.ml.classifier.rank;
 
 import com.cloudera.science.ml.classifier.core.Classifier;
 import com.cloudera.science.ml.classifier.core.LinearClassifier;
-import com.cloudera.science.ml.classifier.core.LogRegClassifier;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.classifier.core.WeightVector;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
