@@ -15,7 +15,7 @@
 package com.cloudera.science.ml.classifier.simple;
 
 import com.cloudera.science.ml.classifier.core.Classifier;
-import com.cloudera.science.ml.classifier.core.LogRegClassifier;
+import com.cloudera.science.ml.classifier.core.LinearClassifier;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.classifier.core.WeightVector;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
@@ -26,7 +26,7 @@ import com.cloudera.science.ml.core.vectors.LabeledVector;
 public class LogRegOnlineLearner implements SimpleOnlineLearner {
 
   private WeightVector weights;
-  private LogRegClassifier classifier;
+  private LinearClassifier classifier;
   private final OnlineLearnerParams params;
   private int iteration;
   
@@ -49,7 +49,7 @@ public class LogRegOnlineLearner implements SimpleOnlineLearner {
   public boolean update(LabeledVector x) {
     if (weights == null) {
       weights = new WeightVector(x.size());
-      classifier = new LogRegClassifier(weights);
+      classifier = new LinearClassifier(weights);
     }
     iteration++;
     double label = x.getLabel();

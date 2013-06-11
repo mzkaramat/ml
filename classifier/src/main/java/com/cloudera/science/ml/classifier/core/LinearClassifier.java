@@ -27,7 +27,7 @@ public class LinearClassifier implements Classifier {
   
   @Override
   public Double apply(Vector features) {
-    return weights.innerProduct(features);
+    return (weights.innerProduct(features) > 0.0) ? 1.0 : 0.0;
   }
   
   @Override
