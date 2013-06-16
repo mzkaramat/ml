@@ -16,7 +16,6 @@ package com.cloudera.science.ml.core.records;
 
 import java.util.List;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -37,26 +36,21 @@ public final class Specs {
     }
     return fieldIds.get(0);
   }
-  
+
   public static List<Integer> getFieldIds(Spec spec, List<String> values) {
     if (values.isEmpty()) {
       return ImmutableList.of();
     }
-    
-    List<Integer> fieldIds;
+    List<Integer> fieldIds = Lists.newArrayListWithExpectedSize(values.size());
     if (spec == null || spec.getField(values.get(0)) == null) {
-      fieldIds = Lists.transform(values, new Function<String, Integer>() {
-        @Override
-        public Integer apply(String input) {
-          try {
-            return Integer.valueOf(input);
-          } catch (NumberFormatException ignored) {
-            throw new IllegalArgumentException("Did not recognize column ID: " + input);
-          }
+      for (String value : values) {
+        try {
+          fieldIds.add(Integer.valueOf(value));
+        } catch (NumberFormatException e) {
+          throw new IllegalArgumentException("Did not recognize column ID: " + value);
         }
-      });
+      }
     } else {
-      fieldIds = Lists.newArrayListWithExpectedSize(values.size());
       for (String value : values) {
         FieldSpec f = spec.getField(value);
         if (f != null) {
