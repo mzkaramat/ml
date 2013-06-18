@@ -99,12 +99,25 @@ public final class MLRecords {
         GenericData.Record gdr = new GenericData.Record(schema);
         for (int i = 0; i < fields.size(); i++) {
           Schema.Type t = fields.get(i).schema().getType();
-          if (t == Schema.Type.DOUBLE) {
+          switch (t) {
+          case DOUBLE:
             gdr.put(i, r.getAsDouble(i));
-          } else if (t == Schema.Type.STRING) {
+            break;
+          case STRING:
             gdr.put(i, r.getAsString(i));
-          } else {
-            gdr.put(i, r.get(i));
+            break;
+          case INT:
+            gdr.put(i, r.getInteger(i));
+            break;
+          case BOOLEAN:
+            gdr.put(i, r.getBoolean(i));
+            break;
+          case LONG:
+            gdr.put(i, r.getLong(i));
+            break;
+            default:
+              throw new UnsupportedOperationException(
+                  "Unsupported Avro schema type = " + t);
           }
         }
         return gdr;

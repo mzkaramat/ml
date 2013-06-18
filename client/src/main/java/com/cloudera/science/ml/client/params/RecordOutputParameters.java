@@ -34,6 +34,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.ql.metadata.Table;
+import org.apache.hadoop.security.UserGroupInformation;
 
 import com.beust.jcommander.Parameter;
 import com.cloudera.science.ml.client.cmd.CommandException;
@@ -113,7 +114,9 @@ public class RecordOutputParameters {
       }
       LOG.info("Creating an external Hive table named: " + hiveStr);
       Table tbl = new Table(dbName, tblName);
+      tbl.setOwner(UserGroupInformation.getCurrentUser().getShortUserName());
       tbl.setTableType(TableType.EXTERNAL_TABLE);
+      tbl.setProperty("EXTERNAL", "TRUE");
       Path output = FileSystem.get(new Configuration()).makeQualified(new Path(outputPath));
       tbl.setDataLocation(output.toUri());
       List<FieldSchema> fields = Lists.newArrayList();
@@ -153,7 +156,9 @@ public class RecordOutputParameters {
         }
       } else { // FORMAT_CSV
         try {
-          tbl.setProperty("field.delim", delim); // A bit easier, on the whole
+          tbl.setSerializationLib("org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe");
+          tbl.setSerdeParam("field.delim", delim);
+          tbl.setSerdeParam("serialization.format", ",");
           tbl.setInputFormatClass("org.apache.hadoop.mapred.TextInputFormat");
           tbl.setOutputFormatClass("org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat");
         } catch (Exception e) {
