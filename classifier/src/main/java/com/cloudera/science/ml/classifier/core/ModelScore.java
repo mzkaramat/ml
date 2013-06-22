@@ -69,7 +69,7 @@ public class ModelScore {
   
   public String toString() {
     DecimalFormat df = new DecimalFormat("#.##");
-    return "[TN= " + trueNegatives + ", FN=" + falseNegatives + ", TP="
+    return "[TN=" + trueNegatives + ", FN=" + falseNegatives + ", TP="
         + truePositives + ", FP=" + falsePositives + ", accuracy=" +
         df.format(getAccuracy()) + ", precision=" + df.format(getPrecision()) +
         ", recall=" + df.format(getRecall()) + "]";
