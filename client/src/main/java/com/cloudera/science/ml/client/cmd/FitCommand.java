@@ -32,6 +32,7 @@ import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.internal.Lists;
 import com.cloudera.science.ml.classifier.core.EtaUpdate;
+import com.cloudera.science.ml.classifier.core.OnlineLearner;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRuns;
@@ -41,10 +42,13 @@ import com.cloudera.science.ml.classifier.parallel.SimpleFitFn;
 import com.cloudera.science.ml.classifier.parallel.types.ClassifierAvros;
 import com.cloudera.science.ml.classifier.simple.LinRegOnlineLearner;
 import com.cloudera.science.ml.classifier.simple.LogRegOnlineLearner;
+import com.cloudera.science.ml.classifier.simple.SVMOnlineLearner;
 import com.cloudera.science.ml.classifier.simple.SimpleOnlineLearner;
 import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.VectorInputParameters;
 import com.cloudera.science.ml.client.util.AvroIO;
+import com.cloudera.science.ml.client.util.ParamUtils;
+import com.cloudera.science.ml.client.util.ParameterInterpolation;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
 import com.cloudera.science.ml.parallel.crossfold.CrossfoldFn;
 import com.cloudera.science.ml.parallel.distribute.DistributeFn;
@@ -54,11 +58,13 @@ import com.cloudera.science.ml.classifier.avro.MLOnlineLearnerRuns;
 
 @Parameters(commandDescription = "Fits a set of classification models to a labeled dataset")
 public class FitCommand implements Command {
+  private static final int DEFAULT_NUM_LAMBDAS = 4;
+  private static final ParameterInterpolation DEFAULT_LAMBDA_INTERPOLATION =
+      ParameterInterpolation.EXPONENTIAL;
+  private static final float DEFAULT_LAMBDA_BOTTOM = .5f;
+  private static final float DEFAULT_LAMBDA_TOP = 4.0f;
   
-  private static final int LAMBDA_POWER_RANGE_BOTTOM = -6;
-  private static final int LAMBDA_POWER_RANGE_TOP = 6;
-  
-  @Parameter(names = "--learner-type",
+  @Parameter(names = "--learner-types",
       description = "The kind of classifier to train, such as linreg or logreg")
   private String learnerType;
   
@@ -66,9 +72,10 @@ public class FitCommand implements Command {
       description = "The eta update to use in the SGD, either CONSTANT, BASIC, or PEGASOS")
   private String etaType = "CONSTANT";
 
-  @Parameter(names = "--num-lambdas",
-      description = "The number of different regularization parameters to try")
-  private int numLambdas;
+  @Parameter(names = "--lambdas",
+      description = "The regularization parameters to try, formatted like " +
+      		" or \".5-2.0,3,lin\"")
+  private String lambdas;
   
   @Parameter(names = "--num-crossfolds",
     description = "The number of cross validation subsets")
@@ -102,22 +109,24 @@ public class FitCommand implements Command {
 
     PCollection<LabeledVector> labeledVectors = inputParams.getLabeledVectors(p);
     
-    // Generate learners with an array of regularization parameters
-    OnlineLearnerParams.Builder paramsBuilder = OnlineLearnerParams.builder()
-        .etaUpdate(parseEtaUpdate(etaType));
-
-    float[] lambdas = lambdas(numLambdas);
-    List<SimpleOnlineLearner> learners = new ArrayList<SimpleOnlineLearner>();
-    for (float lambda : lambdas) {
-      // TODO: regularization type
-      OnlineLearnerParams params = paramsBuilder.L2(lambda).build();
-      learners.add(makeLearner(params));
+    if (!(regularizationType.equalsIgnoreCase("L1") ||
+        regularizationType.equalsIgnoreCase("L2"))) {
+      throw new IllegalArgumentException("Invalid regularization type: "
+        + regularizationType);
     }
+    boolean l2 = regularizationType.equalsIgnoreCase("L2") ? true : false;
+    
+    float[] lambdaVals = ParamUtils.parseMultivaluedParameter(lambdas,
+        DEFAULT_LAMBDA_BOTTOM, DEFAULT_LAMBDA_TOP, DEFAULT_NUM_LAMBDAS,
+        DEFAULT_LAMBDA_INTERPOLATION);
+    List<SimpleOnlineLearner> learners = makeLearners(
+        ParamUtils.parseEtaUpdates(etaType), new String[] {learnerType},
+        lambdaVals, l2);
+    
     FitFn fitFn = new SimpleFitFn(learners);
-    
-    ShuffleFn<LabeledVector> shuffleFn = new ShuffleFn<LabeledVector>(seed);
     // TODO: use LabelSeparatingShuffleFn if loop type is ranked / balanced?
-    
+    ShuffleFn<LabeledVector> shuffleFn = new ShuffleFn<LabeledVector>(seed);
+
     CrossfoldFn<Pair<Integer, LabeledVector>> crossfoldFn =
         new CrossfoldFn<Pair<Integer, LabeledVector>>(numCrossfolds, seed);
     
@@ -142,36 +151,24 @@ public class FitCommand implements Command {
     return 0;
   }
   
-  private SimpleOnlineLearner makeLearner(OnlineLearnerParams params) {
-    if (learnerType.equalsIgnoreCase("logreg")) {
-      return new LogRegOnlineLearner(params);
-    } else if (learnerType.equalsIgnoreCase("linreg")) {
-      return new LinRegOnlineLearner(params);
-    } else {
-      throw new IllegalArgumentException("Invalid learner type: " + learnerType);
+  private List<SimpleOnlineLearner> makeLearners(EtaUpdate[] etaUpdates,
+      String[] learnerTypes, float[] lambdas, boolean l2) {
+    List<SimpleOnlineLearner> learners = new ArrayList<SimpleOnlineLearner>();
+    for (EtaUpdate etaUpdate : etaUpdates) {
+      for (float lambda : lambdas) {
+        for (String learnerType : learnerTypes) {
+          OnlineLearnerParams.Builder paramsBuilder = OnlineLearnerParams.builder()
+              .etaUpdate(etaUpdate);
+          if (l2) {
+            paramsBuilder.L2(lambda);
+          } else {
+            paramsBuilder.L1(lambda, 20);
+          }
+          learners.addAll(ParamUtils.makeLearners(paramsBuilder.build(), learnerType));
+        }
+      }
     }
-  }
-  
-  private EtaUpdate parseEtaUpdate(String etaUpdate) {
-    if (etaUpdate.equalsIgnoreCase("CONSTANT")) {
-      return EtaUpdate.CONSTANT;
-    } else if (etaUpdate.equalsIgnoreCase("BASIC")) {
-      return EtaUpdate.BASIC_ETA;
-    } else if (etaUpdate.equalsIgnoreCase("PEGASOS")) {
-      return EtaUpdate.PEGASOS_ETA;
-    } else {
-      throw new IllegalArgumentException("Invalid eta update: " + etaUpdate);
-    }
-  }
-  
-  private float[] lambdas(int numLambdas) {
-    float[] lambdas = new float[numLambdas];
-    for (int i = 0; i < lambdas.length; i++) {
-      int power = (LAMBDA_POWER_RANGE_TOP - LAMBDA_POWER_RANGE_BOTTOM) * i / numLambdas
-          + LAMBDA_POWER_RANGE_BOTTOM;
-      lambdas[i] = (float)Math.pow(2.0, power);
-    }
-    return lambdas;
+    return learners;
   }
   
   @Override
