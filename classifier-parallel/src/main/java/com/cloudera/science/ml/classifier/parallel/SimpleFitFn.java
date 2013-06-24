@@ -47,8 +47,8 @@ public class SimpleFitFn extends FitFn {
       SimpleOnlineLearner learner = learners.get(i);
       int fold = in.first().first();
       int partition = in.first().second();
-      emitter.emit(new OnlineLearnerRun(learner.getClassifier(), learner.getParams(),
-          fold, partition, i));
+      emitter.emit(new OnlineLearnerRun(learner.getClassifier(),
+          learner.getClass(), learner.getParams(), fold, partition, i));
     }
   } 
 

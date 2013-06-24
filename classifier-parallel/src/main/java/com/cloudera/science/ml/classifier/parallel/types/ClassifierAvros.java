@@ -25,6 +25,7 @@ import org.apache.crunch.types.avro.Avros;
 
 import com.cloudera.science.ml.classifier.core.Classifier;
 import com.cloudera.science.ml.classifier.core.ModelScore;
+import com.cloudera.science.ml.classifier.core.OnlineLearner;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
 import com.cloudera.science.ml.classifier.core.EtaUpdate;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
@@ -183,14 +184,22 @@ public class ClassifierAvros {
   }
   
   private static OnlineLearnerRun toOnlineLearnerRun(MLOnlineLearnerRun mlRun) {
+    Class<? extends OnlineLearner> learnerClass;
+    try {
+      learnerClass = (Class<? extends OnlineLearner>)Class.forName(
+          mlRun.getLearnerClassName().toString());
+    } catch (ClassNotFoundException ex) {
+      throw new RuntimeException("Error interpreting learner class", ex);
+    }
     return new OnlineLearnerRun(toClassifier(mlRun.getClassifier()),
-        toParams(mlRun.getParams()), mlRun.getFold(), mlRun.getPartition(),
-        mlRun.getParamsVersion());
+        learnerClass, toParams(mlRun.getParams()), mlRun.getFold(),
+        mlRun.getPartition(), mlRun.getParamsVersion());
   }
   
   private static MLOnlineLearnerRun fromOnlineLearnerRun(OnlineLearnerRun run) {
     return MLOnlineLearnerRun.newBuilder()
         .setClassifier(fromClassifier(run.getClassifier()))
+        .setLearnerClassName(run.getLearnerClass().getName())
         .setParams(fromParams(run.getParams()))
         .setFold(run.getFold())
         .setPartition(run.getPartition())

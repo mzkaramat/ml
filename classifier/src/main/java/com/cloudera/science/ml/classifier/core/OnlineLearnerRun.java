@@ -24,13 +24,16 @@ import java.io.Serializable;
 public class OnlineLearnerRun implements Serializable {
   private Classifier classifier;
   private OnlineLearnerParams params;
+  private Class<? extends OnlineLearner> learnerClass;
   private int fold;
   private int partition;
   private int paramsVersion;
   
-  public OnlineLearnerRun(Classifier classifier, OnlineLearnerParams params,
+  public OnlineLearnerRun(Classifier classifier,
+      Class<? extends OnlineLearner> learnerClass, OnlineLearnerParams params,
       int fold, int partition, int paramsVersion) {
     this.classifier = classifier;
+    this.learnerClass = learnerClass;
     this.params = params;
     this.paramsVersion = paramsVersion;
     this.fold = fold;
@@ -43,6 +46,13 @@ public class OnlineLearnerRun implements Serializable {
   
   public int getPartition() {
     return partition;
+  }
+  
+  /**
+   * Returns the class of the learner that was used to train the model.
+   */
+  public Class<? extends OnlineLearner> getLearnerClass() {
+    return learnerClass;
   }
   
   /**
