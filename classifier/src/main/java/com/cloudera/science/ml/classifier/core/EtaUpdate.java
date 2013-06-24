@@ -27,6 +27,11 @@ public interface EtaUpdate extends Serializable {
     public double compute(double lambda, int numObservations) {
       return 0.02;
     }
+    
+    @Override
+    public String toString() {
+      return "CONSTANT";
+    }
   };
   
   public static final EtaUpdate CONSTANT = new ConstantEtaUpdate();
@@ -36,6 +41,11 @@ public interface EtaUpdate extends Serializable {
     public double compute(double lambda, int numObservations) {
       return  10.0 / (numObservations + 10.0);
     }
+    
+    @Override
+    public String toString() {
+      return "BASIC";
+    }
   };
   
   public static final EtaUpdate BASIC_ETA = new BasicEtaUpdate();
@@ -44,6 +54,11 @@ public interface EtaUpdate extends Serializable {
     @Override
     public double compute(double lambda, int numObservations) {
       return  1.0 / (lambda * numObservations);
+    }
+    
+    @Override
+    public String toString() {
+      return "PEGASOS";
     }
   };
   
