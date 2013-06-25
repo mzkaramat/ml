@@ -56,7 +56,7 @@ public class EvaluateCommand implements Command {
     List<MLOnlineLearnerRuns> mlRuns = AvroIO.read(MLOnlineLearnerRuns.class, new File(runsFile));
     OnlineLearnerRuns runs = ClassifierAvros.toOnlineLearnerRuns(mlRuns.get(0));
     
-    Pipeline p = pipelineParams.create(FitCommand.class, conf);
+    Pipeline p = pipelineParams.create(EvaluateCommand.class, conf);
 
     PCollection<LabeledVector> labeledVectors = inputParams.getLabeledVectors(p);
  

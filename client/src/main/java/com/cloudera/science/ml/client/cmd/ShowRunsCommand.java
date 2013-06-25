@@ -28,7 +28,7 @@ import com.cloudera.science.ml.classifier.parallel.types.ClassifierAvros;
 import com.cloudera.science.ml.client.util.AvroIO;
 import com.cloudera.science.ml.classifier.avro.MLOnlineLearnerRuns;
 
-@Parameters(commandDescription = "Print the first few vectors from the given path to the command line")
+@Parameters(commandDescription = "Print the details of a run of the fit command")
 public class ShowRunsCommand implements Command {
 
   @Parameter(names = "--input-file", required = true,
@@ -52,6 +52,6 @@ public class ShowRunsCommand implements Command {
 
   @Override
   public String getDescription() {
-    return "Print the first few vectors from the given path to the command line";
+    return "Print the details of a run of the fit command";
   }
 }

@@ -81,7 +81,7 @@ public class FormulateCommand implements Command {
 
   private List<Term> parseTerms(Summary summary) {
     List<Term> terms = Lists.newArrayList();
-    
+    //TODO, obviously
     return terms;
   }
 

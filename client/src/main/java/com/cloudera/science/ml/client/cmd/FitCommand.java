@@ -32,7 +32,6 @@ import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.internal.Lists;
 import com.cloudera.science.ml.classifier.core.EtaUpdate;
-import com.cloudera.science.ml.classifier.core.OnlineLearner;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRuns;
@@ -40,9 +39,6 @@ import com.cloudera.science.ml.classifier.parallel.FitFn;
 import com.cloudera.science.ml.classifier.parallel.ParallelLearner;
 import com.cloudera.science.ml.classifier.parallel.SimpleFitFn;
 import com.cloudera.science.ml.classifier.parallel.types.ClassifierAvros;
-import com.cloudera.science.ml.classifier.simple.LinRegOnlineLearner;
-import com.cloudera.science.ml.classifier.simple.LogRegOnlineLearner;
-import com.cloudera.science.ml.classifier.simple.SVMOnlineLearner;
 import com.cloudera.science.ml.classifier.simple.SimpleOnlineLearner;
 import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.VectorInputParameters;
@@ -54,7 +50,6 @@ import com.cloudera.science.ml.parallel.crossfold.CrossfoldFn;
 import com.cloudera.science.ml.parallel.distribute.DistributeFn;
 import com.cloudera.science.ml.parallel.distribute.SimpleDistributeFn;
 import com.cloudera.science.ml.parallel.fn.ShuffleFn;
-import com.cloudera.science.ml.classifier.avro.MLOnlineLearnerRuns;
 
 @Parameters(commandDescription = "Fits a set of classification models to a labeled dataset")
 public class FitCommand implements Command {
