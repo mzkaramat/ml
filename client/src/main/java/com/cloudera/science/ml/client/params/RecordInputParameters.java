@@ -82,17 +82,17 @@ public class RecordInputParameters {
   
   @Parameter(names = "--delim",
       description = "For text files, the character delimiter to use for separate fields")
-  private char delim = ',';
+  private String delim = ",";
   
   @Parameter(names = "--quote-char",
       description = "For text files, the character that indicates quoted text (usually ''' or '\"')")
-  private Character quote;
+  private String quote;
   
   @Parameter(names = "--comment-char",
       description = "For text files, the character that indicates that a line should be ignored")
-  private Character comment;
+  private String comment;
   
-  public char getDelimiter() {
+  public String getDelimiter() {
     return delim;
   }
   
@@ -116,7 +116,8 @@ public class RecordInputParameters {
           return pipeline.readTextFile(input);
         }
       });
-      ret = StringSplitFn.apply(text, delim, quote, comment);
+      ret = StringSplitFn.apply(text, delim.charAt(0), quote == null ? null : quote.charAt(0),
+          comment == null ? null : comment.charAt(0));
       if (spec == null) {
         throw new CommandException("Text input records must have a --header-file provided");
       }
