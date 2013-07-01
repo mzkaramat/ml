@@ -21,6 +21,11 @@ import org.apache.crunch.Pair;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
 
+/**
+ * A reduce-side function for fitting a set of learners to data.  The key is a
+ * crossfold-partition pair and the values are vectors with an integer to
+ * order them.
+ */
 public abstract class FitFn extends DoFn<Pair<Pair<Integer, Integer>, Iterable<Pair<Integer, LabeledVector>>>, OnlineLearnerRun> {
 
 }
