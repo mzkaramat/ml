@@ -122,8 +122,9 @@ public class Normalizer implements Serializable {
     this.ignoredColumns = summary.getIgnoredColumns();
     this.defaultTransform = defaultTransform;
     this.transforms = transforms;
-    this.expansion = -ignoredColumns.size() + summary.getNetLevels() -
-        (idColumn >= 0 && !ignoredColumns.contains(idColumn) ? 1 : 0);
+    this.expansion = -ignoredColumns.size() + summary.getNetLevels()
+        - (idColumn >= 0 && !ignoredColumns.contains(idColumn) ? 1 : 0)
+        - (labelColumn >= 0 && !ignoredColumns.contains(labelColumn) ? 1 : 0);
     if (sparse == null) {
       this.sparse = expansion > 2 * (summary.getFieldCount() - ignoredColumns.size());
     } else {
