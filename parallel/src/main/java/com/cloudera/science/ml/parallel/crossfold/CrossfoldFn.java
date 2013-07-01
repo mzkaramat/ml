@@ -46,7 +46,7 @@ public class CrossfoldFn<T> extends DoFn<T, Pair<Integer, T>>{
   public void process(T t, Emitter<Pair<Integer, T>> emitter) {
     int fold = rand.nextInt(numFolds);
     for (int i = 0; i < numFolds; i++) {
-      if (i != fold) {
+      if (i != fold || numFolds == 1) {
         emitter.emit(new Pair<Integer, T>(i, t));
       }
     }    

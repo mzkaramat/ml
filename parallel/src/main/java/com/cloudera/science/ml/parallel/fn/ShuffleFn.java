@@ -20,9 +20,9 @@ import org.apache.crunch.MapFn;
 import org.apache.crunch.Pair;
 
 public class ShuffleFn<T> extends MapFn<T, Pair<Integer, T>> {
-  private final Long seed;
+  protected final Long seed;
 
-  private transient Random rand;
+  protected transient Random rand;
 
   public ShuffleFn(Long seed) {
     this.seed = seed;

@@ -15,6 +15,10 @@
 
 package com.cloudera.science.ml.parallel.fn;
 
+import java.util.Random;
+
+import org.apache.crunch.Pair;
+
 import com.cloudera.science.ml.core.vectors.LabeledVector;
 
 /**
@@ -22,9 +26,22 @@ import com.cloudera.science.ml.core.vectors.LabeledVector;
  */
 public class LabelSeparatingShuffleFn extends ShuffleFn<LabeledVector> {
 
-  public LabelSeparatingShuffleFn(Long seed) {
+  private double rarerLabel;
+  
+  public LabelSeparatingShuffleFn(Long seed, double rarerLabel) {
     super(seed);
-    // TODO Auto-generated constructor stub
+    this.rarerLabel = rarerLabel;
   }
-
+  
+  @Override
+  public Pair<Integer, LabeledVector> map(LabeledVector input) {
+    if (rand == null) {
+      // Salt the random generator with the hash of the first record so that
+      // parallel runs won't all have the same sequence
+      rand = new Random(seed + input.hashCode());
+    }
+    // rarerLabel gets negatives so it'll come first
+    return Pair.of((rand.nextInt(Integer.MAX_VALUE - 2) + 1)
+        * input.getLabel() == rarerLabel ? -1 : 1, input);
+  }
 }
