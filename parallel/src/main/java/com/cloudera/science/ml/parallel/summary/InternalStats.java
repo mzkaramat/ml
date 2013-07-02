@@ -74,7 +74,7 @@ class InternalStats {
     return internalNumeric;
   }
   
-  public Map<String, Entry> histogram() {
+  private Map<String, Entry> histogram() {
     if (histogram == null) {
       histogram = Maps.newHashMap();
     }

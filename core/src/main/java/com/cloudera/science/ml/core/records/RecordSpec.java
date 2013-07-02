@@ -133,7 +133,6 @@ public class RecordSpec implements Spec {
     }
     
     public RecordSpec build() {
-      System.out.println("building with fields.size(): " + fields.size());
       return new RecordSpec(fields);
     }
   }
