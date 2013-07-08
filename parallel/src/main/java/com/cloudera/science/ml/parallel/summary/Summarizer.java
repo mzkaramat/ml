@@ -15,6 +15,7 @@
 package com.cloudera.science.ml.parallel.summary;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ import com.cloudera.science.ml.core.records.Spec;
 import com.cloudera.science.ml.core.summary.Summary;
 import com.cloudera.science.ml.core.summary.SummaryStats;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
@@ -103,7 +105,7 @@ public class Summarizer {
     
     @Override
     protected Summary process(Iterable<Pair<Integer, Pair<Long, InternalStats>>> iter) {
-      SummaryStats[] ss = new SummaryStats[spec.size()];
+      List<SummaryStats> ss = Lists.newArrayList();
       int fieldCount = 0;
       long recordCount = 0L;
       for (Pair<Integer, Pair<Long, InternalStats>> p : iter) {
@@ -115,18 +117,25 @@ public class Summarizer {
           LOG.warn("{} missing/invalid values for numeric field {}, named '{}'",
                    new Object[] {stats.getMissing(), p.first(), name});
         }
-        ss[p.first()] = stats;
+        while (ss.size() <= p.first()) {
+          ss.add(null); // fill in any blanks
+        }
+        ss.set(p.first(), stats);
       }
       if (spec != null) {
+        while (ss.size() <= spec.size()) {
+          ss.add(null); // Add blanks at the end
+        }
         // Add placeholders for ignored fields in the summary
         for (int i = 0; i < spec.size(); i++) {
-          if (ss[i] == null) {
+          SummaryStats s = ss.get(i);
+          if (s == null) {
             String name = spec.getField(i).name();
-            ss[i] = new SummaryStats(name);
+            ss.set(i, new SummaryStats(name));
           }
         }
       }
-      return new Summary(recordCount, fieldCount, Arrays.asList(ss));
+      return new Summary(recordCount, fieldCount, ss);
     }
   }
 
