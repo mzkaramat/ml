@@ -26,12 +26,11 @@ import com.cloudera.science.ml.core.vectors.LabeledVector;
 public class SVMRankOnlineLearner implements RankOnlineLearner {
 
   private WeightVector weights;
-  private final LinearClassifier classifier;
+  private LinearClassifier classifier;
   private final OnlineLearnerParams params;
   private int iteration;
   
   public SVMRankOnlineLearner(OnlineLearnerParams params) {
-    this.classifier = new LinearClassifier(weights);
     this.params = params;
     this.iteration = 0;
   }
@@ -50,6 +49,7 @@ public class SVMRankOnlineLearner implements RankOnlineLearner {
   public boolean update(LabeledVector a, LabeledVector b) {
     if (weights == null) {
       weights = new WeightVector(a.size());
+      classifier = new LinearClassifier(weights);
     }
     iteration++;
     double eta = params.eta(iteration);
