@@ -96,12 +96,12 @@ public class RecordInputParameters {
     return delim;
   }
   
-  public SummarizedRecords getSummarizedRecords(final Pipeline pipeline, Summary summary) {
+  public SummarizedRecords getSummarizedRecords(Pipeline pipeline, Summary summary) {
     Records records = getRecords(pipeline, summary.getSpec());
     return new SummarizedRecords(records.get(), summary);
   }
   
-  public Records getRecords(final Pipeline pipeline, Header header) {
+  public Records getRecords(Pipeline pipeline, Header header) {
     Spec spec = header == null ? null : header.toSpec();
     return getRecords(pipeline, spec);
   }
