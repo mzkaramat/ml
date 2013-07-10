@@ -36,10 +36,13 @@ import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRuns;
 import com.cloudera.science.ml.classifier.parallel.BalancedFitFn;
+import com.cloudera.science.ml.classifier.parallel.BalancedInMemoryFitFn;
 import com.cloudera.science.ml.classifier.parallel.FitFn;
 import com.cloudera.science.ml.classifier.parallel.ParallelLearner;
 import com.cloudera.science.ml.classifier.parallel.RocFitFn;
+import com.cloudera.science.ml.classifier.parallel.RocInMemoryFitFn;
 import com.cloudera.science.ml.classifier.parallel.SimpleFitFn;
+import com.cloudera.science.ml.classifier.parallel.SimpleInMemoryFitFn;
 import com.cloudera.science.ml.classifier.parallel.types.ClassifierAvros;
 import com.cloudera.science.ml.classifier.rank.RankOnlineLearner;
 import com.cloudera.science.ml.classifier.simple.SimpleOnlineLearner;
@@ -103,6 +106,10 @@ public class FitCommand implements Command {
   @Parameter(names = "--output-file", required=true,
       description = "A local file to write the output to (as Avro OnlineLearnerRuns records)")
   private String outputFile;
+  
+  @Parameter(names = "--in-memory-iters",
+      description = "If set, each classifier is trained by loading all its inputs into memory and taking this many SGD steps")
+  private int inMemoryIters = -1;
 
   @ParametersDelegate
   private PipelineParameters pipelineParams = new PipelineParameters();
@@ -133,13 +140,25 @@ public class FitCommand implements Command {
     FitFn fitFn;
     if (loopType.equalsIgnoreCase("simple")) {
       shuffleFn = new ShuffleFn<LabeledVector>(seed);
-      fitFn = new SimpleFitFn(makeLearners(paramsList));
+      if (inMemoryIters == -1) {
+        fitFn = new SimpleFitFn(makeLearners(paramsList));
+      } else {
+        fitFn = new SimpleInMemoryFitFn(makeLearners(paramsList), seed, inMemoryIters);
+      }
     } else if (loopType.equalsIgnoreCase("balanced")) {
       shuffleFn = new LabelSeparatingShuffleFn(seed, rarerLabel);
-      fitFn = new BalancedFitFn(makeLearners(paramsList));
+      if (inMemoryIters == -1) {
+        fitFn = new BalancedFitFn(makeLearners(paramsList));
+      } else {
+        fitFn = new BalancedInMemoryFitFn(makeLearners(paramsList), seed, inMemoryIters);
+      }
     } else if (loopType.equals("rank")) {
       shuffleFn = new LabelSeparatingShuffleFn(seed, rarerLabel);
-      fitFn = new RocFitFn(makeRankLearners(paramsList));
+      if (inMemoryIters == -1) {
+        fitFn = new RocFitFn(makeRankLearners(paramsList));
+      } else {
+        fitFn = new RocInMemoryFitFn(makeRankLearners(paramsList), seed, inMemoryIters);
+      }
     } else {
       throw new IllegalArgumentException("Illegal loopType: " + loopType);
     }
