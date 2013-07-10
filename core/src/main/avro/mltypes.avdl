@@ -37,4 +37,18 @@ protocol ML {
   record MLWeightedCenters {
     array<MLWeightedVector> centers;
   }
+
+  record MLMatrixEntry {
+    int row;
+    int column;
+    double value;
+  }
+
+  record MLClusterCovariance {
+    int clustering_id; // We usually have multiple clusterings done on each run
+    int center_id; // Which center within this clustering
+    long count; // Number of points assigned to this center
+    array<double> means; // Mean of assigned points to this center
+    array<MLMatrixEntry> cov; // Sparse covariance matrix
+  }
 }

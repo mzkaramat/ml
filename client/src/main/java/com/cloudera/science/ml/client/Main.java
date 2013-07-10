@@ -17,6 +17,7 @@ package com.cloudera.science.ml.client;
 import java.util.Map;
 import java.util.Set;
 
+import com.cloudera.science.ml.client.cmd.KMeansCovarianceCommand;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
@@ -54,6 +55,7 @@ public class Main extends Configured implements Tool {
       .put("summary", new SummaryCommand())
       .put("normalize", new NormalizeCommand())
       .put("kassign", new KMeansAssignmentCommand())
+      .put("kcovar", new KMeansCovarianceCommand())
       .put("ksketch", new KMeansSketchCommand())
       .put("kmeans", new KMeansCommand())
       .put("pivot", new PivotCommand())

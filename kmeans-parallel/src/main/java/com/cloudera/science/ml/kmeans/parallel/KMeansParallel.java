@@ -21,8 +21,16 @@ import static org.apache.crunch.types.avro.Avros.tableOf;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
+import com.cloudera.science.ml.avro.MLClusterCovariance;
+import com.cloudera.science.ml.avro.MLMatrixEntry;
+import com.cloudera.science.ml.parallel.covariance.CoMoment;
+import com.cloudera.science.ml.parallel.covariance.Covariance;
+import com.cloudera.science.ml.parallel.covariance.Index;
+import com.cloudera.science.ml.parallel.types.MLAvros;
+import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.crunch.Aggregator;
@@ -37,6 +45,7 @@ import org.apache.crunch.materialize.pobject.PObjectImpl;
 import org.apache.crunch.types.PTableType;
 import org.apache.crunch.types.PType;
 import org.apache.crunch.types.PTypeFamily;
+import org.apache.crunch.types.avro.Avros;
 import org.apache.mahout.math.NamedVector;
 import org.apache.mahout.math.Vector;
 
@@ -166,7 +175,55 @@ public class KMeansParallel {
     return new Records(vecs.parallelDo("assignments", new AssignedCenterFn<V>(index, clusterIds),
         MLRecords.record(ASSIGNMENT_SPEC)), ASSIGNMENT_SPEC);
   }
-  
+
+  public static class ClusterKey {
+    int clusterId;
+    int centerId;
+
+    public ClusterKey() { }
+
+    public ClusterKey(int clusterId, int centerId) {
+      this.clusterId = clusterId;
+      this.centerId = centerId;
+    }
+
+    @Override
+    public int hashCode() {
+      return 17 * clusterId + 37 * centerId;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      if (!(other instanceof ClusterKey)) {
+        return false;
+      }
+      ClusterKey ck = (ClusterKey) other;
+      return clusterId == ck.clusterId && centerId == ck.centerId;
+    }
+  }
+
+  /**
+   * Builds the covariance matrix and associated metadata for each of the centers
+   * of the given clusters.
+   *
+   * @param vecs The input vectors
+   * @param centers A list of clusters
+   * @param approx Whether or not to use approximate cluster assignment (faster, but less accurate)
+   * @param clusterIds An optional list of integer IDs to use for the clusters
+   * @return A list of the covariance data for each cluster center.
+   */
+  public PObject<List<MLClusterCovariance>> computeClusterCovarianceMatrix(
+      PCollection<Vector> vecs,
+      List<Centers> centers,
+      boolean approx,
+      List<Integer> clusterIds) {
+    CentersIndex index = createIndex(centers);
+    PTable<ClusterKey, Vector> assignedCenters = vecs.parallelDo(
+        new CovarianceCentersFn(index, clusterIds, approx),
+        Avros.tableOf(Avros.reflects(ClusterKey.class), MLAvros.vector()));
+    return new ClusterCovariancePObject(Covariance.cov(assignedCenters));
+  }
+
   /**
    * For each of the points in each of the given {@code Centers}, calculate the number of points
    * in the dataset that are closer to that point than they are to any other point in the same
@@ -179,7 +236,7 @@ public class KMeansParallel {
   public <V extends Vector> PObject<List<List<Long>>> getCountsOfClosest(
       PCollection<V> vecs, List<Centers> centers) {
     Preconditions.checkArgument(!centers.isEmpty(), "No centers specified");
-    Crossfold cf = new Crossfold(1); //TODO
+    Crossfold cf = new Crossfold(1);
     return getCountsOfClosest(cf.apply(vecs), createIndex(centers));
   }
 
@@ -367,22 +424,23 @@ public class KMeansParallel {
       for (int i = 0; i < d.closestPoints.length; i++) {
         Record r = new SimpleRecord(ASSIGNMENT_SPEC);
         r.set("vector_id", mlvec.getId().toString())
-         .set("cluster_id", getClusterId(i))
+         .set("cluster_id", getClusterId(i, clusterIds))
          .set("closest_center_id", d.closestPoints[i])
          .set("distance", d.clusterDistances[i]);
        emitter.emit(r);
       }
     }
 
-    private Integer getClusterId(int index) {
-      if (clusterIds == null) {
-        return index;
-      } else {
-        return clusterIds.get(index);
-      }
+  }
+
+  private static Integer getClusterId(int index, List<Integer> clusterIds) {
+    if (clusterIds == null || clusterIds.isEmpty()) {
+      return index;
+    } else {
+      return clusterIds.get(index);
     }
   }
-  
+
   private static class CenterCostFn<V extends Vector> extends DoFn<V, Pair<Integer, Double>> {
     private final CentersIndex centers;
     private final double[] currentCosts;
@@ -412,6 +470,105 @@ public class KMeansParallel {
       for (int i = 0; i < currentCosts.length; i++) {
         emitter.emit(Pair.of(i, currentCosts[i]));
       }
+    }
+  }
+
+  private static class CovarianceCentersFn extends DoFn<Vector, Pair<ClusterKey, Vector>> {
+    private final CentersIndex centers;
+    private final List<Integer> clusterIds;
+    private final boolean approx;
+
+    public CovarianceCentersFn(CentersIndex centers, List<Integer> clusterIds, boolean approx) {
+      this.centers = centers;
+      this.clusterIds = clusterIds;
+      this.approx = approx;
+    }
+
+    @Override
+    public void process(Vector vec, Emitter<Pair<ClusterKey, Vector>> emitter) {
+      Distances d = centers.getDistances(vec, approx);
+      for (int i = 0; i < d.closestPoints.length; i++) {
+        ClusterKey key = new ClusterKey(getClusterId(i, clusterIds), d.closestPoints[i]);
+        emitter.emit(Pair.of(key, vec));
+      }
+    }
+  }
+
+  private static class ClusteringData {
+    private long size = Long.MIN_VALUE;
+    private List<Double> means;
+    private List<MLMatrixEntry> entries;
+
+    public ClusteringData() {
+      this.means = Lists.newArrayList();
+      this.entries = Lists.newArrayList();
+    }
+
+    public void update(Index index, CoMoment cm) {
+      if (cm.getN() > size) {
+        size = cm.getN();
+      }
+
+      double cov = cm.getCovariance();
+      if (cov != 0.0) {
+        MLMatrixEntry entry = MLMatrixEntry.newBuilder()
+            .setRow(index.row)
+            .setColumn(index.column)
+            .setValue(cm.getCovariance())
+            .build();
+        entries.add(entry);
+      }
+
+      if (index.isDiagonal()) {
+        if (means.size() <= index.row) {
+          for (int i = means.size(); i < index.row; i++) {
+            means.add(0.0);
+          }
+          means.add(cm.getMeanX());
+        } else {
+          means.set(index.row, cm.getMeanX());
+        }
+      }
+    }
+
+    public MLClusterCovariance create(ClusterKey key) {
+      return MLClusterCovariance.newBuilder()
+          .setClusteringId(key.clusterId)
+          .setCenterId(key.centerId)
+          .setMeans(means)
+          .setCount(size)
+          .setCov(entries)
+          .build();
+    }
+  }
+
+  private static class ClusterCovariancePObject
+      extends PObjectImpl<Pair<Pair<ClusterKey, Index>, CoMoment>, List<MLClusterCovariance>> {
+    public ClusterCovariancePObject(PTable<Pair<ClusterKey, Index>, CoMoment> cov) {
+      super(cov);
+    }
+
+    @Override
+    protected List<MLClusterCovariance> process(
+        Iterable<Pair<Pair<ClusterKey, Index>, CoMoment>> pairs) {
+      Map<ClusterKey, ClusteringData> data = Maps.newHashMap();
+      for (Pair<Pair<ClusterKey, Index>, CoMoment> p : pairs) {
+        ClusterKey clusterKey = p.first().first();
+        Index index = p.first().second();
+        CoMoment cm = p.second();
+
+        ClusteringData cd = data.get(clusterKey);
+        if (cd == null) {
+          cd = new ClusteringData();
+          data.put(clusterKey, cd);
+        }
+        cd.update(index, cm);
+      }
+      List<MLClusterCovariance> ret = Lists.newArrayList();
+      for (Map.Entry<ClusterKey, ClusteringData> e : data.entrySet()) {
+        ret.add(e.getValue().create(e.getKey()));
+      }
+      return ret;
     }
   }
 }
