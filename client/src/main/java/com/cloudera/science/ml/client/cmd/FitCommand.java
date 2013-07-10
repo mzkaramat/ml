@@ -35,10 +35,13 @@ import com.cloudera.science.ml.classifier.core.EtaUpdate;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRun;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerRuns;
+import com.cloudera.science.ml.classifier.parallel.BalancedFitFn;
 import com.cloudera.science.ml.classifier.parallel.FitFn;
 import com.cloudera.science.ml.classifier.parallel.ParallelLearner;
+import com.cloudera.science.ml.classifier.parallel.RocFitFn;
 import com.cloudera.science.ml.classifier.parallel.SimpleFitFn;
 import com.cloudera.science.ml.classifier.parallel.types.ClassifierAvros;
+import com.cloudera.science.ml.classifier.rank.RankOnlineLearner;
 import com.cloudera.science.ml.classifier.simple.SimpleOnlineLearner;
 import com.cloudera.science.ml.client.params.PipelineParameters;
 import com.cloudera.science.ml.client.params.VectorInputParameters;
@@ -49,6 +52,7 @@ import com.cloudera.science.ml.core.vectors.LabeledVector;
 import com.cloudera.science.ml.parallel.crossfold.CrossfoldFn;
 import com.cloudera.science.ml.parallel.distribute.DistributeFn;
 import com.cloudera.science.ml.parallel.distribute.SimpleDistributeFn;
+import com.cloudera.science.ml.parallel.fn.LabelSeparatingShuffleFn;
 import com.cloudera.science.ml.parallel.fn.ShuffleFn;
 
 @Parameters(commandDescription = "Fits a set of classification models to a labeled dataset")
@@ -58,6 +62,14 @@ public class FitCommand implements Command {
       ParameterInterpolation.EXPONENTIAL;
   private static final float DEFAULT_LAMBDA_BOTTOM = .5f;
   private static final float DEFAULT_LAMBDA_TOP = 4.0f;
+  
+  @Parameter(names = "--loop-types",
+      description = "The strategy for looping through the data, either simple, balanced, or rank")
+  private String loopType = "simple";
+  
+  @Parameter(names = "--rarer-label",
+      description = "For balanced and rank loops, the rarer label, of whose vectors will be held in memory")
+  private double rarerLabel = 1.0;
   
   @Parameter(names = "--learner-types",
       description = "The kind of classifier to train, such as linreg or logreg")
@@ -114,13 +126,23 @@ public class FitCommand implements Command {
     float[] lambdaVals = ParamUtils.parseMultivaluedParameter(lambdas,
         DEFAULT_LAMBDA_BOTTOM, DEFAULT_LAMBDA_TOP, DEFAULT_NUM_LAMBDAS,
         DEFAULT_LAMBDA_INTERPOLATION);
-    List<SimpleOnlineLearner> learners = makeLearners(
-        ParamUtils.parseEtaUpdates(etaType), new String[] {learnerType},
+    List<OnlineLearnerParams> paramsList = makeParams(ParamUtils.parseEtaUpdates(etaType),
         lambdaVals, l2);
     
-    FitFn fitFn = new SimpleFitFn(learners);
-    // TODO: use LabelSeparatingShuffleFn if loop type is ranked / balanced?
-    ShuffleFn<LabeledVector> shuffleFn = new ShuffleFn<LabeledVector>(seed);
+    ShuffleFn<LabeledVector> shuffleFn;
+    FitFn fitFn;
+    if (loopType.equalsIgnoreCase("simple")) {
+      shuffleFn = new ShuffleFn<LabeledVector>(seed);
+      fitFn = new SimpleFitFn(makeLearners(paramsList));
+    } else if (loopType.equalsIgnoreCase("balanced")) {
+      shuffleFn = new LabelSeparatingShuffleFn(seed, rarerLabel);
+      fitFn = new BalancedFitFn(makeLearners(paramsList));
+    } else if (loopType.equals("rank")) {
+      shuffleFn = new LabelSeparatingShuffleFn(seed, rarerLabel);
+      fitFn = new RocFitFn(makeRankLearners(paramsList));
+    } else {
+      throw new IllegalArgumentException("Illegal loopType: " + loopType);
+    }
 
     CrossfoldFn<Pair<Integer, LabeledVector>> crossfoldFn =
         new CrossfoldFn<Pair<Integer, LabeledVector>>(numCrossfolds, seed);
@@ -146,24 +168,38 @@ public class FitCommand implements Command {
     return 0;
   }
   
-  private List<SimpleOnlineLearner> makeLearners(EtaUpdate[] etaUpdates,
-      String[] learnerTypes, float[] lambdas, boolean l2) {
+  private List<SimpleOnlineLearner> makeLearners(List<OnlineLearnerParams> params) {
     List<SimpleOnlineLearner> learners = new ArrayList<SimpleOnlineLearner>();
-    for (EtaUpdate etaUpdate : etaUpdates) {
-      for (float lambda : lambdas) {
-        for (String learnerType : learnerTypes) {
-          OnlineLearnerParams.Builder paramsBuilder = OnlineLearnerParams.builder()
-              .etaUpdate(etaUpdate);
-          if (l2) {
-            paramsBuilder.L2(lambda);
-          } else {
-            paramsBuilder.L1(lambda, 20);
-          }
-          learners.addAll(ParamUtils.makeLearners(paramsBuilder.build(), learnerType));
-        }
-      }
+    for (OnlineLearnerParams learnerParams : params) {
+      learners.addAll(ParamUtils.makeSimpleLearners(learnerParams, learnerType));
     }
     return learners;
+  }
+  
+  private List<RankOnlineLearner> makeRankLearners(List<OnlineLearnerParams> params) {
+    List<RankOnlineLearner> learners = new ArrayList<RankOnlineLearner>();
+    for (OnlineLearnerParams learnerParams : params) {
+      learners.addAll(ParamUtils.makeRankLearners(learnerParams, learnerType));
+    }
+    return learners;
+  }
+  
+  private List<OnlineLearnerParams> makeParams(EtaUpdate[] etaUpdates,
+      float[] lambdas, boolean l2) {
+    List<OnlineLearnerParams> params = new ArrayList<OnlineLearnerParams>();
+    for (EtaUpdate etaUpdate : etaUpdates) {
+      for (float lambda : lambdas) {
+        OnlineLearnerParams.Builder paramsBuilder = OnlineLearnerParams.builder()
+            .etaUpdate(etaUpdate);
+        if (l2) {
+          paramsBuilder.L2(lambda);
+        } else {
+          paramsBuilder.L1(lambda, 20);
+        }
+        params.add(paramsBuilder.build());
+      }
+    }
+    return params;
   }
   
   @Override

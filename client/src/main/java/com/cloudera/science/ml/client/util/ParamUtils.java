@@ -20,6 +20,9 @@ import java.util.List;
 
 import com.cloudera.science.ml.classifier.core.EtaUpdate;
 import com.cloudera.science.ml.classifier.core.OnlineLearnerParams;
+import com.cloudera.science.ml.classifier.rank.LogRegRankOnlineLearner;
+import com.cloudera.science.ml.classifier.rank.RankOnlineLearner;
+import com.cloudera.science.ml.classifier.rank.SVMRankOnlineLearner;
 import com.cloudera.science.ml.classifier.simple.LinRegOnlineLearner;
 import com.cloudera.science.ml.classifier.simple.LogRegOnlineLearner;
 import com.cloudera.science.ml.classifier.simple.SVMOnlineLearner;
@@ -30,13 +33,24 @@ public class ParamUtils {
   private static final String FLOAT_REGEX = "([.]\\d+|\\d+([.]\\d+)?)";
   private static final String FLOAT_RANGE_REGEX = FLOAT_REGEX + "-" + FLOAT_REGEX;
   
-  public static List<SimpleOnlineLearner> makeLearners(
+  public static List<SimpleOnlineLearner> makeSimpleLearners(
       OnlineLearnerParams params, String learnerTypes) {
     String[] tokens = learnerTypes.split("\\s*,\\s*");
     List<SimpleOnlineLearner> learners =
         new ArrayList<SimpleOnlineLearner>(tokens.length);
     for (String token : tokens) {
       learners.add(makeLearner(params, token));
+    }
+    return learners;
+  }
+  
+  public static List<RankOnlineLearner> makeRankLearners(
+      OnlineLearnerParams params, String learnerTypes) {
+    String[] tokens = learnerTypes.split("\\s*,\\s*");
+    List<RankOnlineLearner> learners =
+        new ArrayList<RankOnlineLearner>(tokens.length);
+    for (String token : tokens) {
+      learners.add(makeRankLearner(params, token));
     }
     return learners;
   }
@@ -49,6 +63,17 @@ public class ParamUtils {
       return new LinRegOnlineLearner(params);
     } else if (learnerType.equalsIgnoreCase("svm")) {
       return new SVMOnlineLearner(params);
+    } else {
+      throw new IllegalArgumentException("Invalid learner type: " + learnerType);
+    }
+  }
+  
+  private static RankOnlineLearner makeRankLearner(OnlineLearnerParams params,
+      String learnerType) {
+    if (learnerType.equalsIgnoreCase("logreg")) {
+      return new LogRegRankOnlineLearner(params);
+    } else if (learnerType.equalsIgnoreCase("svm")) {
+      return new SVMRankOnlineLearner(params);
     } else {
       throw new IllegalArgumentException("Invalid learner type: " + learnerType);
     }

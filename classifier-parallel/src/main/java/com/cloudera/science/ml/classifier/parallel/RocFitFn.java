@@ -17,7 +17,6 @@ package com.cloudera.science.ml.classifier.parallel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.crunch.Emitter;
 import org.apache.crunch.Pair;
