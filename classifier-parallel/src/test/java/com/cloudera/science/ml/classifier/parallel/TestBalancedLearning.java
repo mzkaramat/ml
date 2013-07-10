@@ -75,6 +75,18 @@ public class TestBalancedLearning {
     Assert.assertEquals(learner.numNegative, learner.numPositive);
   }
   
+  @Test (expected = IllegalStateException.class)
+  public void testInvalidRarerLabel() {
+    CountingLearner learner = new CountingLearner();
+    BalancedFitFn fitFn = new BalancedFitFn(Arrays.asList((SimpleOnlineLearner)learner));
+    ShuffleFn<LabeledVector> shuffleFn = new LabelSeparatingShuffleFn(seed, -1.0);
+    ParallelLearner parallelLearner = new ParallelLearner();
+    PCollection<OnlineLearnerRun> pruns = parallelLearner.runPipeline(TRAINING_DATA,
+        shuffleFn, new CrossfoldFn<Pair<Integer, LabeledVector>>(1, seed),
+        new SimpleDistributeFn<Integer, Pair<Integer, LabeledVector>>(1, seed),
+        fitFn);
+  }
+  
   private class CountingLearner implements SimpleOnlineLearner {
     public int numPositive;
     public int numNegative;

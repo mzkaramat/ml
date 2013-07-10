@@ -43,6 +43,9 @@ public class BalancedFitFn extends FitFn {
     int numFromLarger = 0;
     for (LabeledVector obs : Pairs.second(in.second())) {
       if (smaller.isEmpty() || obs.getLabel() == smaller.get(0).getLabel()) {
+        if (numFromLarger > 0) {
+          throw new IllegalStateException("Data isn't separated by label!");
+        }
         smaller.add(obs);
       } else {
         for (SimpleOnlineLearner learner : learners) {
