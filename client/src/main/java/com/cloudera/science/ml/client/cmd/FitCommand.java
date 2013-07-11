@@ -75,11 +75,11 @@ public class FitCommand implements Command {
   private double rarerLabel = 1.0;
   
   @Parameter(names = "--learner-types",
-      description = "The kind of classifier to train, such as linreg or logreg")
+      description = "The kinds of learner to train with, linreg, logreg, svm, and pegasos")
   private String learnerType;
   
   @Parameter(names = "--eta-type",
-      description = "The eta update to use in the SGD, either CONSTANT, BASIC, or PEGASOS")
+      description = "The eta update to use in the SGD, either CONSTANT, BASIC. A special update will be used for PEGASOS learners.")
   private String etaType = "CONSTANT";
 
   @Parameter(names = "--lambdas",
@@ -133,8 +133,14 @@ public class FitCommand implements Command {
     float[] lambdaVals = ParamUtils.parseMultivaluedParameter(lambdas,
         DEFAULT_LAMBDA_BOTTOM, DEFAULT_LAMBDA_TOP, DEFAULT_NUM_LAMBDAS,
         DEFAULT_LAMBDA_INTERPOLATION);
-    List<OnlineLearnerParams> paramsList = makeParams(ParamUtils.parseEtaUpdates(etaType),
-        lambdaVals, l2);
+    List<OnlineLearnerParams> paramsList = new ArrayList<OnlineLearnerParams>();
+    if (!learnerType.toLowerCase().equals("pegasos")) {
+      paramsList.addAll(makeParams(ParamUtils.parseEtaUpdates(etaType),
+          lambdaVals, l2));
+    }
+    if (learnerType.toLowerCase().contains("pegasos")) {
+      paramsList.addAll(makePegasosParams(lambdaVals, l2));
+    }
     
     ShuffleFn<LabeledVector> shuffleFn;
     FitFn fitFn;
@@ -217,6 +223,21 @@ public class FitCommand implements Command {
         }
         params.add(paramsBuilder.build());
       }
+    }
+    return params;
+  }
+  
+  private List<OnlineLearnerParams> makePegasosParams(float[] lambdas, boolean l2) {
+    List<OnlineLearnerParams> params = new ArrayList<OnlineLearnerParams>();
+    for (float lambda : lambdas) {
+      OnlineLearnerParams.Builder paramsBuilder = OnlineLearnerParams.builder()
+          .etaUpdate(EtaUpdate.PEGASOS_ETA).pegasos(true);
+      if (l2) {
+        paramsBuilder.L2(lambda);
+      } else {
+        paramsBuilder.L1(lambda, 20);
+      }
+      params.add(paramsBuilder.build());
     }
     return params;
   }

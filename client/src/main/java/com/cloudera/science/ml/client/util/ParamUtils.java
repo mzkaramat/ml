@@ -38,8 +38,14 @@ public class ParamUtils {
     String[] tokens = learnerTypes.split("\\s*,\\s*");
     List<SimpleOnlineLearner> learners =
         new ArrayList<SimpleOnlineLearner>(tokens.length);
-    for (String token : tokens) {
-      learners.add(makeLearner(params, token));
+    if (params.pegasos()) {
+      learners.add(new SVMOnlineLearner(params));
+    } else {
+      for (String token : tokens) {
+        if (!token.equals("pegasos")) {
+          learners.add(makeLearner(params, token));
+        }
+      }
     }
     return learners;
   }
@@ -49,8 +55,14 @@ public class ParamUtils {
     String[] tokens = learnerTypes.split("\\s*,\\s*");
     List<RankOnlineLearner> learners =
         new ArrayList<RankOnlineLearner>(tokens.length);
-    for (String token : tokens) {
-      learners.add(makeRankLearner(params, token));
+    if (params.pegasos()) {
+      learners.add(new SVMRankOnlineLearner(params));
+    } else {
+      for (String token : tokens) {
+        if (!token.equals("pegasos")) {
+          learners.add(makeRankLearner(params, token));
+        }
+      }
     }
     return learners;
   }
