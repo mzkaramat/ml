@@ -37,7 +37,6 @@
     <guava.version>11.0.2</guava.version>
     <jcommander.version>1.30</jcommander.version>
     <solr.commons.csv.version>3.5.0</solr.commons.csv.version>
-    <commons.math3.version>3.2</commons.math3.version>
     <junit.version>4.8.2</junit.version>
     
     <!-- Versions for plugins -->
@@ -120,12 +119,6 @@
         <groupId>org.apache.solr</groupId>
         <artifactId>solr-commons-csv</artifactId>
         <version>${solr.commons.csv.version}</version>
-      </dependency>
-
-      <dependency>
-	<groupId>org.apache.commons</groupId>
-	<artifactId>commons-math3</artifactId>
-	<version>${commons.math3.version}</version>
       </dependency>
 
       <dependency>

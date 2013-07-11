@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.cloudera.science.ml.client.params.CentersParameters;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Pipeline;
 import org.apache.hadoop.conf.Configuration;
@@ -42,16 +43,6 @@ import com.google.common.collect.Lists;
     "Apply a set of centers to a dataset and output the resulting assignments/distances")
 public class KMeansAssignmentCommand implements Command {
 
-  @Parameter(names = "--centers-file", required=true,
-      description = "The local Avro file containing the centers to be applied")
-  private String centersFile;
-  
-  @Parameter(names = "--center-ids",
-      description = "A CSV containing the indices of the centers to use for the assignment",
-      splitter = CommaParameterSplitter.class,
-      converter = IntegerConverter.class)
-  private List<Integer> centerIds = Lists.newArrayList();
-  
   @Parameter(names = "--output-path", required=true,
       description = "The path to write the output to (id, clustering_id, center_id, distance)")
   private String assignmentsPath;
@@ -64,23 +55,19 @@ public class KMeansAssignmentCommand implements Command {
 
   @ParametersDelegate
   private RecordOutputParameters outputParams = new RecordOutputParameters();
-  
+
+  @ParametersDelegate
+  private CentersParameters centersParams = new CentersParameters();
+
   @Override
   public int execute(Configuration conf) throws IOException {
     Pipeline p = pipelineParams.create(KMeansAssignmentCommand.class, conf);
     PCollection<NamedVector> input = inputParams.getVectors(p);
-    List<MLCenters> centers = AvroIO.read(MLCenters.class, new File(centersFile));
-    if (!centerIds.isEmpty()) {
-      List<MLCenters> filter = Lists.newArrayListWithExpectedSize(centerIds.size());
-      for (Integer centerId : centerIds) {
-        filter.add(centers.get(centerId));
-      }
-      centers = filter;
-    }
     KMeansParallel kmp = new KMeansParallel();
 
     Records assigned = kmp.computeClusterAssignments(input,
-        Lists.transform(centers, VectorConvert.TO_CENTERS), centerIds);
+        centersParams.getCenters(), centersParams.getCenterIds());
+
     outputParams.writeRecords(assigned.get(), assigned.getSpec(), assignmentsPath);
     p.done();
     return 0;

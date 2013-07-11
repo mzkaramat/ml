@@ -29,13 +29,17 @@ import com.cloudera.science.ml.avro.MLMatrixEntry;
 import com.cloudera.science.ml.parallel.covariance.CoMoment;
 import com.cloudera.science.ml.parallel.covariance.Covariance;
 import com.cloudera.science.ml.parallel.covariance.Index;
+import com.cloudera.science.ml.parallel.covariance.MahalanobisDistance;
 import com.cloudera.science.ml.parallel.types.MLAvros;
 import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.distribution.FDistribution;
+import org.apache.commons.math.distribution.FDistributionImpl;
 import org.apache.crunch.Aggregator;
 import org.apache.crunch.DoFn;
 import org.apache.crunch.Emitter;
+import org.apache.crunch.MapFn;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.PObject;
 import org.apache.crunch.PTable;
@@ -88,7 +92,14 @@ public class KMeansParallel {
       .addInt("closest_center_id")
       .addDouble("distance")
       .build();
-  
+
+  public static final Spec OUTLIER_SPEC = RecordSpec.builder()
+      .addString("vector_id")
+      .addInt("cluster_id")
+      .addInt("closest_center_id")
+      .addDouble("outlier_distance")
+      .build();
+
   private final int projectionBits;
   private final int projectionSamples;
   private final long seed;
@@ -176,32 +187,6 @@ public class KMeansParallel {
         MLRecords.record(ASSIGNMENT_SPEC)), ASSIGNMENT_SPEC);
   }
 
-  public static class ClusterKey {
-    int clusterId;
-    int centerId;
-
-    public ClusterKey() { }
-
-    public ClusterKey(int clusterId, int centerId) {
-      this.clusterId = clusterId;
-      this.centerId = centerId;
-    }
-
-    @Override
-    public int hashCode() {
-      return 17 * clusterId + 37 * centerId;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-      if (!(other instanceof ClusterKey)) {
-        return false;
-      }
-      ClusterKey ck = (ClusterKey) other;
-      return clusterId == ck.clusterId && centerId == ck.centerId;
-    }
-  }
-
   /**
    * Builds the covariance matrix and associated metadata for each of the centers
    * of the given clusters.
@@ -218,10 +203,25 @@ public class KMeansParallel {
       boolean approx,
       List<Integer> clusterIds) {
     CentersIndex index = createIndex(centers);
-    PTable<ClusterKey, Vector> assignedCenters = vecs.parallelDo(
-        new CovarianceCentersFn(index, clusterIds, approx),
+    PTable<ClusterKey, Vector> assignedCenters = vecs.parallelDo("assign",
+        new CovarianceCentersFn<Vector>(index, clusterIds, approx),
         Avros.tableOf(Avros.reflects(ClusterKey.class), MLAvros.vector()));
     return new ClusterCovariancePObject(Covariance.cov(assignedCenters));
+  }
+
+  public Records computeOutliers(
+      PCollection<NamedVector> vecs,
+      List<Centers> centers,
+      boolean approx,
+      List<Integer> clusterIds,
+      Map<ClusterKey, MahalanobisDistance> distances) {
+    CentersIndex index = createIndex(centers);
+    PTable<ClusterKey, NamedVector> assignedCenters = vecs.parallelDo("assign",
+        new CovarianceCentersFn<NamedVector>(index, clusterIds, approx),
+        Avros.tableOf(Avros.reflects(ClusterKey.class), MLAvros.namedVector()));
+    PCollection<Record> records = assignedCenters.parallelDo("scoreOutliers",
+        new OutlierScoreFn(distances), MLRecords.record(OUTLIER_SPEC));
+     return new Records(records, OUTLIER_SPEC);
   }
 
   /**
@@ -247,7 +247,12 @@ public class KMeansParallel {
         .parallelDo("closest-center", new ClosestCenterFn<V>(centers), pairs(ints(), ints()))
         .count(), centers.getPointsPerCluster(), 0L);
   }
-  
+
+  /**
+   * Performs the k-means|| initialization to generate a set of candidate {@code Weighted<Vector>}
+   * instances for each of the given {@code Vector} initial points. This
+   * is the first stage of the execution pipeline performed by the {@code compute} method.
+   */
   public <V extends Vector> List<Weighted<Vector>> initialization(
       PCollection<V> vecs, int numIterations, int samplesPerIteration,
       List<Vector> initialPoints) {
@@ -257,10 +262,8 @@ public class KMeansParallel {
   
   /**
    * Performs the k-means|| initialization to generate a set of candidate {@code Weighted<Vector>}
-   * instances for each of the given {@code KMPConfig} parameters from the underlying dataset. This
-   * is the first stage of the execution pipeline performed by the {@code compute} method. At least five
-   * iterations of the initialization procedure are recommended, but more may be warranted if the
-   * {@code scaleFactor} for any of the {@code KMPConfig} params is particularly small (e.g., less than 0.5).
+   * instances for each of the given {@code Vector} initial points. This
+   * is the first stage of the execution pipeline performed by the {@code compute} method.
    */
   public <V extends Vector> List<List<Weighted<Vector>>> initialization(
       PCollection<V> vecs, int numIterations, int samplesPerIteration,
@@ -473,7 +476,7 @@ public class KMeansParallel {
     }
   }
 
-  private static class CovarianceCentersFn extends DoFn<Vector, Pair<ClusterKey, Vector>> {
+  private static class CovarianceCentersFn<V extends Vector> extends DoFn<V, Pair<ClusterKey, V>> {
     private final CentersIndex centers;
     private final List<Integer> clusterIds;
     private final boolean approx;
@@ -485,7 +488,7 @@ public class KMeansParallel {
     }
 
     @Override
-    public void process(Vector vec, Emitter<Pair<ClusterKey, Vector>> emitter) {
+    public void process(V vec, Emitter<Pair<ClusterKey, V>> emitter) {
       Distances d = centers.getDistances(vec, approx);
       for (int i = 0; i < d.closestPoints.length; i++) {
         ClusterKey key = new ClusterKey(getClusterId(i, clusterIds), d.closestPoints[i]);
@@ -533,8 +536,8 @@ public class KMeansParallel {
 
     public MLClusterCovariance create(ClusterKey key) {
       return MLClusterCovariance.newBuilder()
-          .setClusteringId(key.clusterId)
-          .setCenterId(key.centerId)
+          .setClusteringId(key.getClusterId())
+          .setCenterId(key.getCenterId())
           .setMeans(means)
           .setCount(size)
           .setCov(entries)
@@ -569,6 +572,34 @@ public class KMeansParallel {
         ret.add(e.getValue().create(e.getKey()));
       }
       return ret;
+    }
+  }
+
+  private static class OutlierScoreFn extends MapFn<Pair<ClusterKey, NamedVector>, Record> {
+    private final Map<ClusterKey, MahalanobisDistance> distances;
+
+    public OutlierScoreFn(Map<ClusterKey, MahalanobisDistance> distances) {
+      this.distances = distances;
+    }
+
+    @Override
+    public void initialize() {
+      for (MahalanobisDistance d : distances.values()) {
+        d.initialize();
+      }
+    }
+
+    @Override
+    public Record map(Pair<ClusterKey, NamedVector> input) {
+      Record r = new SimpleRecord(OUTLIER_SPEC);
+      ClusterKey key = input.first();
+      NamedVector mlvec = input.second();
+      double dist = distances.get(key).distance(mlvec);
+      r.set("vector_id", mlvec.getName())
+          .set("cluster_id", key.getClusterId())
+          .set("closest_center_id", key.getCenterId())
+          .set("outlier_distance", dist);
+      return r;
     }
   }
 }
