@@ -20,7 +20,7 @@ import com.cloudera.science.ml.core.vectors.Centers;
 import com.cloudera.science.ml.core.vectors.LabeledVector;
 import com.cloudera.science.ml.core.vectors.Vectors;
 
-class HardClusterFeaturesFn extends MapFn<LabeledVector, LabeledVector> {
+public class HardClusterFeaturesFn extends MapFn<LabeledVector, LabeledVector> {
   private Centers centers;
   private LabeledVector outVec;
   
