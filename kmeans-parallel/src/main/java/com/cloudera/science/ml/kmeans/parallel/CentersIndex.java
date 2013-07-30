@@ -139,7 +139,7 @@ class CentersIndex implements Serializable {
       while (iter.hasNext()) {
         Vector.Element e = iter.next();
         for (int j = 0; j < projectionBits; j++) {
-          prod[j] = e.get() * projection[e.index() + j * dimensions];
+          prod[j] += e.get() * projection[e.index() + j * dimensions];
         }
       }
     }
