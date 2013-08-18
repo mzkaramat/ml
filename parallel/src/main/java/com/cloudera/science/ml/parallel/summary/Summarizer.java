@@ -123,7 +123,7 @@ public class Summarizer {
         ss.set(p.first(), stats);
       }
       if (spec != null) {
-        while (ss.size() <= spec.size()) {
+        while (ss.size() < spec.size()) {
           ss.add(null); // Add blanks at the end
         }
         // Add placeholders for ignored fields in the summary
