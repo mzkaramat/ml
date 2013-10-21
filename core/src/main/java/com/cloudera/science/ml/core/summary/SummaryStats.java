@@ -32,7 +32,7 @@ public class SummaryStats implements Serializable {
   private SortedMap<String, Entry> histogram;
   private Boolean trimmed;
   private Double scale;
-  
+
   // For Jackson serialization
   private SummaryStats() { }
   

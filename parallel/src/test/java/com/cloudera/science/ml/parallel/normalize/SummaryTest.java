@@ -85,7 +85,11 @@ public class SummaryTest implements Serializable {
     assertEquals(2.0, s.getStats(1).mean(), 0.01);
     assertEquals(0.0, s.getStats(1).stdDev(), 0.01);
   }
-  
+
+  @Test
+  public void testBound() {
+
+  }
   @Test
   public void testTrailingIgnoredFields() throws Exception {
     RecordSpec spec = RecordSpec.builder().add("field1", DataType.DOUBLE)

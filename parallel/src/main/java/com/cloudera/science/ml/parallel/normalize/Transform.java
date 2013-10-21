@@ -37,17 +37,22 @@ public abstract class Transform implements Serializable {
     }
     throw new IllegalArgumentException("Did not recognize transform: " + name);
   }
-  
+
+  private static double bound(double value, SummaryStats stats) {
+    return Math.min(stats.max(), Math.max(stats.min(), value));
+  }
+
   public static final Transform NONE = new Transform() {
     @Override
     public double apply(double value, SummaryStats stats) {
-      return value;
+      return bound(value, stats);
     }
   };
   
   public static final Transform Z = new Transform() {
     @Override
     public double apply(double value, SummaryStats stats) {
+      value = bound(value, stats);
       if (stats.stdDev() == 0.0) {
         return value;
       }
@@ -58,6 +63,7 @@ public abstract class Transform implements Serializable {
   public static final Transform LINEAR = new Transform() {
     @Override
     public double apply(double value, SummaryStats stats) {
+      value = bound(value, stats);
       if (stats.range() == 0.0) {
         return value;
       }
@@ -68,7 +74,11 @@ public abstract class Transform implements Serializable {
   public static final Transform LOG = new Transform() {
     @Override
     public double apply(double value, SummaryStats stats) {
-      return Math.log(value);
+      value = bound(value, stats);
+      if (value <= 0) {
+        return 0.0;
+      }
+      return Math.log(1.0 + value);
     }
   };
 }
