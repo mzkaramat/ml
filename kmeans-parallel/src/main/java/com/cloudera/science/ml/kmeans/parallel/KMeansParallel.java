@@ -34,8 +34,6 @@ import com.cloudera.science.ml.parallel.types.MLAvros;
 import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math.distribution.FDistribution;
-import org.apache.commons.math.distribution.FDistributionImpl;
 import org.apache.crunch.Aggregator;
 import org.apache.crunch.DoFn;
 import org.apache.crunch.Emitter;

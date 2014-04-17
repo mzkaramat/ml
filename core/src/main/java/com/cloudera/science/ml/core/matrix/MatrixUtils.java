@@ -15,8 +15,8 @@
 package com.cloudera.science.ml.core.matrix;
 
 import com.cloudera.science.ml.avro.MLMatrixEntry;
-import org.apache.commons.math.linear.Array2DRowRealMatrix;
-import org.apache.commons.math.linear.RealMatrix;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 
 public class MatrixUtils {
   public static RealMatrix toRealMatrix(int rows,

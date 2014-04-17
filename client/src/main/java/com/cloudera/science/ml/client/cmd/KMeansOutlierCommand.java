@@ -36,7 +36,7 @@ import com.cloudera.science.ml.parallel.records.Records;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
-import org.apache.commons.math.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.crunch.PCollection;
 import org.apache.crunch.Pipeline;
 import org.apache.hadoop.conf.Configuration;

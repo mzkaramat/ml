@@ -15,13 +15,10 @@
 package com.cloudera.science.ml.core.matrix;
 
 
-import org.apache.commons.math.linear.CholeskyDecompositionImpl;
-import org.apache.commons.math.linear.DecompositionSolver;
-import org.apache.commons.math.linear.LUDecomposition;
-import org.apache.commons.math.linear.LUDecompositionImpl;
-import org.apache.commons.math.linear.QRDecompositionImpl;
-import org.apache.commons.math.linear.RealMatrix;
-import org.apache.commons.math.linear.SingularValueDecompositionImpl;
+import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.QRDecomposition;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 import java.io.Serializable;
 
@@ -33,21 +30,21 @@ public enum Inverter implements Serializable {
   LU {
     @Override
     public RealMatrix apply(RealMatrix matrix) {
-      return new LUDecompositionImpl(matrix).getSolver().getInverse();
+      return new LUDecomposition(matrix).getSolver().getInverse();
     }
   },
 
   SVD {
     @Override
     public RealMatrix apply(RealMatrix matrix) {
-      return new SingularValueDecompositionImpl(matrix).getSolver().getInverse();
+      return new SingularValueDecomposition(matrix).getSolver().getInverse();
     }
   },
 
   QR {
     @Override
     public RealMatrix apply(RealMatrix matrix) {
-      return new QRDecompositionImpl(matrix).getSolver().getInverse();
+      return new QRDecomposition(matrix).getSolver().getInverse();
     }
   };
 

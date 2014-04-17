@@ -21,6 +21,7 @@ import org.apache.crunch.Source;
 import org.apache.crunch.io.CrunchInputs;
 import org.apache.crunch.io.FormatBundle;
 import org.apache.crunch.io.SourceTargetHelper;
+import org.apache.crunch.types.Converter;
 import org.apache.crunch.types.PType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -91,13 +92,30 @@ public class HCatalogSource implements Source<Record> {
   }
 
   @Override
+  public long getLastModifiedAt(Configuration configuration) {
+    //TODO
+    return -1L;
+  }
+
+  @Override
+  public Source<Record> inputConf(String key, String value) {
+    info.getProperties().setProperty(key, value);
+    return this;
+  }
+
+  @Override
   public PType<Record> getType() {
     if (schema == null) {
       fetchTableData();
     }
     return HCatalog.records(schema);
   }
-  
+
+  @Override
+  public Converter<?, ?, ?, ?> getConverter() {
+    return getType().getConverter();
+  }
+
   private void fetchTableData() {
     Table table = HCatalog.getTable(info.getDatabaseName(), info.getTableName());
     try {
