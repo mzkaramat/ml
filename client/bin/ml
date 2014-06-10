@@ -5,7 +5,7 @@ HH=${HIVE_HOME:="__none__"}
 
 BASEDIR=$(dirname $0)
 TARGET=$BASEDIR/../target
-MAINJAR=$TARGET/ml-client-0.1.0.jar
+MAINJAR=$TARGET/ml-client-0.2.0-SNAPSHOT.jar
 LJ=$TARGET/lib/*.jar
 
 if [ ! -e $MAINJAR ]

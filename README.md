@@ -1,3 +1,7 @@
+NOTE: Cloudera ML is no longer actively developed; please checkout [Oryx](https://github.com/cloudera/oryx),
+which includes much of the ML functionality along with support for random decision forests and ALS-based
+recommendation engines.
+
 Introduction
 ------------
 Cloudera ML is a collection of Java libraries and commandline tools for performing certain data preparation
